@@ -1,0 +1,213 @@
+((% set variable_start_string = '((*' %))
+((% set variable_end_string = '*))' %))
+((% set block_start_string = '((%' %))
+((% set block_end_string = '%))' %))
+
+\documentclass[a4paper, 11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{enumitem}
+
+% Configuration de la géométrie de la page
+\geometry{
+    a4paper,
+    margin=2.5cm,
+}
+
+% Configuration des entêtes/pieds de page (optionnel)
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.5pt}
+
+% Titre du document dans le PDF (pour les métadonnées)
+\hypersetup{
+    pdftitle={Mémoire Technique - ((* Intitule_operation *))},
+    pdfauthor={Bois & Techniques},
+}
+
+\begin{document}
+
+% --- 1. Page de garde --------------------------------------------------------
+\thispagestyle{empty} % Pas de numéro de page sur la page de garde
+
+\begin{center}
+    \vspace*{2cm}
+    % Vous pouvez utiliser une image pour le logo :
+    % \includegraphics[width=5cm]{logo.png}
+
+    \Huge \textbf{MÉMOIRE TECHNIQUE} \par
+    \vspace{0.5cm}
+    \Large \textbf{((* Intitule_operation *))} \par
+    \vspace{0.2cm}
+    \large Lot : \textbf{((* Lot_Intitule *))} \par
+
+    \vspace{3cm}
+    \hrule
+    \vspace{0.5cm}
+
+    \textbf{Maître d'Ouvrage : } ((* Maitre_ouvrage_nom *)) \par
+    \textbf{Adresse du Chantier : } ((* Adresse_chantier *)) \par
+
+    \vspace{3cm}
+
+    \begin{minipage}{0.6\textwidth}
+        \centering
+        \textbf{Société Bois \& Techniques} \\
+        \hrule
+        \small
+        SIRET : ((* Siret *)) \\
+        TVA : ((* TVA *)) \\
+        Email : ((* Email_contact *)) \\
+        Site Web : ((* Site_web *)) \\
+        Tél : ((* Telephone *))
+    \end{minipage}
+
+    \vspace*{2cm}
+    \hrule
+\end{center}
+
+\newpage
+
+% --- 2. Préambule -------------------------------------------------------------
+\section*{Préambule}
+\addcontentsline{toc}{section}{Préambule}
+
+\begin{quotation}
+Réalisé par le bureau d’étude interne de la société Bois \& Techniques, le présent mémoire technique a pour objectif de vous exposer les solutions techniques et l’organisation de chantier envisagée, afin de mener votre projet dans les meilleures conditions.
+
+En espérant que ce mémoire technique illustrera l’intérêt que nous portons à votre projet et mettra en valeur notre expérience.
+\end{quotation}
+
+\newpage
+
+% --- 3. Sommaire --------------------------------------------------------------
+\tableofcontents
+\newpage
+
+% --- 4. Détails techniques des travaux -----------------------------------------
+\section{Détails techniques des travaux}
+
+\subsection{Contexte du projet}
+\label{sec:contexte}
+
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{Adresse du site : } ((* Adresse_chantier *)), environnement : ((* Environnement_site *)).
+    \item \textbf{Conditions d'accès : } ((* Conditions_acces *)).
+    \item \textbf{Contraintes du chantier : } Hauteur ((* Contrainte_hauteur *)), délais ((* Contrainte_delais *)), site occupé ((* Contrainte_site_occupe *)), protection de l'existant.
+((% if Plan_photos_joints %))
+    \item Plan de masse et photos (voir Annexes).
+((% endif %))
+\end{itemize}
+
+\subsection{Liste des matériaux mis en œuvre}
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}p{4cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{3.5cm}|}
+\hline
+\textbf{Nature des éléments} & \textbf{Marque / Type / Performance} & \textbf{Provenance} & \textbf{Documentation jointe} \\
+\hline
+\endhead
+((% for materiel in Liste_materiaux %))
+    ((* materiel.nature *)) & ((* materiel.marque *)) & ((* materiel.provenance *)) & ((* materiel.documentation *)) \\
+\hline
+((% endfor %))
+\end{longtable}
+
+\vspace{0.5cm}
+\noindent \textbf{Une matière première de qualité certifiée :}\\
+Utilisation de bois certifiés, de colle à base aqueuse ainsi que des traitements de classe 2. Produits testés en laboratoire, panneaux OSB classe E1, politique d’achats responsables.
+
+\subsection{Fixation et assemblage}
+
+\begin{itemize}[label=$\bullet$]
+    \item Visserie : ((* Marque_visserie *)) (BERNER, EUROTEC, BEA, HILTI...)
+    \item Éléments de fixation : Boulons galvanisés, sabots, chevilles, ferrures mécano-soudées.
+    \item \textbf{Origine : } Mention de l’origine française ou européenne des matériaux.
+\end{itemize}
+
+\subsection{Traitement du bois}
+
+\subsubsection{Traitement préventif}
+Produit : \textbf{SARPECO 850} — Label Vert — Classe 2 — Provenance France.
+
+\subsubsection{Traitement curatif}
+Produit : \textbf{XILIX 3000P} — Label Vert CTB+ — Phase aqueuse — Classe 1/2/3A.
+
+\subsubsection{Méthodologie de traitement}
+\begin{itemize}[label=$\rightarrow$]
+    \item \textbf{Préparation : } sondage, brossage, dépoussiérage.
+    \item \textbf{Injections : } basses pressions tous les 20–30 cm.
+    \item \textbf{Pulvérisation : } Double pulvérisation sur l’ensemble des bois.
+    \item \textbf{Application : } en surface 100–300 g/m².
+\end{itemize}
+
+\subsection{Produits proposés (DPGF)}
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{1.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|}
+\hline
+\textbf{Position DPGF} & \textbf{Nature des éléments} & \textbf{Marque / Type} & \textbf{Provenance} & \textbf{Documentation} \\
+\hline
+\endhead
+((% for produit in Liste_produits_DPGF %))
+    ((* produit.position *)) & ((* produit.nature *)) & ((* produit.marque_type *)) & ((* produit.provenance *)) & ((* produit.documentation *)) \\
+\hline
+((% endfor %))
+\end{longtable}
+
+\newpage
+
+% --- 5. Moyens humains et matériels --------------------------------------------
+\section{Moyens humains et matériels}
+
+\subsection{Moyens humains}
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{Conducteur de travaux : } ((* Conducteur_travaux_nom *)) (Frédéric Anselm par défaut).
+    \item Équipe de chantier : Chef de chantier, charpentiers, techniciens spécialisés.
+    \item Organigramme fonctionnel et effectif estimé (voir Annexes).
+((% if Planning_ajustable %))
+    \item Possibilité d’augmenter les effectifs selon le planning.
+((% endif %))
+\end{itemize}
+
+\subsection{Moyens matériels}
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{Atelier : } scies, raboteuse, toupie, pont roulant, compresseurs.
+    \item \textbf{Chantier : } nacelle, échafaudages, EPI complets, camions de transport.
+\end{itemize}
+
+\newpage
+
+% --- 6. Sécurité, environnement et qualité --------------------------------------
+\section{Sécurité, environnement et qualité}
+
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{Sécurité : } Respect du PPSPS, prévention des chutes, utilisation d'EPI complets.
+    \item \textbf{Environnement : } Tri sélectif des déchets, réduction des émissions chimiques.
+    \item \textbf{Qualité/Sourcing : } Approvisionnement local, certification PEFC/FSC.
+    \item Gestion environnementale des chantiers (procédures internes).
+\end{itemize}
+
+\newpage
+
+% --- 7. Annexes ---------------------------------------------------------------
+\section{Annexes}
+\addcontentsline{toc}{section}{Annexes}
+
+% Cet espace est réservé aux documents joints (certifications, CVs, plans)
+\subsection*{Liste des documents joints}
+\begin{itemize}[label=$\rightarrow$]
+    \item Fiche technique du bois : ((* Fiche_bois *))
+    \item Certificats de traitement : ((* Certificat_traitement *))
+    \item CV du Conducteur de travaux : ((* CV_chef *))
+    \item ...
+\end{itemize}
+
+\end{document}
