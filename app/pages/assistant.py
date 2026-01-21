@@ -46,7 +46,11 @@ from reportlab.lib.units import cm
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "mistral"
-MIN_TEXT_CHARS_BEFORE_OCR = 800
+MIN_TEXT_CHARS_PER_PAGE = 80
+OCR_MAX_PAGES = 30
+CHUNK_SIZE = 6000
+CHUNK_OVERLAP = 400
+MAX_CHARS_PER_DOC = 120000
 
 ASSISTANT_STATE_KEY = "assistant_state_v1"
 
@@ -334,43 +338,142 @@ class AssistantPage:
         except Exception:
             return ""
 
+    def _extract_text_pypdf_pages(self, path: Path) -> List[str]:
+        if PdfReader is None:
+            return []
+        try:
+            reader = PdfReader(str(path))
+            return [(p.extract_text() or "").strip() for p in reader.pages]
+        except Exception:
+            return []
+
     def _extract_text_ocr(self, path: Path) -> str:
         if convert_from_path is None or pytesseract is None:
             raise RuntimeError("OCR non disponible (pdf2image/pytesseract/tesseract/poppler manquants)")
         images = convert_from_path(str(path), dpi=250)
         return "\n".join(pytesseract.image_to_string(img, lang="fra") for img in images).strip()
 
-    def _extract_text(self, path: Path) -> str:
-        txt = self._extract_text_pypdf(path)
-        if len(txt) < MIN_TEXT_CHARS_BEFORE_OCR:
-            ocr_txt = self._extract_text_ocr(path)
-            if len(ocr_txt) > len(txt):
-                txt = ocr_txt
-        return txt
+    def _ocr_pages(self, path: Path, pages: List[int]) -> Dict[int, str]:
+        if convert_from_path is None or pytesseract is None:
+            return {}
+        if not pages:
+            return {}
 
-    def _ollama_generate(self, prompt: str) -> str:
+        pages = sorted(set(pages))[:OCR_MAX_PAGES]
+        grouped: List[List[int]] = []
+        current: List[int] = []
+        for p in pages:
+            if not current or p == current[-1] + 1:
+                current.append(p)
+            else:
+                grouped.append(current)
+                current = [p]
+        if current:
+            grouped.append(current)
+
+        results: Dict[int, str] = {}
+        for group in grouped:
+            images = convert_from_path(
+                str(path),
+                dpi=250,
+                first_page=group[0],
+                last_page=group[-1],
+            )
+            for offset, img in enumerate(images):
+                page_number = group[0] + offset
+                results[page_number] = pytesseract.image_to_string(img, lang="fra").strip()
+        return results
+
+    def _extract_text(self, path: Path) -> str:
+        page_texts = self._extract_text_pypdf_pages(path)
+        if not page_texts:
+            return self._extract_text_ocr(path)
+
+        pages_to_ocr = [
+            idx + 1
+            for idx, txt in enumerate(page_texts)
+            if len(txt.strip()) < MIN_TEXT_CHARS_PER_PAGE
+        ]
+        if pages_to_ocr and convert_from_path is not None and pytesseract is not None:
+            ocr_texts = self._ocr_pages(path, pages_to_ocr)
+            for page_number, text in ocr_texts.items():
+                page_texts[page_number - 1] = text
+
+        return "\n".join(t for t in page_texts if t).strip()
+
+    def _ollama_generate(self, prompt: str, *, max_tokens: int = 900) -> str:
         r = requests.post(
             OLLAMA_URL,
-            json={"model": MODEL_NAME, "prompt": prompt, "stream": False},
-            timeout=600,
+            json={
+                "model": MODEL_NAME,
+                "prompt": prompt,
+                "stream": False,
+                "options": {"temperature": 0.1, "num_predict": max_tokens},
+            },
+            timeout=300,
         )
         r.raise_for_status()
         return (r.json().get("response") or "").strip()
 
-    def _build_prompt(self, docs: List[Dict[str, Any]]) -> str:
-        corpus = "\n".join(f"\n===== {d['filename']} =====\n{d['text']}\n" for d in docs)
+    def _normalize_text(self, text: str) -> str:
+        text = re.sub(r"\s+", " ", text)
+        return text.strip()
+
+    def _chunk_text(self, text: str) -> List[str]:
+        if len(text) <= CHUNK_SIZE:
+            return [text]
+        chunks = []
+        start = 0
+        while start < len(text):
+            end = min(len(text), start + CHUNK_SIZE)
+            chunk = text[start:end].strip()
+            if chunk:
+                chunks.append(chunk)
+            if end == len(text):
+                break
+            start = max(0, end - CHUNK_OVERLAP)
+        return chunks
+
+    def _build_extraction_prompt(self, filename: str, chunk: str) -> str:
         return f"""
-Tu es un assistant pour réponse à appel d'offres BTP.
-Résume précisément ce qui est attendu dans le MÉMOIRE TECHNIQUE à partir des documents du DCE.
+Tu es un expert en analyse de DCE BTP.
+Extrait UNIQUEMENT les informations utiles à la rédaction d'un mémoire technique de réponse à appel d'offres.
+Rends une liste structurée en français, sans texte superflu, sous ce format exact:
+
+- Exigences administratives:
+  - ...
+- Exigences techniques:
+  - ...
+- Attendus mémoire technique (contenu et pièces attendues):
+  - ...
+- Délais / planning / phasage:
+  - ...
+- Contraintes / risques / pénalités:
+  - ...
+- Informations clés (intitulé opération, adresse, MOA/MOE, dates limites, visite obligatoire, contact, format de remise):
+  - ...
+
+Source: {filename}
+Extrait:
+{chunk}
+""".strip()
+
+    def _build_final_prompt(self, extracts: List[str]) -> str:
+        corpus = "\n\n".join(extracts)
+        return f"""
+Tu es un assistant expert pour réponses à appel d'offres BTP.
+À partir des extractions suivantes, synthétise un résumé complet et actionnable.
+N'invente rien. Regroupe et déduplique.
 
 Structure obligatoire:
 1) Checklist des attendus (mémoire technique)
 2) Exigences administratives (RC/CCAP)
 3) Exigences techniques (CCTP/CCTC)
-4) Points de vigilance / risques de non-conformité
-5) Champs extraits (intitulé opération, adresse, MOA, délais, date limite, visite obligatoire, pièces à fournir)
+4) Délais / planning / phasage
+5) Points de vigilance / risques de non-conformité / pénalités
+6) Champs extraits (intitulé opération, adresse, MOA/MOE, délai, date limite, visite obligatoire, contacts, pièces à fournir)
 
-Documents:
+Extractions:
 {corpus}
 """.strip()
 
@@ -412,12 +515,23 @@ Documents:
 
     def _generate_summary_blocking(self) -> Dict[str, Any]:
         uploaded = self._get_uploaded()
-        docs: List[Dict[str, Any]] = []
+        extracts: List[str] = []
         for f in uploaded:
-            text = self._extract_text(Path(f["abs_path"]))
-            docs.append({"filename": f["filename"], "text": text})
+            raw_text = self._extract_text(Path(f["abs_path"]))
+            text = self._normalize_text(raw_text)[:MAX_CHARS_PER_DOC]
+            if not text:
+                continue
+            chunks = self._chunk_text(text)
+            for chunk in chunks:
+                prompt = self._build_extraction_prompt(f["filename"], chunk)
+                extract = self._ollama_generate(prompt, max_tokens=700)
+                if extract:
+                    extracts.append(extract)
 
-        summary = self._ollama_generate(self._build_prompt(docs))
+        if extracts:
+            summary = self._ollama_generate(self._build_final_prompt(extracts), max_tokens=1200)
+        else:
+            summary = "Aucune information exploitable n'a été extraite des documents fournis."
         out_pdf = self.session_dir / "resume_ia.pdf"
         self._write_pdf(out_pdf, "Résumé IA – Mémoire technique", summary)
         return {"url": f"/_uploads/{self.session_id}/resume_ia.pdf"}
