@@ -44,13 +44,22 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "mistral"
-MIN_TEXT_CHARS_PER_PAGE = 80
-OCR_MAX_PAGES = 30
-CHUNK_SIZE = 6000
-CHUNK_OVERLAP = 400
-MAX_CHARS_PER_DOC = 120000
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
+MODEL_NAME = os.getenv("OLLAMA_MODEL", "mistral")
+OLLAMA_TEMPERATURE = float(os.getenv("OLLAMA_TEMPERATURE", "0.1"))
+OLLAMA_TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT", "240"))
+OLLAMA_NUM_CTX = int(os.getenv("OLLAMA_NUM_CTX", "4096"))
+OLLAMA_NUM_GPU = int(os.getenv("OLLAMA_NUM_GPU", "0"))
+OLLAMA_NUM_THREAD = int(os.getenv("OLLAMA_NUM_THREAD", "0"))
+MIN_TEXT_CHARS_PER_PAGE = 120
+OCR_MAX_PAGES = 12
+CHUNK_SIZE = 10000
+CHUNK_OVERLAP = 150
+MAX_CHARS_PER_DOC = 70000
+MAX_CHUNKS_PER_DOC = 3
+EXTRACT_MAX_TOKENS = 650
+DOC_SYNTH_MAX_TOKENS = 750
+FINAL_SYNTH_MAX_TOKENS = 1600
 
 ASSISTANT_STATE_KEY = "assistant_state_v1"
 
@@ -402,15 +411,24 @@ class AssistantPage:
         return "\n".join(t for t in page_texts if t).strip()
 
     def _ollama_generate(self, prompt: str, *, max_tokens: int = 900) -> str:
+        options = {
+            "temperature": OLLAMA_TEMPERATURE,
+            "num_predict": max_tokens,
+            "num_ctx": OLLAMA_NUM_CTX,
+        }
+        if OLLAMA_NUM_GPU > 0:
+            options["num_gpu"] = OLLAMA_NUM_GPU
+        if OLLAMA_NUM_THREAD > 0:
+            options["num_thread"] = OLLAMA_NUM_THREAD
         r = requests.post(
             OLLAMA_URL,
             json={
                 "model": MODEL_NAME,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0.1, "num_predict": max_tokens},
+                "options": options,
             },
-            timeout=300,
+            timeout=OLLAMA_TIMEOUT,
         )
         r.raise_for_status()
         return (r.json().get("response") or "").strip()
@@ -438,7 +456,8 @@ class AssistantPage:
         return f"""
 Tu es un expert en analyse de DCE BTP.
 Extrait UNIQUEMENT les informations utiles à la rédaction d'un mémoire technique de réponse à appel d'offres.
-Rends une liste structurée en français, sans texte superflu, sous ce format exact:
+Réponds uniquement en français.
+Rends une liste structurée, sans texte superflu, sous ce format exact:
 
 - Exigences administratives:
   - ...
@@ -458,12 +477,40 @@ Extrait:
 {chunk}
 """.strip()
 
+    def _build_doc_synthesis_prompt(self, filename: str, extracts: List[str]) -> str:
+        corpus = "\n\n".join(extracts)
+        return f"""
+Tu es un expert en analyse de DCE BTP.
+À partir des extractions ci-dessous, consolide un résumé détaillé et dédupliqué pour le document {filename}.
+Réponds uniquement en français.
+Sois exhaustif et précis. Détaille les exigences quand elles sont présentes.
+
+Format requis:
+- Exigences administratives:
+  - ...
+- Exigences techniques:
+  - ...
+- Attendus mémoire technique (contenu et pièces attendues):
+  - ...
+- Délais / planning / phasage:
+  - ...
+- Contraintes / risques / pénalités:
+  - ...
+- Informations clés (intitulé opération, adresse, MOA/MOE, dates limites, visite obligatoire, contact, format de remise):
+  - ...
+
+Extractions:
+{corpus}
+""".strip()
+
     def _build_final_prompt(self, extracts: List[str]) -> str:
         corpus = "\n\n".join(extracts)
         return f"""
 Tu es un assistant expert pour réponses à appel d'offres BTP.
 À partir des extractions suivantes, synthétise un résumé complet et actionnable.
-N'invente rien. Regroupe et déduplique.
+N'invente rien. Regroupe et déduplique. Réponds uniquement en français.
+Apporte un maximum de détails utiles à la rédaction du mémoire technique.
+Si une information est absente des documents, indique "non mentionné".
 
 Structure obligatoire:
 1) Checklist des attendus (mémoire technique)
@@ -515,21 +562,34 @@ Extractions:
 
     def _generate_summary_blocking(self) -> Dict[str, Any]:
         uploaded = self._get_uploaded()
-        extracts: List[str] = []
+        doc_summaries: List[str] = []
         for f in uploaded:
             raw_text = self._extract_text(Path(f["abs_path"]))
             text = self._normalize_text(raw_text)[:MAX_CHARS_PER_DOC]
             if not text:
                 continue
-            chunks = self._chunk_text(text)
+            chunks = self._chunk_text(text)[:MAX_CHUNKS_PER_DOC]
+            chunk_extracts: List[str] = []
             for chunk in chunks:
                 prompt = self._build_extraction_prompt(f["filename"], chunk)
-                extract = self._ollama_generate(prompt, max_tokens=700)
+                extract = self._ollama_generate(prompt, max_tokens=EXTRACT_MAX_TOKENS)
                 if extract:
-                    extracts.append(extract)
+                    chunk_extracts.append(extract)
 
-        if extracts:
-            summary = self._ollama_generate(self._build_final_prompt(extracts), max_tokens=1200)
+            if chunk_extracts:
+                if len(chunk_extracts) == 1:
+                    doc_summary = chunk_extracts[0]
+                else:
+                    doc_prompt = self._build_doc_synthesis_prompt(f["filename"], chunk_extracts)
+                    doc_summary = self._ollama_generate(doc_prompt, max_tokens=DOC_SYNTH_MAX_TOKENS)
+                if doc_summary:
+                    doc_summaries.append(f"Document: {f['filename']}\n{doc_summary}")
+
+        if doc_summaries:
+            summary = self._ollama_generate(
+                self._build_final_prompt(doc_summaries),
+                max_tokens=FINAL_SYNTH_MAX_TOKENS,
+            )
         else:
             summary = "Aucune information exploitable n'a été extraite des documents fournis."
         out_pdf = self.session_dir / "resume_ia.pdf"
