@@ -208,3 +208,7 @@ __marimo__/
 
 # NiceGUI
 .nicegui/
+
+# Upadate folder
+data/updates/*
+!data/updates/.gitkeep
