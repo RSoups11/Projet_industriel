@@ -75,17 +75,18 @@ DEBUG_TIMING = os.getenv("DEBUG_TIMING", "0") == "1"
 
 # Extraction texte / OCR
 MIN_TEXT_CHARS_PER_PAGE = int(os.getenv("MIN_TEXT_CHARS_PER_PAGE", "120"))
-OCR_MAX_PAGES = int(os.getenv("OCR_MAX_PAGES", "12"))
-OCR_DPI = int(os.getenv("OCR_DPI", "200"))  # 200 = bon compromis vitesse/qualité
-OCR_DPI_HIGH = int(os.getenv("OCR_DPI_HIGH", "300"))
+OCR_MAX_PAGES = int(os.getenv("OCR_MAX_PAGES", "18"))
+OCR_CRITICAL_BONUS_PAGES = int(os.getenv("OCR_CRITICAL_BONUS_PAGES", "6"))
+OCR_DPI = int(os.getenv("OCR_DPI", "220"))  # 220 = bon compromis vitesse/qualité
+OCR_DPI_HIGH = int(os.getenv("OCR_DPI_HIGH", "320"))
 
 # Chunking (moins d'appels + couverture meilleure)
-CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "12000"))
-CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "100"))
-MAX_CHARS_PER_DOC = int(os.getenv("MAX_CHARS_PER_DOC", "60000"))
-MAX_CHUNKS_PER_DOC = int(os.getenv("MAX_CHUNKS_PER_DOC", "3"))
-MAX_KEYWORD_CHUNKS = int(os.getenv("MAX_KEYWORD_CHUNKS", "4"))
-KEYWORD_WINDOW_CHARS = int(os.getenv("KEYWORD_WINDOW_CHARS", "2500"))
+CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "16000"))
+CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "200"))
+MAX_CHARS_PER_DOC = int(os.getenv("MAX_CHARS_PER_DOC", "90000"))
+MAX_CHUNKS_PER_DOC = int(os.getenv("MAX_CHUNKS_PER_DOC", "5"))
+MAX_KEYWORD_CHUNKS = int(os.getenv("MAX_KEYWORD_CHUNKS", "6"))
+KEYWORD_WINDOW_CHARS = int(os.getenv("KEYWORD_WINDOW_CHARS", "3200"))
 OCR_QUALITY_THRESHOLD = float(os.getenv("OCR_QUALITY_THRESHOLD", "0.45"))
 OCR_REPEAT_LINE_RATIO = float(os.getenv("OCR_REPEAT_LINE_RATIO", "0.3"))
 
@@ -93,7 +94,18 @@ KEYWORD_MARKERS = [
     "date limite",
     "remise des offres",
     "critères",
+    "critère de notation",
+    "critères de notation",
+    "méthode de notation",
+    "méthodologie de notation",
     "pondération",
+    "ponderation",
+    "sous-critères",
+    "sous-criteres",
+    "analyse des offres",
+    "jugement des offres",
+    "méthode de jugement",
+    "notation",
     "maître d'ouvrage",
     "maitre d'ouvrage",
     "maîtrise d'œuvre",
@@ -113,9 +125,9 @@ KEYWORD_MARKERS = [
 OCR_NOISE_TOKENS = {"page", "sommaire", "document", "annexe"}
 
 # Limites de génération (vitesse)
-EXTRACT_MAX_TOKENS = int(os.getenv("EXTRACT_MAX_TOKENS", "350"))
-DOC_SYNTH_MAX_TOKENS = int(os.getenv("DOC_SYNTH_MAX_TOKENS", "450"))
-FINAL_SYNTH_MAX_TOKENS = int(os.getenv("FINAL_SYNTH_MAX_TOKENS", "900"))
+EXTRACT_MAX_TOKENS = int(os.getenv("EXTRACT_MAX_TOKENS", "600"))
+DOC_SYNTH_MAX_TOKENS = int(os.getenv("DOC_SYNTH_MAX_TOKENS", "750"))
+FINAL_SYNTH_MAX_TOKENS = int(os.getenv("FINAL_SYNTH_MAX_TOKENS", "1400"))
 
 ASSISTANT_STATE_KEY = "assistant_state_v1"
 
@@ -470,7 +482,7 @@ class AssistantPage:
             return {}
 
         pages = sorted(set(pages))
-        pages = self._select_pages_distributed(pages, OCR_MAX_PAGES)
+        pages = self._select_pages_for_ocr(pages, critical_pages, OCR_MAX_PAGES)
         grouped: List[List[int]] = []
         current: List[int] = []
         for p in pages:
@@ -701,6 +713,19 @@ class AssistantPage:
         idxs = sorted({round(i * step) for i in range(limit)})
         return [pages[i] for i in idxs]
 
+    def _select_pages_for_ocr(self, pages: List[int], critical_pages: Set[int], limit: int) -> List[int]:
+        if limit <= 0 or not pages:
+            return []
+        pages_sorted = sorted(set(pages))
+        critical_sorted = sorted(set(p for p in critical_pages if p in pages_sorted))
+        max_pages = limit + min(len(critical_sorted), max(0, OCR_CRITICAL_BONUS_PAGES))
+        if len(critical_sorted) >= max_pages:
+            return self._select_pages_distributed(critical_sorted, max_pages)
+        remaining = [p for p in pages_sorted if p not in critical_sorted]
+        remaining_limit = max(0, max_pages - len(critical_sorted))
+        picked_remaining = self._select_pages_distributed(remaining, remaining_limit)
+        return sorted(set([*critical_sorted, *picked_remaining]))
+
     def _estimate_chunk_size(self, filename: str) -> int:
         base_prompt = self._build_extraction_prompt(filename, "")
         prompt_tokens = max(1, len(base_prompt) // 4)
@@ -730,9 +755,10 @@ class AssistantPage:
 
     Contraintes de réponse:
     - Pas de texte superflu (pas d'intro/conclusion).
-    - Maximum 12 puces par section. Regroupe si nécessaire.
+    - Maximum 20 puces par section. Privilégie le détail utile.
     - Si une section est absente: mets une seule puce "non mentionné".
     - Respecte STRICTEMENT le format demandé.
+    - Repère explicitement les critères de notation/pondération (RC) et conserve les pourcentages.
 
     Format exact:
     - Exigences administratives:
@@ -767,6 +793,7 @@ class AssistantPage:
     - Renseigne uniquement si explicitement présent dans l'extrait.
     - Sinon écris exactement "non mentionné" après les deux-points.
     - Pour "Dates importantes": liste les dates + leur signification (ex: "Date limite remise des offres: ...", "Visite obligatoire: ...").
+    - Si des critères de notation/pondération sont présents: détaille-les aussi dans "Informations clés".
 
     Source: {filename}
     Extrait:
@@ -782,10 +809,11 @@ class AssistantPage:
     Réponds uniquement en français. Aucune invention.
 
     Contraintes:
-    - Maximum 15 puces par section (regroupe).
+    - Maximum 22 puces par section (regroupe, mais reste détaillé).
     - Si une section est absente: une seule puce "non mentionné".
     - Conserve les chiffres, dates, seuils, pénalités, pièces, formats et contacts tels quels quand ils existent.
     - Pour "Champs structurés": fusionne et choisis la valeur la plus complète si conflit.
+    - Mets en avant les critères de notation/pondération du RC quand ils existent.
 
     Format requis:
     - Exigences administratives:
@@ -835,9 +863,10 @@ class AssistantPage:
     Contraintes:
     - Sois utile pour rédiger le mémoire technique.
     - Retourne uniquement du Markdown valide (titres + listes).
-    - Maximum 12 puces par section (regroupe).
+    - Maximum 18 puces par section (regroupe mais reste détaillé).
     - Si une info est absente des documents: écris "non mentionné".
     - Les "Champs structurés" doivent être cohérents et dédupliqués.
+    - Mets en avant les critères de notation/pondération (RC) dans les sections pertinentes.
 
     Structure Markdown obligatoire:
     # Synthèse IA - Mémoire technique
