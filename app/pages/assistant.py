@@ -378,7 +378,8 @@ class AssistantPage:
         if not pages:
             return {}
 
-        pages = sorted(set(pages))[:OCR_MAX_PAGES]
+        pages = sorted(set(pages))
+        pages = self._select_pages_distributed(pages, OCR_MAX_PAGES)
         grouped: List[List[int]] = []
         current: List[int] = []
         for p in pages:
@@ -456,19 +457,33 @@ class AssistantPage:
         text = re.sub(r"\s+", " ", text)
         return text.strip()
 
-    def _chunk_text(self, text: str) -> List[str]:
-        if len(text) <= CHUNK_SIZE:
+    def _trim_text_distributed(self, text: str, max_chars: int) -> str:
+        if len(text) <= max_chars:
+            return text
+        if max_chars <= 1000:
+            return text[:max_chars].strip()
+        slice_size = max_chars // 3
+        head = text[:slice_size].strip()
+        mid_start = max(0, (len(text) // 2) - (slice_size // 2))
+        mid = text[mid_start : mid_start + slice_size].strip()
+        tail_size = max_chars - (len(head) + len(mid))
+        tail = text[-tail_size:].strip() if tail_size > 0 else ""
+        return " ".join(part for part in (head, mid, tail) if part).strip()
+
+    def _chunk_text(self, text: str, *, chunk_size: int) -> List[str]:
+        if len(text) <= chunk_size:
             return [text]
         chunks: List[str] = []
         start = 0
         while start < len(text):
-            end = min(len(text), start + CHUNK_SIZE)
+            end = min(len(text), start + chunk_size)
             chunk = text[start:end].strip()
             if chunk:
                 chunks.append(chunk)
             if end == len(text):
                 break
-            start = max(0, end - CHUNK_OVERLAP)
+            overlap = min(CHUNK_OVERLAP, max(50, chunk_size // 10))
+            start = max(0, end - overlap)
         return chunks
 
     def _pick_chunks_distributed(self, chunks: List[str], k: int) -> List[str]:
@@ -476,10 +491,25 @@ class AssistantPage:
             return []
         if len(chunks) <= k:
             return chunks
-        # Début / milieu / fin (sans doublons)
-        idxs = [0, len(chunks) // 2, len(chunks) - 1]
-        idxs = sorted(set(idxs))[:k]
+        step = (len(chunks) - 1) / (k - 1)
+        idxs = sorted({round(i * step) for i in range(k)})
         return [chunks[i] for i in idxs]
+
+    def _select_pages_distributed(self, pages: List[int], limit: int) -> List[int]:
+        if limit <= 0 or not pages:
+            return []
+        if len(pages) <= limit:
+            return pages
+        step = (len(pages) - 1) / (limit - 1)
+        idxs = sorted({round(i * step) for i in range(limit)})
+        return [pages[i] for i in idxs]
+
+    def _estimate_chunk_size(self, filename: str) -> int:
+        base_prompt = self._build_extraction_prompt(filename, "")
+        prompt_tokens = max(1, len(base_prompt) // 4)
+        available_tokens = max(256, OLLAMA_NUM_CTX - EXTRACT_MAX_TOKENS - prompt_tokens)
+        estimated_size = available_tokens * 4
+        return max(2000, min(CHUNK_SIZE, estimated_size))
 
     # ----------------------------- Prompts -----------------------------
 
@@ -723,11 +753,13 @@ class AssistantPage:
             raw_text = self._extract_text(abs_path)
             self._log(f"{filename} extract/OCR secs:", round(time.time() - t0, 2))
 
-            text = self._normalize_text(raw_text)[:MAX_CHARS_PER_DOC]
+            text = self._normalize_text(raw_text)
+            text = self._trim_text_distributed(text, MAX_CHARS_PER_DOC)
             if not text:
                 continue
 
-            chunks_all = self._chunk_text(text)
+            chunk_size = self._estimate_chunk_size(filename)
+            chunks_all = self._chunk_text(text, chunk_size=chunk_size)
             chunks = self._pick_chunks_distributed(chunks_all, MAX_CHUNKS_PER_DOC)
 
             chunk_extracts: List[str] = []
