@@ -1,0 +1,44 @@
+{
+    "intro": "Afin d'offrir des garanties de sécurité au public et nos salariés...",
+    "blocs": [{
+            "titre": "Concrètement",
+            "icon": "clipboard-list",
+            "couleur": "ecoBleu",
+            "contenu": ["NORMES et CERTIFICATIONS MACHINES", "SECURITE INCENDIE", "NORMES ELECTRIQUE"]
+        },
+        {
+            "titre": "Contrôle annuel",
+            "icon": "check-double",
+            "couleur": "ecoBleu",
+            "contenu": "Échelles, harnais, stop-chute, équipement de levage..."
+        },
+        {
+            "titre": "Organisation de production",
+            "icon": "cogs",
+            "couleur": "ecoBleu",
+            "contenu": "Notre atelier est organisé de façon logique..."
+        },
+        {
+            "titre": "Confort de travail",
+            "icon": "coffee",
+            "couleur": "ecoBleu",
+            "contenu": "Nous mettons à la disposition de notre personnel une salle de repos..."
+        },
+        {
+            "titre": "Accueil des nouveaux salariés",
+            "icon": "user-plus",
+            "couleur": "ecoBleu",
+            "contenu": "Chaque nouvel arrivant reçoit un livret d'accueil..."
+        },
+        {
+            "titre": "La sécurité s'affiche partout",
+            "icon": "exclamation-triangle",
+            "couleur": "red!70!black",
+            "contenu": "De nombreuses affiches (INRS) sont placées aux endroits stratégiques..."
+        }
+    ],
+    "accident_travail": {
+        "nombre": 0,
+        "annees_sans_accident": 11
+    }
+}

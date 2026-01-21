@@ -1,93 +1,515 @@
-# PI_Bois_Techniques
+# Projet Industriel - Bois & Techniques
+
+---
+
+Ce projet Python permet de générer automatiquement un mémoire technique PDF à partir de données CSV pour l'entreprise Bois & Techniques.
+
+Il s'appuie sur un template LaTeX structuré et un système de génération Jinja2 pour personnaliser automatiquement le rendu final.# Projet Industriel - Bois & Technique
 
 
 
-## Getting started
+---Ce projet Python permet de générer automatiquement un mémoire technique PDF à partir de documents PDF issus d’un Dossier de Consultation des Entreprises (DCE), comme le CCTP, CCAP, CCTC ou DPGF.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Il s’appuie sur un template LaTeX structuré et un système d’extraction de variables basique pour personnaliser automatiquement le rendu final.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Structure du projet
 
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+---
 
 ```
-cd existing_repo
-git remote add origin https://gibson.telecomnancy.univ-lorraine.fr/benoit.valembois/pi_bois_techniques.git
-git branch -M main
-git push -uf origin main
+
+pi_bois_techniques/## Prérequis & Installation
+
+├── main.py                   # Point d'entrée principal
+
+├── requirements.txt          # Dépendances Python### Dépendances
+
+├── README.md                 # Ce fichier
+
+│```bash
+
+├── src/                      # Modules Pythonpip install -r requirements.txt
+
+│   ├── __init__.py           # Package init```
+
+│   ├── config.py             # Configuration et chemins
+
+│   ├── utils.py              # Fonctions utilitaires (normalisation, échappement LaTeX)
+
+│   ├── csv_handler.py        # Lecture et parsing des fichiers CSV### Autres outils nécessaires
+
+│   ├── table_converters.py   # Conversion de données en tableaux LaTeX
+
+│   ├── user_input.py         # Gestion des interactions utilisateur* **pdflatex** : LaTeX est installé machine (`texlive`, `pdflatex`, etc.) pour compiler le fichier `.tex` en `.pdf`. Sous Ubuntu :
+
+│   ├── latex_generator.py    # Génération du fichier LaTeX final
+
+│   └── section_processors.py # Traitement des sections spécifiques```bash
+
+│sudo apt install texlive-full
+
+├── templates/                # Templates Jinja2```
+
+│   ├── template.tex.j2       # Template principal du mémoire
+
+│   ├── demarche_hqe.tex.j2   # Template démarche HQE---
+
+│   ├── demarche_env_atelier.tex.j2    # Template démarche environnementale atelier
+
+│   └── demarche_env_chantiers.tex.j2  # Template démarche environnementale chantiers## Structure du projet
+
+│
+
+├── data/                     # Fichiers de données CSV```bash
+
+│   ├── crack.csv             # Base de données principale.     
+
+│   ├── bd_template.csv       # Template CSV vide├── implementer_sousSection.py       
+
+│   └── bd_complete.csv       # Base de données                          
+
+│├── images/                   
+
+├── output/                   # Fichiers générés│   └── entete.png
+
+│   ├── resultat.tex          # Fichier LaTeX généré│   └── traitement_curatif.png
+
+│   ├── resultat.pdf          # PDF compilé│   └── ...
+
+│   └── *_generated.tex       # Sections générées spéciales└── Document DCE (CCAP, CCTP, CCTC, RC, DPGF)
+
+│```
+
+├── images/                   # Images et logos
+
+│   ├── entete.png            # En-tête du document---
+
+│   ├── logo_boisTechniques.png
+
+│   └── ...                   # Autres logos et images## Utilisation
+
+│
+
+└── venv/                     # Environnement virtuel Python```bash
+
+```python3 implementer_sousSection.py
+
 ```
 
-## Integrate with your tools
+---
 
-- [ ] [Set up project integrations](https://gibson.telecomnancy.univ-lorraine.fr/benoit.valembois/pi_bois_techniques/-/settings/integrations)
+---
 
-## Collaborate with your team
+## Prérequis & Installation
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### Fonctionnement du script - Sections & Sous-sections
 
-## Test and Deploy
+### 1. Environnement Python
 
-Use the built-in continuous integration in GitLab.
+Ce script génère automatiquement un **mémoire technique** à partir :
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```bash
 
-***
+# Créer un environnement virtuel* du fichier **bd_template.csv** (structure + textes + images),
 
-# Editing this README
+python3 -m venv venv* du template **LaTeX Jinja**,
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+* des réponses interactives de l’utilisateur.
 
-## Suggestions for a good README
+# Activer l'environnement
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+source venv/bin/activate  # Linux/MacChaque **section** et **sous-section** suit une logique décrite ci-dessous.
 
-## Name
-Choose a self-explaining name for your project.
+# ou
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+venv\Scripts\activate     # Windows---
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+# Installer les dépendances### Page de garde
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+pip install -r requirements.txt
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```L’utilisateur renseigne :
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### 2. LaTeX* **Intitulé de l’opération**
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+* **Intitulé du lot**
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+**pdflatex** doit être installé pour compiler le fichier `.tex` en `.pdf`.* **Maître d’ouvrage**
 
-## License
-For open source projects, say how it is licensed.
+* **Adresse du chantier**
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```bash
+
+# Ubuntu/DebianLes éléments fixes (SIRET, email, téléphone, site web) sont intégrés automatiquement.
+
+sudo apt install texlive-full
+
+---
+
+# Arch Linux
+
+sudo pacman -S texlive-most### Préambule
+
+
+
+# macOS (via MacTeX)* Texte fixe, non modifiable.
+
+brew install --cask mactex* Directement injecté dans le PDF.
+
+```
+
+---
+
+---
+
+### Contexte du projet
+
+## Utilisation
+
+Sous-sections :
+
+### Génération du mémoire technique
+
+#### Contexte
+
+```bash
+
+# Activer l'environnement virtuelLe texte du CSV contient :
+
+source venv/bin/activate« Nous sommes passés faire la visite sur le site le … »
+
+
+
+# Lancer le générateurL’utilisateur saisit une **date**.
+
+python main.py-> Si rien n’est saisi → **la sous-section est ignorée.**
+
+```
+
+---
+
+Le script vous posera des questions interactives pour personnaliser le mémoire :
+
+- Informations de la page de garde (opération, lot, maître d'ouvrage, adresse)#### Environnement
+
+- Contexte du projet (date de visite, environnement, contraintes...)
+
+- Moyens humains (chargé d'affaires, chef d'équipe, charpentiers)L’utilisateur saisit un texte libre.
+
+- Références de chantiers similaires➡ Si vide -> sous-section ignorée.
+
+
+
+### Options de ligne de commande---
+
+
+
+```bash#### Accès chantier et stationnement
+
+# Utiliser un fichier CSV personnalisé
+
+python main.py --csv data/mon_fichier.csvTexte libre demandé à l’utilisateur.
+
+
+
+# Spécifier le fichier de sortie---
+
+python main.py --output output/mon_memoire.tex
+
+```#### Levage
+
+
+
+### Compilation du PDFTexte libre demandé à l’utilisateur.
+
+
+
+```bash---
+
+cd output
+
+pdflatex resultat.tex#### Contraintes du chantier
+
+pdflatex resultat.tex  # Deuxième passe pour la table des matières
+
+```L’utilisateur saisit une liste.
+
+-> Si aucun élément → sous-section ignorée.
+
+---
+
+---
+
+## Format du fichier CSV
+
+### Liste des matériaux mis en œuvre
+
+Le fichier CSV utilise le point-virgule (`;`) comme séparateur et contient les colonnes :
+
+Section basée **uniquement sur les images du CSV** :
+
+| Colonne | Description |
+
+|---------|-------------|* Matière première de qualité certifiée
+
+| `section` | Nom de la section principale |* Fixation et assemblage
+
+| `sous-section` | Nom de la sous-section |* Traitement préventif des bois
+
+| `texte` | Contenu textuel |* Traitement curatif des bois
+
+| `image` | Chemin vers une image (optionnel) |
+
+Les sous-sections ayant un **chemin d’image** sont affichées.
+
+Exemple :
+
+```csv---
+
+section;sous-section;texte;image
+
+CONTEXTE DU PROJET;Contexte;Nous sommes passés faire la visite sur le site le;### Moyens humains affectés au projet
+
+LISTE DES MATERIAUX MIS EN OEUVRE;UNE MATIERE PREMIERE DE QUALITE CERTIFIEE;Utilisation de bois certifiés...;../images/logo_pefc.png
+
+```#### Organisation du chantier
+
+
+
+---Le script demande :
+
+
+
+## Modules Python* Nom du chargé d’affaires
+
+* Nom du chef d’équipe
+
+### `src/config.py`* Noms des charpentiers (séparés par virgules)
+
+Configuration des chemins et constantes du projet.
+
+Pour chaque rôle :
+
+### `src/utils.py`
+
+Fonctions utilitaires :1. Le nom proposé peut être validé ou modifié.
+
+- `normaliser_texte()` : Normalise les textes pour comparaison2. Le texte descriptif du CSV peut être accepté ou réécrit.
+
+- `echapper_latex()` : Échappe les caractères spéciaux LaTeX3. Si aucun nom n’est fourni -> rôle ignoré.
+
+- `extraire_items_depuis_texte()` : Parse les listes depuis le texte CSV
+
+---
+
+### `src/csv_handler.py`
+
+- `charger_donnees_depuis_csv()` : Charge et structure les données du CSV#### Sécurité et santé sur les chantiers
+
+
+
+### `src/table_converters.py`Texte + image issus du CSV (pas d’interaction).
+
+- `convertir_fixation_assemblage_en_tableau()` : Convertit en tableau LaTeX
+
+- `convertir_traitement_en_tableau()` : Convertit les traitements en tableau---
+
+
+
+### `src/user_input.py`#### Organigramme fonctionnel
+
+Gestion des interactions utilisateur (saisie, validation, listes).
+
+Texte + image issus du CSV.
+
+### `src/latex_generator.py`
+
+- `generer_fichier_tex()` : Génère le fichier LaTeX à partir du template Jinja2---
+
+
+
+### `src/section_processors.py`#### Conception et précision
+
+Traitement des sections spécifiques :
+
+- Contexte du projetLe CSV donne une liste (ex. laser, CAO…).
+
+- Liste des matériauxL’utilisateur peut :
+
+- Moyens humains
+
+- Méthodologie* accepter la liste,
+
+- Références* supprimer des éléments,
+
+* en ajouter.
+
+---
+
+---
+
+## Personnalisation
+
+#### Sécurité
+
+### Modifier le template LaTeX
+
+Éditez `templates/template.tex.j2` pour modifier la structure du document.Même logique que “Conception et précision”.
+
+
+
+### Ajouter de nouvelles sections---
+
+1. Ajoutez les données dans le fichier CSV
+
+2. Si nécessaire, créez un processeur dans `src/section_processors.py`#### Atelier de taille
+
+3. Appelez le processeur dans `main.py`
+
+Affiche le texte :
+
+### Modifier les styles écologiques« Opérations à effectuer en atelier pour le projet : »
+
+Les couleurs sont définies dans le template principal :Puis l’utilisateur saisit une liste.
+
+- `ecoVert` : #27AE60
+
+- `ecoVertFonce` : #1E8449---
+
+- `ecoVertClair` : #A9DFBF
+
+- `ecoBleu` : #3498DB#### Transport
+
+- `ecoMarron` : #795548
+
+Texte du CSV
+
+---
+
+* liste d’opérations ajoutées par l’utilisateur.
+
+## Fichiers hérités (ancienne version)
+
+---
+
+Ces fichiers ne sont plus utilisés mais conservés pour référence :
+
+- `implementer_sousSection.py` : Ancienne version monolithique#### Levage
+
+- `generate_pdf.py` : Ancien générateur PDF
+
+- `pdf_data_extractor.py` : Extracteur de données PDFTexte du CSV
+
+- `replace_sections.py` : Script de remplacement de sections
+
+* actions du projet ajoutées par l’utilisateur.
+
+---
+
+---
+
+## Licence
+
+#### Machines portatives
+
+Projet développé pour Bois & Techniques - 2024/2025
+
+Liste modifiable par l’utilisateur.
+
+---
+
+#### Protection / Nettoyage du bâtiment
+
+Liste modifiable par l’utilisateur.
+
+---
+
+#### Gestion des déchets
+
+Liste modifiable par l’utilisateur.
+
+---
+
+### Moyens matériels affectés au projet
+
+Affiche uniquement **l’image** fournie dans le CSV.
+
+---
+
+### Méthodologie / Chronologie
+
+####  Conception
+
+Texte du CSV.
+
+#### Fabrication / Taille en atelier
+
+Commence par :
+« Opérations à réaliser en atelier : »
+Puis liste saisie par l’utilisateur.
+
+#### Transport et levage
+
+Texte du CSV + liste d’opérations à saisir.
+
+#### Chantier
+
+Même logique que Transport.
+
+#### Protection de l’existant
+
+Liste du CSV, modifiable par l’utilisateur.
+
+#### Organisation hygiène & sécurité
+
+Liste du CSV, modifiable par l’utilisateur.
+
+#### Protection / Nettoyage
+
+Liste du CSV, modifiable par l’utilisateur.
+
+
+---
+
+### Chantiers références en rapport avec l’opération
+
+Section interactive :
+
+L’utilisateur saisit **une liste de chantiers**, sous forme de bullet points.
+
+Si aucune saisie -> la section est ignorée.
+
+---
+
+### Sections restantes du CSV
+
+Toute section non traitée explicitement :
+
+* est affichée automatiquement,
+* avec ses sous-sections,
+* uniquement si du contenu (texte ou image) est présent.
+
+---
+
+## Compilation
+
+```bash
+pdflatex resultat.text
+```
+
+_N.B : Il est des fois nécessaire de compiler 2 fois afin de tout load dans le rendu pdf (ex : La table des matières)._
+
+## Manque
+
+- Proposer a l'utilisateur d'ajouter une section/sous-section à la main
+- Répertorier les modifications et/ou ajout dans le csv
+- Revoir les textes affichés dans le csv ("Insérer image", "lien vers..." etc à modifier à terme)
+- Propose en avance si l'utilisateur veut tel ou tel section plus tot que attendre des réponses vide
+- Auto-compilation du fichier resultat.tex
+
+---
+

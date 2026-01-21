@@ -1,0 +1,52 @@
+{
+    "intro": "Afin d'offrir des garanties de sécurité au public et nos salariés, notre atelier, \\textbf{construit en 2010}, respecte l'ensemble des normes de construction et de prévention/lutte/accès incendie et explosion. Nos équipes ont à leur disposition les moyens de travailler en sécurité tout en préservant leur santé. Ils participent régulièrement à des formations sur les bonnes pratiques sécuritaires et le bon usage de nos machines (tailles et levages).",
+    "blocs": [
+        {
+            "titre": "Concrètement",
+            "icon": "tasks",
+            "couleur": "ecoBleu",
+            "contenu": [
+                "NORMES et CERTIFICATIONS MACHINES (fixes et portatives).",
+                "NORMES ASPIRATION.",
+                "SECURITE INCENDIE. (Prévention, lutte, accès).",
+                "NORMES ELECTRIQUE.",
+                "ACCESSIBILITE AUX PERSONNES EN SITUATION DE HANDICAP.",
+                "HYGIENE, SANTE et CONFORT."
+            ]
+        },
+        {
+            "titre": "Contrôle annuel",
+            "icon": "check-double",
+            "couleur": "ecoBleu",
+            "contenu": "Échelles, harnais, stop-chute, équipement de levage, ligne de vie, installation électrique, détection incendie, RIA, compresseur, chariot élévateur, extincteur, machine atelier\\ldots"
+        },
+        {
+            "titre": "Organisation de production",
+            "icon": "cog",
+            "couleur": "ecoBleu",
+            "contenu": "Notre atelier est organisé de façon logique pour faciliter la circulation des pièces de bois au cours des différentes phases de travail. Les zones de stockage, de traçage, d'usinage et de stockage avant expédition sont prévues."
+        },
+        {
+            "titre": "Confort de travail",
+            "icon": "coffee",
+            "couleur": "ecoBleu",
+            "contenu": "Nous mettons à la disposition de notre personnel \\textbf{une salle de repos} avec : point d'eau, machine à café, réfrigérateur, micro-onde, table et chaises, vestiaire, douche, sanitaires\\ldots"
+        },
+        {
+            "titre": "Accueil des nouveaux salariés",
+            "icon": "user-plus",
+            "couleur": "ecoBleu",
+            "contenu": "Chaque nouvel arrivant (stagiaire, intérimaire, salarié) se voit fournir, dès son arrivée, un livret d'accueil rappelant les bases de sécurité et les bons comportements à avoir (OPP BTP), une « fiche d'accueil » est rédigée avec lui, afin de faciliter son suivi médical en cas d'accident et de le sensibiliser aux dangers du chantier et les types d'EPI mis à sa disposition."
+        },
+        {
+            "titre": "La sécurité s'affiche partout",
+            "icon": "exclamation-triangle",
+            "couleur": "red!70!black",
+            "contenu": "De nombreuses affiches (INRS) sont placées aux endroits stratégiques de nos bureaux et atelier. Puisque la pédagogie est l'art de la répétition nous avons privilégié des modèles avec des graphismes et slogan plus ancien pour rappeler à nos charpentiers celle qui se trouvaient déjà autour d'eux dans leur lieu de formation (collège, lycée, CFA,\\ldots)."
+        }
+    ],
+    "accident_travail": {
+        "nombre": "0",
+        "annees_sans_accident": 11
+    }
+}

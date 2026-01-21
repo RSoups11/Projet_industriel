@@ -1,0 +1,21 @@
+{
+  "defaults": {
+    "intitule": "",
+    "lot": "Lot N02 - Charpente bois",
+    "moa": "",
+    "adresse": ""
+  },
+  "sections_autorisees": [
+    "SITUATION ADMINISTRATIVE DE L'ENTREPRISE",
+    "CONTEXTE DU PROJET",
+    "MOYENS HUMAINS AFFECTES AU PROJET",
+    "MOYENS MATERIEL AFFECTES AU PROJET",
+    "LISTE DES MATERIAUX",
+    "METHODOLOGIE ET CHRONOLOGIE",
+    "PLANNING",
+    "CHANTIER REFERENCES",
+    "PERFORMANCES ENVIRONNEMENTALES"
+  ],
+  "pdflatex_path": "pdflatex",
+  "theme": "light"
+}

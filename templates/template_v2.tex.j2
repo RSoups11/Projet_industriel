@@ -1,0 +1,400 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{titlesec}
+\usepackage{longtable}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{colortbl}
+\usepackage[table]{xcolor}
+
+% Package tcolorbox avec breakable
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{fontawesome5}
+
+% Couleurs
+\definecolor{ecoVert}{HTML}{27AE60}
+\definecolor{ecoVertFonce}{HTML}{1E8449}
+\definecolor{ecoVertClair}{HTML}{A9DFBF}
+\definecolor{ecoBleu}{HTML}{3498DB}
+\definecolor{ecoMarron}{HTML}{795548}
+\definecolor{ecoFond}{HTML}{F0FDF4}
+\definecolor{traitBleu}{HTML}{2C3E50}
+\definecolor{grisSection}{HTML}{34495E}
+
+% Style de boite pleine largeur breakable
+\newtcolorbox{fullwidthbox}[2][]{
+    enhanced,
+    breakable,
+    colback=white,
+    colframe=#2,
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    colbacktitle=#2,
+    rounded corners,
+    boxrule=1.5pt,
+    left=10pt, right=10pt, top=8pt, bottom=8pt,
+    width=\textwidth,
+    #1
+}
+
+% Style de boite pour sous-sections
+\newtcolorbox{subsectionbox}[2][]{
+    enhanced,
+    breakable,
+    colback=white,
+    colframe=#2,
+    fonttitle=\bfseries,
+    coltitle=white,
+    colbacktitle=#2,
+    rounded corners,
+    boxrule=1.2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    #1
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\titleformat{\section}{\Large\bfseries\color{grisSection}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\includegraphics[height=1.1cm]{../images/entete.png}}
+\fancyfoot[C]{\thepage}
+
+
+\begin{document}
+
+\thispagestyle{empty}
+
+% ============================================
+% PAGE DE GARDE
+% ============================================
+\begin{titlepage}
+    \centering
+    {\Huge \textbf{MEMOIRE TECHNIQUE}} \\
+    \vspace{1cm}
+    
+    {\Large \textbf{ {{Intitule_operation}} }} \\
+    \vspace{0.5cm}
+    
+    {\large {{ Lot_Intitule }} } \\
+    \vspace{0.5cm}
+    \rule{\linewidth}{0.5mm} \\
+    \vspace{0.5cm}
+    
+    \begin{center}
+    \textbf{Maitre d'ouvrage :} {{ Maitre_ouvrage_nom }} \\
+    \vspace{0.3cm}
+    \textbf{Adresse du chantier :} {{ Adresse_chantier }} \\
+    \end{center}
+    
+    {% if image_garde %}
+    \vspace{0.5cm}
+    \begin{center}
+    \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=ecoBleu!50,
+        boxrule=1.5pt,
+        arc=4pt,
+        width=0.95\textwidth,
+        halign=center
+    ]
+    \includegraphics[width=0.9\textwidth, height=12cm, keepaspectratio]{ {{image_garde}} }
+    \end{tcolorbox}
+    \end{center}
+    {% endif %}
+    
+    \vfill
+
+    \begin{center}
+        \includegraphics{../images/logo_boisTechniques.png}
+    \end{center}
+
+    \vspace{0.3cm}
+
+    \begin{center}
+        \includegraphics[height=1.1cm]{../images/logo_qualibat (1).png}\hfill
+        \includegraphics[height=1.1cm]{../images/logo_garantie-decenale2 (1).png}\hfill
+        \includegraphics[height=1.1cm]{../images/logo_rge (1).png}\hfill
+        \includegraphics[height=1.1cm]{../images/logo_ffb_adherent (1).png}\hfill
+        \includegraphics[height=1.1cm]{../images/logo_fsc.png}\hfill
+        \includegraphics[height=1.1cm]{../images/logo_pefc2 (1).png}
+    \end{center}
+
+    \vspace{0.3cm}
+
+    \textbf{Entreprise Bois et Techniques} \\
+    SIRET : 893 822 841 00027 \\
+    Mail : contact@bois-techniques.fr\\
+    Telephone : 03 89 53 36 58 \\
+    Site web : www.bois-techniques.fr \\
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ============================================
+% PREAMBULE
+% ============================================
+\section*{PREAMBULE}
+\addcontentsline{toc}{section}{PREAMBULE}
+
+\begin{fullwidthbox}[title={\faIcon{info-circle}\hspace{0.3em}Presentation de l'entreprise}]{ecoBleu}
+L'entreprise Bois \& Techniques, situee a Rixheim (68170), est specialisee dans la
+conception, la fabrication et la pose de charpentes bois, ouvrages structurels, et elements
+de couverture. Forte d'une experience significative dans le domaine de la construction
+bois, elle intervient sur des projets varies : logements individuels, batiments collectifs,
+equipements publics ou tertiaires.
+
+\vspace{0.3cm}
+
+L'entreprise dispose de ses propres equipes de charpentiers et couvreurs, encadrees par
+un conducteur de travaux experimente. Les ouvrages sont fabriques dans un atelier equipe
+et adaptes aux exigences de la construction bois moderne.
+
+\vspace{0.3cm}
+
+Realise par le bureau d'etude interne de la societe Bois \& Techniques, le present memoire
+technique a pour objectif de vous exposer les solutions techniques et l'organisation de
+chantier envisagee, afin de mener votre projet dans les meilleures conditions.
+\end{fullwidthbox}
+
+% ============================================
+% SECTIONS DYNAMIQUES - ORDRE STRICT
+% ============================================
+
+{% set section_order = [
+    'SITUATION ADMINISTRATIVE',
+    'CONTEXTE DU PROJET',
+    'MOYENS HUMAINS',
+    'MOYENS MATERIEL',
+    'LISTE DES MATERIAUX',
+    'METHODOLOGIE',
+    'PLANNING',
+    'CHANTIER REFERENCES',
+    'PERFORMANCES ENVIRONNEMENTALES'
+] %}
+
+{% for order_key in section_order %}
+{% for section in data %}
+{% set titre_upper = section.titre | upper %}
+{% if order_key in titre_upper %}
+
+\newpage
+\section{ {{ section.titre }} }
+
+{% for ss in section.sous_sections %}
+
+{% set nom_lower = ss.nom | lower %}
+{% set has_itemize = '\\begin{itemize}' in ss.contenu %}
+
+{# Boite de couleur selon le type de contenu #}
+{% if 'contexte' in nom_lower and 'visite' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{calendar-check}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
+{{ ss.contenu | markdown_to_latex }}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'environnement' in nom_lower %}
+\begin{subsectionbox}[title={\faIcon{map-marker-alt}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
+\end{subsectionbox}
+\vspace{0.3cm}
+
+{% elif 'levage' in nom_lower and 'materiel' not in nom_lower %}
+\begin{subsectionbox}[title={\faIcon{truck-loading}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
+{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
+\end{subsectionbox}
+\vspace{0.3cm}
+
+{% elif 'contrainte' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{exclamation-triangle}\hspace{0.3em}{{ ss.nom }}}]{ecoRouge}
+{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'securite' in nom_lower or 'sante' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{shield-alt}\hspace{0.3em}{{ ss.nom }}}]{ecoRouge}
+{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'organigramme' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{sitemap}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+{% if ss.image %}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{ {{ ss.image }} }
+\end{center}
+{% else %}
+{{ ss.contenu | markdown_to_latex }}
+{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'conception' in nom_lower or 'precision' in nom_lower %}
+\begin{subsectionbox}[title={\faIcon{drafting-compass}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
+\end{subsectionbox}
+\vspace{0.3cm}
+
+{% elif 'atelier' in nom_lower and 'taille' in nom_lower %}
+\begin{subsectionbox}[title={\faIcon{hammer}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
+{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
+\end{subsectionbox}
+\vspace{0.3cm}
+
+{% elif 'transport' in nom_lower %}
+\begin{subsectionbox}[title={\faIcon{truck}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
+{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
+\end{subsectionbox}
+\vspace{0.3cm}
+
+{% elif 'machine' in nom_lower and 'portative' in nom_lower %}
+\begin{subsectionbox}[title={\faIcon{tools}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
+{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
+\end{subsectionbox}
+\vspace{0.3cm}
+
+{% elif 'protection' in nom_lower or 'nettoyage' in nom_lower %}
+\begin{subsectionbox}[title={\faIcon{broom}\hspace{0.3em}{{ ss.nom }}}]{traitBleu}
+{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
+\end{subsectionbox}
+\vspace{0.3cm}
+
+{% elif 'dechet' in nom_lower or 'gestion' in nom_lower %}
+\begin{subsectionbox}[title={\faIcon{recycle}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
+{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
+\end{subsectionbox}
+\vspace{0.3cm}
+
+{% elif 'matiere premiere' in nom_lower or 'certifiee' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{certificate}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'fixation' in nom_lower or 'assemblage' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{cogs}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'traitement' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{flask}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'deroulement' in nom_lower or 'travaux' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{clipboard-list}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'fabrication' in nom_lower or 'taille' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{hammer}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'operation' in nom_lower and 'chantier' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{hard-hat}\hspace{0.3em}{{ ss.nom }}}]{ecoVertFonce}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'hygiene' in nom_lower or 'organisation' in nom_lower %}
+\begin{subsectionbox}[title={\faIcon{first-aid}\hspace{0.3em}{{ ss.nom }}}]{ecoRouge}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{subsectionbox}
+\vspace{0.3cm}
+
+{% elif 'mode operatoire' in nom_lower %}
+\begin{subsectionbox}[title={\faIcon{cog}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{subsectionbox}
+\vspace{0.3cm}
+
+{% elif 'hqe' in nom_lower or 'environnement' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{leaf}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+{% if ss.image %}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{ {{ ss.image }} }
+\end{center}
+{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'preparation' in nom_lower or 'chantier' in nom_lower %}
+\begin{subsectionbox}[title={\faIcon{tasks}\hspace{0.3em}{{ ss.nom }}}]{traitBleu}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{subsectionbox}
+\vspace{0.3cm}
+
+{% elif 'delai' in nom_lower or 'respect' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{clock}\hspace{0.3em}{{ ss.nom }}}]{traitBleu}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'reference' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{building}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% elif 'nuisance' in nom_lower or 'reduction' in nom_lower %}
+\begin{fullwidthbox}[title={\faIcon{volume-mute}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+{% else %}
+{# Style par defaut #}
+\begin{fullwidthbox}[title={{ ss.nom }}]{grisSection}
+{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+{% if ss.image %}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{ {{ ss.image }} }
+\end{center}
+{% endif %}
+\end{fullwidthbox}
+\vspace{0.4cm}
+{% endif %}
+
+{% endfor %}
+
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+% ============================================
+% ANNEXES
+% ============================================
+\newpage
+\section{ANNEXES}
+\addcontentsline{toc}{section}{ANNEXES}
+
+\begin{fullwidthbox}[title={\faIcon{paperclip}\hspace{0.3em}Documents annexes}]{grisSection}
+Les fiches techniques des produits et materiaux mentionnes dans ce memoire sont disponibles sur demande.
+
+\begin{itemize}
+    \item Fiches techniques des traitements (SARPECO 850, XILIX 3000P)
+    \item Certifications RGE et Qualibat
+    \item Attestations d'assurance decennale
+    \item References chantiers detaillees
+\end{itemize}
+\end{fullwidthbox}
+
+\end{document}

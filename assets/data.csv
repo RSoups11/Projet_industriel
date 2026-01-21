@@ -1,0 +1,7 @@
+ID,Categorie,Type,Label
+mat1,Matériaux,checkbox,Bois massif
+mat2,Matériaux,checkbox,Contreplaqué
+env1,Environnement,checkbox,Chantier propre
+env2,Environnement,checkbox,Tri des déchets
+method1,Méthodologie,combobox,Montage sur site
+method2,Méthodologie,combobox,Préfabrication atelier

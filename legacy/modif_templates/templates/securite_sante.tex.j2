@@ -1,0 +1,65 @@
+% ============================================
+% SECURITE ET SANTE SUR LES CHANTIERS
+% ============================================
+
+\begin{tcolorbox}[
+    enhanced, colback=ecoFond, colframe=ecoRouge, fonttitle=\bfseries, coltitle=white,
+    title={\faIcon{shield-alt}\hspace{0.3em}Sécurité et santé sur les chantiers},
+    colbacktitle=ecoRouge, rounded corners, boxrule=1.5pt, left=5pt, right=5pt, top=4pt, bottom=4pt
+]
+\small
+{{ intro }}
+\end{tcolorbox}
+
+\vspace{0.2cm}
+
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+
+{% for bloc in blocs[:4] %}
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ bloc.couleur }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{ {{- bloc.icon -}} }\hspace{0.2em}{{ bloc.titre }}},    colbacktitle={{ bloc.couleur }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+{% if bloc.contenu is sequence and bloc.contenu is not string %}
+\begin{itemize}[leftmargin=*, itemsep=0pt, parsep=0pt, topsep=0pt]
+    {% for item in bloc.contenu %}\item {{ item }}
+    {% endfor %}
+\end{itemize}
+{% else %}
+{{ bloc.contenu }}
+{% endif %}
+\end{tcolorbox}
+\vspace{0.15cm}
+{% endfor %}
+
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+
+{% for bloc in blocs[4:] %}
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ bloc.couleur }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{ {{- bloc.icon -}} }\hspace{0.2em}{{ bloc.titre }}},
+    colbacktitle={{ bloc.couleur }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+{{ bloc.contenu }}
+\end{tcolorbox}
+\vspace{0.15cm}
+{% endfor %}
+
+% ---- 0 ACCIDENT ----
+\begin{tcolorbox}[
+    enhanced, colback=ecoRouge!10, colframe=ecoRouge, rounded corners, boxrule=1.5pt, halign=center,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+\begin{center}
+{\fontsize{36}{42}\selectfont\textbf{\textcolor{ecoRouge}{ {{ accident_travail.nombre }} }}}\\[0.15cm]
+{\normalsize\textbf{accident de travail en atelier}}\\
+{\normalsize\textbf{depuis {{ accident_travail.annees_sans_accident }} ans.}}
+\end{center}
+\end{tcolorbox}
+
+\end{minipage}

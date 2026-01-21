@@ -1,0 +1,33 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+\begin{document}
+\begin{center}
+	{\Huge \textbf{Mémoire Technique}} \\
+	\vspace{1cm}
+	\includegraphics[width=0.2\textwidth]{logo.png} \\
+	\vspace{0.5cm}
+		extbf{Projet :} {{ intitulé }} \\
+		extbf{Maître d'Ouvrage :} {{ maître_d_ouvrage }} \\
+		extbf{Adresse :} {{ adresse }} \\
+		extbf{Date :} {{ date }}
+\end{center}
+
+\section*{Matériaux}
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black]
+	% Exemple d'injection dynamique
+	{{ materiaux|default('Non renseigné') }}
+\end{tcolorbox}
+
+\section*{Méthodologie}
+\begin{tcolorbox}[colback=green!5!white,colframe=green!75!black]
+	{{ methodologie|default('Non renseigné') }}
+\end{tcolorbox}
+
+\section*{Environnement}
+\begin{tcolorbox}[colback=yellow!5!white,colframe=yellow!75!black]
+	{{ environnement|default('Non renseigné') }}
+\end{tcolorbox}
+
+\end{document}

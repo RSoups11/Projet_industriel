@@ -1,0 +1,72 @@
+{
+    "intro": "L'entreprise Bois \\& Techniques dispose d'un parc matériel complet et régulièrement entretenu, permettant d'assurer la qualité et la sécurité de nos interventions.",
+    "conception": {
+        "titre": "Conception et Précision",
+        "elements": [
+            "Lunette et laser pour relevés, implantation et traçage",
+            "Panel de logiciel (CAO, DAO, calcul de structure, …)"
+        ]
+    },
+    "securite": {
+        "titre": "Sécurité",
+        "elements": [
+            "EPI (Harnais, casque, lignes de vie, stop-chutes, chaussures, lunette, gant, masque)",
+            "Filets de protection antichute",
+            "Echafaudage roulant intérieur (Hussor, Distel)",
+            "Echafaudages extérieurs ponctuels (Hussor)",
+            "Nacelle / Echelle d'accès (Distel)"
+        ]
+    },
+    "atelier": {
+        "titre": "Atelier de taille",
+        "elements": [
+            "Scie radiale / Raboteuse Utis",
+            "Compresseurs et outillage pneumatique",
+            "Scie à panneaux Streibig / Scie à ruban",
+            "Radiale Lyonflex / Scie à format / Toupie",
+            "Machines de charpente Mafell",
+            "Pont roulant 3,2T / Chariot latéral 4T"
+        ]
+    },
+    "transport": {
+        "titre": "Transport",
+        "elements": [
+            "Camionnettes 3,5 Tonnes équipées",
+            "Camion bras pour approvisionnement",
+            "Remorque"
+        ]
+    },
+    "levage": {
+        "titre": "Levage",
+        "elements": [
+            "Palan / Grue mobile d'intérieur 600Kg",
+            "Vérin 10 tonnes",
+            "Tour d'étayage Hussor",
+            "Treuil électrique 250Kg",
+            "Lève matériaux (chèvre, lève-plaque) 300Kg"
+        ]
+    },
+    "portatif": {
+        "titre": "Machine portative",
+        "elements": [
+            "Machines portatives de nos équipes (vingtaine par véhicule)",
+            "Matériel d'injection pour résine époxy"
+        ]
+    },
+    "protection": {
+        "titre": "Proctection / Nettoyage",
+        "elements": [
+            "Bâchage permanent",
+            "Aspirateur de chantier",
+            "Equipement de nettoyage dans chaque véhicule"
+        ]
+    },
+    "dechet": {
+        "titre": "Gestion déchet",
+        "elements": [
+            "Big-bag",
+            "6 Bennes de tri chez Bois \\& Techniques",
+            "Remorque"
+        ]
+    }
+}

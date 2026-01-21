@@ -1,0 +1,37 @@
+{
+    "title": "Méthodologie de traitement",
+    "intro": {
+        "text": "Traitement curatif et préventif par injections et double pulvérisation de l'ensemble des bois de charpente et solivage intérieurs selon les prescriptions techniques en vigueur :"
+    },
+    "preparation": {
+        "title": "Préparation des surfaces",
+        "elements": [
+            "Sondage",
+            "Décapage des bois atteints (Bûchage)",
+            "Brossage",
+            "Dépoussiérage"
+        ]
+    },
+    "traitement": {
+        "title": "Traitement en profondeur",
+        "grosses_pieces": {
+            "title": "Grosses pièces",
+            "elements": [
+                "Percement des puits d'injection tous les \\textbf{20cm (5 à 6 par ML)}",
+                "Mise en place d'injecteurs anti retour sans tête restant définitivement dans les éléments traités",
+                "Pièces encastrées dans la maçonnerie : injections doublées et orientées vers la maçonnerie",
+                "Injections profondes en basse pression \\textbf{20 à 40 g}",
+                "Application en surface de XILIX 3000P sur l'ensemble des bois en deux couches \\textbf{(100 à 300g par m²)}"
+            ]
+        },
+        "chevrons": {
+            "title": "Chevrons",
+            "elements": [
+                "Percement des puits d'injection tous les \\textbf{30cm (3 à 4 par ML)}",
+                "Mise en place d'injecteurs anti retour sans tête restant définitivement dans les éléments traités",
+                "Injections profondes en basse pression \\textbf{20 à 40 g}",
+                "Application en surface de XILIX 3000P sur l'ensemble des bois en deux couches \\textbf{(100 à 300g par m²)}"
+            ]
+        }
+    }
+}

@@ -1,0 +1,20 @@
+% Organigramme - Template simple qui inclut le PDF
+% Ce template génère un fichier .tex qui inclut le PDF de l'organigramme
+
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+
+\geometry{margin=2cm}
+
+\begin{document}
+
+% Inclusion du PDF de l'organigramme avec dimensions optimales
+\begin{center}
+    \includegraphics[width=0.85\textwidth, height=0.7\textheight, keepaspectratio]{organigramme.pdf}
+\end{center}
+
+\end{document}

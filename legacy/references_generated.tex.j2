@@ -1,0 +1,34 @@
+% ============================================
+% CHANTIERS RÉFÉRENCES EN RAPPORT AVEC L'OPÉRATION
+% Style moderne avec tcolorbox
+% ============================================
+
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoBleu,
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{building}\hspace{0.3em}Nos Références},
+    colbacktitle=ecoBleu,
+    rounded corners,
+    boxrule=2pt,
+    left=10pt, right=10pt, top=10pt, bottom=10pt
+]
+
+\small
+L'entreprise \textbf{Bois \& Techniques} a réalisé de nombreux chantiers similaires. Voici quelques références en rapport avec cette opération :
+
+\vspace{0.3cm}
+
+{% if references_liste %}
+\begin{itemize}[leftmargin=*, itemsep=6pt]
+{% for ref in references_liste %}
+    \item \faIcon{check-circle} \textcolor{ecoVert}{\textbf{ {{ ref }} }}
+{% endfor %}
+\end{itemize}
+{% else %}
+{{ references_contenu }}
+{% endif %}
+
+\end{tcolorbox}

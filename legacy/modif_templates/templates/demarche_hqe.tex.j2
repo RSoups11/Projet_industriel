@@ -1,0 +1,167 @@
+% ============================================
+% DEMARCHE HQE - Texte exact de la base de données
+% ============================================
+
+\subsection{DÉMARCHE HQE}
+
+\begin{tcolorbox}[
+    enhanced,
+    colback=ecoFond,
+    colframe=ecoVert,
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faLeaf\hspace{0.5em}{{intro.title}}},
+    colbacktitle=ecoVertFonce,
+    rounded corners,
+    boxrule=2pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+
+{{intro.text}}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% ---- ECO-CONSTRUCTION ----
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoVert,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faTree\hspace{0.3em}{{eco_construction.title}}},
+    colbacktitle=ecoVert,
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+
+{% for cible in eco_construction.cibles %}
+\textbf{\textcolor{ecoVertFonce}{{cible.titre}}}
+
+\vspace{0.4cm}
+
+{% for section in cible.sections %}
+\textbf{- {{section.titre}}:}
+
+{{section.contenu}}
+
+\vspace{0.3cm}
+{% endfor %}
+
+{% if not loop.last %}
+\vspace{0.5cm}
+{% endif %}
+{% endfor %}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% ---- ECO-GESTION ----
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoBleu,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faCog\hspace{0.3em}{{eco_gestion.title}}},
+    colbacktitle=ecoBleu,
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+
+{% for cible in eco_gestion.cibles %}
+\textbf{\textcolor{ecoBleu}{{cible.titre}}}
+
+{% if cible.contenu %}
+{{cible.contenu}}
+{% endif %}
+
+{% for section in cible.sections %}
+\textbf{- {{section.titre}}:}
+
+{{section.contenu}}
+
+\vspace{0.3cm}
+{% endfor %}
+
+{% if not loop.last %}
+\vspace{0.5cm}
+{% endif %}
+{% endfor %}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% ---- CONFORT ----
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoBleu,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faHome\hspace{0.3em}{{confort.title}}},
+    colbacktitle=ecoBleu,
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+
+{% for cible in confort.cibles %}
+\textbf{\textcolor{ecoBleu}{{cible.titre}}}
+
+\vspace{0.2cm}
+
+{% for section in cible.sections %}
+\textbf{- {{section.titre}}:}
+
+\vspace{0.2cm}
+
+{{section.contenu}}
+
+\vspace{0.4cm}
+{% endfor %}
+
+{% if not loop.last %}
+\vspace{0.4cm}
+{% endif %}
+{% endfor %}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% ---- SANTE ----
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoRouge,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faHeart\hspace{0.3em}{{sante.title}}},
+    colbacktitle=ecoRouge,
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+
+{% for cible in sante.cibles %}
+\textbf{\textcolor{ecoRouge}{{cible.titre}}}
+
+\vspace{0.2cm}
+
+{% for section in cible.sections %}
+\textbf{- {{section.titre}}:}
+
+\vspace{0.2cm}
+
+{{section.contenu}}
+
+{% endfor %}
+{% endfor %}
+
+\end{tcolorbox}

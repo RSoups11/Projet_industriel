@@ -1,0 +1,140 @@
+% ============================================
+% MOYENS MATERIEL AFFECTES AU PROJET
+% ============================================
+
+\begin{tcolorbox}[
+    enhanced, colback=ecoFond, colframe=ecoBleu, fonttitle=\bfseries, coltitle=white,
+    title={\faIcon{tools}\hspace{0.3em}Un parc machines récent, certifié et entretenu},
+    colbacktitle=ecoBleu, rounded corners, boxrule=1.5pt, left=6pt, right=6pt, top=4pt, bottom=4pt
+]
+\small
+{{ intro }}
+\end{tcolorbox}
+
+\vspace{0.3cm}
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+\vspace{0pt}
+
+% Conception
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe=ecoBleu, fonttitle=\bfseries\footnotesize, coltitle=white,
+    title={\faIcon{drafting-compass}\hspace{0.2em}{{ conception.titre }}},
+    colbacktitle=ecoBleu, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+    {% for item in conception.elements %}\item {{ item }}
+    {% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.2cm}
+
+% Securite (Rouge)
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe=red!70!black, fonttitle=\bfseries\footnotesize, coltitle=white,
+    title={\faIcon{hard-hat}\hspace{0.2em}{{ securite.titre }}},
+    colbacktitle=red!70!black, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+    {% for item in securite.elements %}\item {{ item }}
+    {% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.2cm}
+
+% Atelier (Marron)
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe=ecoMarron, fonttitle=\bfseries\footnotesize, coltitle=white,
+    title={\faIcon{warehouse}\hspace{0.2em}{{ atelier.titre }}},
+    colbacktitle=ecoMarron, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+    {% for item in atelier.elements %}\item {{ item }}
+    {% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.2cm}
+
+% Transport
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe=ecoBleu, fonttitle=\bfseries\footnotesize, coltitle=white,
+    title={\faIcon{truck}\hspace{0.2em}{{ transport.titre }}},
+    colbacktitle=ecoBleu, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+    {% for item in transport.elements %}\item {{ item }}
+    {% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\vspace{0pt}
+
+% Levage
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe=ecoBleu, fonttitle=\bfseries\footnotesize, coltitle=white,
+    title={\faIcon{arrows-alt}\hspace{0.2em}{{ levage.titre }}},
+    colbacktitle=ecoBleu, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+    {% for item in levage.elements %}\item {{ item }}
+    {% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.2cm}
+
+% Machine portative (Marron)
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe=ecoMarron, fonttitle=\bfseries\footnotesize, coltitle=white,
+    title={\faIcon{cogs}\hspace{0.2em}{{ portatif.titre }}},
+    colbacktitle=ecoMarron, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+    {% for item in portatif.elements %}\item {{ item }}
+    {% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.2cm}
+
+% Protection
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe=ecoBleu, fonttitle=\bfseries\footnotesize, coltitle=white,
+    title={\faIcon{broom}\hspace{0.2em}{{ protection.titre }}},
+    colbacktitle=ecoBleu, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+    {% for item in protection.elements %}\item {{ item }}
+    {% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.2cm}
+
+% Gestion Dechet (Vert)
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe=ecoVertFonce, fonttitle=\bfseries\footnotesize, coltitle=white,
+    title={\faIcon{recycle}\hspace{0.2em}{{ dechet.titre }}},
+    colbacktitle=ecoVertFonce, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+    {% for item in dechet.elements %}\item {{ item }}
+    {% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\end{minipage}

@@ -1,0 +1,56 @@
+{
+    "contact": {
+        "icon": "\\faIcon{address-card}",
+        "title": "CONTACT UNIQUE",
+        "phone": "03.89.53.36.58",
+        "mobile": "06 24 18 26 89",
+        "email": "contact@bois-techniques.fr"
+    },
+    "manager": {
+        "icon": "\\faIcon{user-tie}",
+        "name": "Frederic ANSELM",
+        "position": "DIRECTEUR D'EXPLOITATION",
+        "experience": "17 ans d'expérience",
+        "education": "BTS Const. Bois Habitat"
+    },
+    "team": {
+        "icon": "\\faIcon{tools}",
+        "title": "ÉQUIPE TRAVAUX N°1",
+        "chef_name": "Jimmy FROGER",
+        "chef_experience": "22 ans exp.",
+        "chef_education": "CAP Charpentier/Menuisier",
+        "renforts_title": "Renforts :",
+        "renforts_name": "Thomas NEFF"
+    },
+    "externe": {
+        "title": "RELATIONS EXTÉRIEURES ",
+        "icon": "\\faIcon{project-diagram}",
+        "maitrise_ouvrage": "Maîtrise d'Ouvrage",
+        "architecte": "Architecte (maîtrise d'œuvre, OPC)",
+        "bureau_etudes": "Bureaux d'Études",
+        "organismes": "Organismes (SPS, Inspection du travail, bureau de contrôle...)",
+        "autres_entreprises": "Entreprises en charge des autres lots"
+    },
+    "prestataires": {
+        "title": "PRESTATAIRES CLÉS ",
+        "icon": "\\faIcon{truck}",
+        "schroll_name": "SCHROLL",
+        "schroll_service": "Déchets",
+        "medico_name": "MEDIACO",
+        "medico_service": "Levage Lourd"
+    },
+    "processus": {
+        "icon": "\\faIcon{sync-alt}",
+        "title": "SUIVI DE CHANTIER & EFFECTIFS",
+        "reunion_title": "\\small 1. Réunion quotidienne (Matin 7h30)",
+        "reunion_subtitle": "Avant le départ sur les chantiers",
+        "reunion_items": [
+            "Echanges sur l’avancement, problèmes rencontrés ou risques (info autres lots, MOE...).",
+            "Explication sur la suite des travaux (mise en garde sécuritaire si besoin).",
+            "Adaptation suite à des modifications en cours de chantier."
+        ],
+        "effectif_title": "\\small 2. Gestion des effectifs :",
+        "effectif_description": "\\textbf{Effectif estimé :} 2 à 4 personnes.",
+        "effectif_augmentation": "\\textbf{Augmentation :} Possibilité d’accroître les effectifs en fonction du planning ou des difficultés."
+    }
+}

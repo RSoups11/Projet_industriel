@@ -1,0 +1,94 @@
+% ============================================
+% UNE MATIERE PREMIERE DE QUALITE CERTIFIEE
+% Texte exact de la base de données avec logos
+% ============================================
+
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoVert,
+    fonttitle=\bfseries\Large,
+    coltitle=ecoVertFonce,
+    title={},
+    rounded corners,
+    boxrule=0pt,
+    left=5pt, right=5pt, top=5pt, bottom=5pt
+]
+
+% Ligne 1 : Label Vert + texte
+\begin{minipage}[c]{0.15\textwidth}
+\centering
+\includegraphics[width=0.9\linewidth]{ {{- certifications.label_vert.logo -}} }\end{minipage}
+\hfill
+\begin{minipage}[c]{0.82\textwidth}
+{{certifications.label_vert.texte}}
+\end{minipage}
+
+\vspace{0.4cm}
+\hrule
+\vspace{0.4cm}
+
+% Ligne 2 : PEFC + FSC + texte
+\begin{minipage}[c]{0.07\textwidth}
+\centering
+\includegraphics[width=\linewidth]{ {{- certifications.pefc.logo -}} }
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.07\textwidth}
+\centering
+\includegraphics[width=\linewidth]{ {{- certifications.fsc.logo -}} }
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.82\textwidth}
+{{certifications.certifications.texte}}
+\end{minipage}
+
+\vspace{0.4cm}
+\hrule
+\vspace{0.4cm}
+
+% Ligne 3 : Achetons Local + texte
+\begin{minipage}[c]{0.15\textwidth}
+\centering
+\includegraphics[width=0.9\linewidth]{ {{- certifications.local.logo -}} }
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.82\textwidth}
+{{certifications.local.texte}}
+\end{minipage}
+
+\vspace{0.4cm}
+\hrule
+\vspace{0.4cm}
+
+% Ligne 4 : Excell Zone Verte + texte
+\begin{minipage}[c]{0.15\textwidth}
+\centering
+\includegraphics[width=0.9\linewidth]{ {{- certifications.zone_verte.logo -}} }
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.82\textwidth}
+{{certifications.zone_verte.texte}}
+\end{minipage}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% Encadré santé
+\begin{tcolorbox}[
+    enhanced,
+    colback=ecoFond,
+    colframe=ecoRouge,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faHeart\hspace{0.3em}Santé et environnement},
+    colbacktitle=ecoRouge,
+    rounded corners,
+    boxrule=1.5pt,
+    left=10pt, right=10pt, top=10pt, bottom=10pt
+]
+
+{{sante_env}}
+
+\end{tcolorbox}

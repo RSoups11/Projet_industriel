@@ -1,0 +1,73 @@
+% ============================================
+% Méthodologie de traitement
+% Bloc unique contenant toute la méthodologie
+% ============================================
+
+% Couleur spécifique pour le traitement
+\definecolor{traitBleu}{HTML}{1E3A5F}
+\definecolor{traitBleuClair}{HTML}{E8F4FC}
+
+% Bloc principal unique pour toute la méthodologie
+\begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=traitBleuClair,
+    colframe=traitBleu,
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{spray-can}\hspace{0.3em}{{title}}},
+    colbacktitle=traitBleu,
+    rounded corners,
+    boxrule=2pt,
+    left=10pt, right=10pt, top=10pt, bottom=10pt
+]
+
+% Texte introductif
+\textbf{ {{intro.text}} }
+
+\vspace{0.3cm}
+
+% Préparation des surfaces
+\noindent
+\textbf{\textcolor{traitBleu}{{preparation.title}}}
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+{% for item in preparation.elements %}
+    \item {{item}}
+{% endfor %}
+\end{itemize}
+
+\vspace{0.3cm}
+
+% Traitement en profondeur - deux colonnes
+\noindent
+\textbf{\textcolor{traitBleu}{{traitement.title}}} \\
+\vspace{0.1cm}
+
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+\vspace{0pt}
+
+\textbf{\small {{traitement.grosses_pieces.title}}}
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+    \footnotesize
+{% for item in traitement.grosses_pieces.elements %}
+    \item {{item}}
+{% endfor %}
+\end{itemize}
+
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\vspace{0pt}
+
+\textbf{\small {{traitement.chevrons.title}}}
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+    \footnotesize
+{% for item in traitement.chevrons.elements %}
+    \item {{item}}
+{% endfor %}
+\end{itemize}
+
+\end{minipage}
+
+\end{tcolorbox}

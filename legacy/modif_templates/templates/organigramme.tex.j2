@@ -1,0 +1,164 @@
+\documentclass[tikz,border=10pt]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fontawesome5} % Assurez-vous d'avoir ce package, sinon supprimez les \faIcon{...}
+\usepackage{raleway}      % Police moderne
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{xcolor}
+
+% --- Palette de couleurs Vives ---
+\definecolor{colManager}{HTML}{2C3E50}  % Bleu Nuit
+\definecolor{colTeam}{HTML}{E67E22}     % Orange Corail
+\definecolor{colExt}{HTML}{16A085}      % Turquoise
+\definecolor{colProcess}{HTML}{8E44AD}  % Violet
+\definecolor{colBack}{HTML}{FDFEFE}     % Blanc cassé
+
+\usetikzlibrary{shapes.geometric, positioning, shadows.blur, calc, arrows.meta}
+
+\begin{document}
+
+\begin{tikzpicture}[
+    node distance=1cm,
+    % Style de l'axe central
+    spine/.style={line width=3pt, draw=black!10, cap=round},
+    % Nœud Central (Conducteur)
+    hexNode/.style={
+        regular polygon,
+        regular polygon sides=6,
+        minimum size=4.5cm,
+        inner sep=0pt,
+        fill=colManager,
+        text=white,
+        align=center,
+        blur shadow={shadow blur steps=5},
+        font=\bfseries
+    },
+    % Nœud Equipe (Droite)
+    rightNode/.style={
+        rectangle,
+        rounded corners=15pt,
+        fill=colTeam,
+        text=white,
+        align=left,
+        text width=5cm,
+        inner sep=12pt,
+        anchor=west,
+        blur shadow,
+        font=\small
+    },
+    % Nœud Externe (Gauche)
+    leftNode/.style={
+        rectangle,
+        rounded corners=15pt,
+        fill=colExt,
+        text=white,
+        align=right,
+        text width=5.5cm,
+        inner sep=12pt,
+        anchor=east,
+        blur shadow,
+        font=\small
+    },
+    % Nœud Process (Bas)
+    bottomNode/.style={
+        rectangle,
+        rounded corners=8pt,
+        draw=colProcess,
+        line width=2pt,
+        fill=white,
+        text=colProcess,
+        align=left,
+        text width=14cm,
+        inner sep=10pt,
+        font=\small
+    },
+    % Connecteurs
+    connect/.style={
+        draw=black!30,
+        line width=1.5pt,
+        -{Circle[width=3pt,length=3pt]}
+    }
+]
+
+    % --- 0. DÉCORATION D'ARRIÈRE-PLAN (Placé ici pour être dessous) ---
+    % Le cercle est centré sur (0,0) qui sera la position du manager
+    \fill[colManager!5] (0,0) circle (3.5cm);
+    
+    % --- 1. L'Axe Central (Structure) ---
+    \draw[spine] (0, 3.5) -- (0, -10); % Ligne verticale grise
+
+    % --- 2. Header (Contact) ---
+    \node[fill=white, text=black!70, draw=black!10, rounded corners=5pt, inner sep=8pt, align=center] (contact) at (0, 4) {
+        {{contact.icon}} \textbf{ {{contact.title}} }\\
+        {{contact.phone}} $\mid$ {{contact.mobile}}\\
+        \textit{ {{contact.email}} }
+    };
+
+    % --- 3. Le Cœur : Conducteur de Travaux ---
+    \node[hexNode] (manager) at (0,0) {
+        {{manager.icon}} \\[0.2cm]
+        \large {{manager.name}}\\
+        \footnotesize {{manager.position}}\\[0.1cm]
+        \small {{manager.experience}}\\
+        \small {{manager.education}}
+    };
+
+    % --- 4. Branche Droite : L'Action (Équipe) ---
+    \node[rightNode] (team) at (2.5, -4.5) {
+        \textbf{ {{team.icon}} {{team.title}} }\\[0.2cm]
+        \textbf{ {{team.chef_name}} } (Chef)\\
+        \small {{team.chef_experience}} - {{team.chef_education}}\\[0.15cm]
+        \normalsize \textit{ {{team.renforts_title}} \\ {{team.renforts_name}} }
+    };
+
+    % --- 5. Branche Gauche : L'Écosystème ---
+    \node[leftNode] (ext) at (-2.5, -4.5) {
+        \textbf{ {{externe.title}} {{externe.icon}} }\\[0.2cm]
+        {{externe.maitrise_ouvrage}} \\ {{externe.architecte}}\\
+        {{externe.bureau_etudes}} \\
+        {{externe.organismes}}\\
+        {{externe.autres_entreprises}}
+    };
+
+    % --- 6. Branche Gauche Basse : Prestataires ---
+    \node[leftNode, fill=colExt!80!black, text width=4.5cm] (prest) at (-2.5, -8) {
+        \textbf{ {{prestataires.title}} {{prestataires.icon}} }\\[0.1cm]
+        \textbf{ {{prestataires.schroll_name}} :} {{prestataires.schroll_service}}\\
+        \textbf{ {{prestataires.medico_name}} :} {{prestataires.medico_service}}
+    };
+
+    % --- 7. Le Processus et Effectifs (Modifié) ---
+    \node[bottomNode, text width=11cm] (process) at (0, -12.15) {
+        \textbf{ {{processus.icon}} {{processus.title}} }\\[0.2cm]
+        
+        \textbf{ {{processus.reunion_title}} :}\\
+        \footnotesize \textit{ {{processus.reunion_subtitle}} }\\
+        \begin{itemize}
+            \setlength\itemsep{0.1em}
+{% for item in processus.reunion_items %}
+            \item {{item}}
+{% endfor %}
+        \end{itemize}
+        
+        \vspace{0.1cm}
+
+        \vspace{0.1cm}
+
+        \textbf{ {{processus.effectif_title}} }\\
+        {{processus.effectif_description}}\\
+        {{processus.effectif_augmentation}}
+    };
+
+    % --- 8. DESSIN DES LIENS ---
+    
+    % Connecteur "Courbe" vers l'équipe (Droite)
+    \draw[connect, color=colTeam] (manager.east) to[out=0,in=130] (team.north west);
+    % Connecteur "Courbe" vers l'externe (Gauche)
+    \draw[connect, color=colExt] (manager.west) to[out=180,in=50] (ext.north east);
+    % Connecteur vers Prestataires (depuis la ligne centrale)
+    \draw[connect, color=colExt!80!black] (0,-8) -- (prest.east);
+    % Petite flèche finale vers le process
+    \node[fill=white, inner sep=2pt] at (0,-9) {\textcolor{colProcess}{\faIcon{arrow-down}}};
+
+\end{tikzpicture}
+\end{document}

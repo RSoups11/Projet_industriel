@@ -1,0 +1,52 @@
+{
+    "intro": {
+        "title": "Démarche environnementale : Atelier \\& Bureaux",
+        "text1": "Nous attachons une importance toute particulière au traitement de nos déchets et globalement à l'empreinte énergétique de l'entreprise sur son milieu. Notre activité est faiblement productrice de déchets, et ceux-ci sont généralement faciles à recycler par les filières classiques de traitement.",
+        "text2": "Cette double démarche (déchets/empreinte énergétique) s'applique dans tous les secteurs de notre activité comme l'atteste notre schéma d'organisation et de gestion des déchets (SOGED) à l'atelier ou sur nos chantiers."
+    },
+    "actions": {
+        "title": "Actions concrètes",
+        "subtitle": "Dans notre ateliers et bureau d'étude :",
+        "elements": [
+            "Réduction de notre consommation de papier, consommables.",
+            "Privilégie la digitalisation des documents aux impressions, si impression nécessaire les impressions noir et blanc seront privilégiées.",
+            "Une seule imprimante centralisée. Nos contrats de location de matériel bureautique prévoient la reprise des consommables vides et des anciens matériels.",
+            "Investissement informatique permettant de privilégier le stockage et la transmission des documents par voie numérique.",
+            "L'éclairage est optimisé et la lumière naturelle est privilégiée.",
+            "Trie de nos déchets (papier, carton, plastique, bureautique,…).",
+            "Chauffage de notre atelier par chaudière à bois alimentée par nos résidus de fabrication et de chantier.",
+            "Le choix de fournisseurs locaux est privilégié."
+        ]
+    },
+    "image": {
+        "title": "Action concrète : Disposition de nos systèmes de tri dans notre atelier",
+        "path": "../images/HQE_chantier"
+    },
+    "tri": {
+        "title": "Notre démarche de tri-sélectif",
+        "intro": "Dans sa démarche écologique, Bois \\& Techniques tri aujourd'hui ses déchets à la source grâce à des poubelles de tri et des bennes sélectives. Permettant leur traitement selon leur nature et leur destination.",
+        "elements": [
+            "Benne pour : bois sains, lattes, chutes de poutres, volige, cartons non souillés : utilisé comme moyen de chauffage de l'atelier interne.",
+            "Benne pour déchets bois traités et bois peint évacuation vers um centre de traitement SCHROLL.",
+            "Lieu de stockage pour déchets industriels spéciaux : Les mastics, silicones, colles, pots de peinture et Epoxy, mousse Polyuréthane expansée, contenants souillés, graisse, chiffons, et autres déchets. stocké dans un local avec cuve de rétention. Puis évacuation et traitement chez TREDI ou déchetterie de la commune de SOULTZ.",
+            "Silo pour copeaux et sciure (Fabrication de briquette).",
+            "Benne pour déchets inerte : tuiles, maçonnerie, divers gravats… évacuation par SCHROLL puis transformation pour réutilisation comme remblaiement.",
+            "Entreposage des métaux triés : acier, aluminium, zinc, cuivre, visserie, équerre, pointe,… puis recyclage par broyage à destination des fonderies.",
+            "Benne mélange : emballage, polyane, isolant, récupérés par la société SCHROLL pour stockage et revalorisation après extraction.",
+            "Poubelle déchets ménagers collectée par la municipalité."
+        ]
+    },
+    "diminuer": {
+        "title": "Diminuer sa production de déchets en atelier",
+        "elements": [
+            "Prédimensionnement de pièces pour limiter les déchets de matière.",
+            "Livraisons et stockage mieux ordonnés, pour prévenir la casse, les chutes et les détériorations.",
+            "Choix de produit moins emballés."
+        ]
+    },
+    "sensibilisation": {
+        "title": "Action de sensibilisation",
+        "text1": "A pour objectif de favoriser l'éducation du personnel de l'entreprise au tri des déchets et aux systèmes de tri mis en place.",
+        "text2": "Chaque nouvelle installation de tri ou méthode est expliquée collectivement et des rappels individuels sont effectués à chaque constatation du non-respect de ces engagements."
+    }
+}

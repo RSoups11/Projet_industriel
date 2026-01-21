@@ -1,0 +1,149 @@
+% ============================================
+% DEMARCHE ENVIRONNEMENTALE : ATELIER & BUREAUX
+% Texte exact de la base de données
+% ============================================
+
+\subsection{DÉMARCHE ENVIRONNEMENTALE : ATELIER \& BUREAUX}
+
+\begin{tcolorbox}[
+    enhanced,
+    colback=ecoFond,
+    colframe=ecoVert,
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faRecycle\hspace{0.5em}{{intro.title}}},
+    colbacktitle=ecoVertFonce,
+    rounded corners,
+    boxrule=2pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+
+{{intro.text1}}
+
+{{intro.text2}}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% ---- ACTIONS CONCRETES ----
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoVert,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faCheckCircle\hspace{0.3em}{{actions.title}}},
+    colbacktitle=ecoVert,
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+
+\textbf{ {{actions.subtitle}} }
+
+\vspace{0.3cm}
+
+\begin{itemize}[leftmargin=*, itemsep=4pt]
+{% for item in actions.elements %}
+    \item {{item}}
+{% endfor %}
+\end{itemize}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% ---- IMAGE ACTION CONCRETE ----
+\begin{tcolorbox}[
+    enhanced,
+    colback=ecoFond,
+    colframe=ecoVert,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faImage\hspace{0.3em}{{image.title}}},
+    colbacktitle=ecoVert,
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+
+\begin{center}
+\includegraphics[width=0.8\textwidth]{ {{- image.path -}} }
+\end{center}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% ---- TRI SELECTIF ----
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoVert,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faTrash\hspace{0.3em}{{tri.title}}},
+    colbacktitle=ecoVert,
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+
+{{tri.intro}}
+
+\vspace{0.4cm}
+
+\begin{itemize}[leftmargin=*, itemsep=4pt]
+{% for item in tri.elements %}
+    \item {{item}}
+{% endfor %}
+\end{itemize}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% ---- DIMINUER DECHETS ----
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoVert,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faArrowDown\hspace{0.3em}{{diminuer.title}}},
+    colbacktitle=ecoVert,
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+
+\begin{itemize}[leftmargin=*, itemsep=4pt]
+{% for item in diminuer.elements %}
+    \item {{item}}
+{% endfor %}
+\end{itemize}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% ---- SENSIBILISATION ----
+\begin{tcolorbox}[
+    enhanced,
+    colback=ecoVertClair,
+    colframe=ecoVertFonce,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faUsers\hspace{0.3em}{{sensibilisation.title}}},
+    colbacktitle=ecoVertFonce,
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=8pt, bottom=8pt
+]
+
+{{sensibilisation.text1}}
+
+{{sensibilisation.text2}}
+
+\end{tcolorbox}

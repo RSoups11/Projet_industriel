@@ -1,0 +1,171 @@
+% Template pour la Démarche Environnementale Sur Les Chantiers - Thème Écologie
+% Ce fichier sera inclus dans le document principal
+
+\subsection{DÉMARCHE ENVIRONNEMENTALE : SUR LES CHANTIERS}
+
+\begin{tcolorbox}[
+    colback=ecoFond,
+    colframe=ecoVert,
+    title={\textcolor{white}{\faIcon{hard-hat} Gestion des Déchets sur Chantier}},
+    fonttitle=\bfseries\large,
+    colbacktitle=ecoVertFonce,
+    rounded corners,
+    boxrule=2pt,
+    arc=8pt
+]
+
+L'entreprise \textbf{Bois \& Techniques} a mis en place depuis de nombreuses années un \textbf{tri sélectif de ses déchets} en sortie de production, sur chantier et en retour de chantier.
+
+\vspace{0.2cm}
+Nous avons \textbf{3 principes de tri} sur les chantiers en fonction du type, de la taille et de la quantité de déchet à traiter.
+
+\vspace{0.2cm}
+\colorbox{ecoVertClair}{\parbox{0.95\textwidth}{\centering
+\faIcon{info-circle} \textit{Notre activité en construction neuve ne génère presque pas de déchet sur chantier, puisque l'usinage se réalise en atelier.}
+}}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% Cas n°1 - Tri collectif
+\begin{tcolorbox}[
+    colback=white,
+    colframe=ecoBleu,
+    title={\faIcon{users} Cas n°1 : Tri collectif},
+    fonttitle=\bfseries,
+    colbacktitle=ecoBleu,
+    coltitle=white,
+    rounded corners,
+    boxrule=1.5pt
+]
+
+\textbf{Situation :} Système de tri collectif existant sur le chantier
+
+\vspace{0.3cm}
+
+\begin{itemize}[leftmargin=*]
+    \item Identification et utilisation des moyens de tri présents (bennes, poubelles, Big bag, zones de stockage)
+    \item Répartition des déchets par catégorie : \textbf{DI} (inertes), \textbf{DIB} (banals), \textbf{DID} (dangereux)
+    \item Tri par matériaux : métaux, plastiques, bois et dérivés, liquides
+    \item \textbf{Si déchets incompatibles} $\rightarrow$ Évacuation vers notre atelier et tri interne
+\end{itemize}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% Cas n°2 - Gros volume
+\begin{tcolorbox}[
+    colback=white,
+    colframe=orange!80!black,
+    title={\faIcon{truck-loading} Cas n°2 : Tri autonome - Gros volume},
+    fonttitle=\bfseries,
+    colbacktitle=orange!80!black,
+    coltitle=white,
+    rounded corners,
+    boxrule=1.5pt
+]
+
+\textbf{Situation :} Absence de tri collectif / Quantité importante / Variété de déchets
+
+\vspace{0.3cm}
+
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{\faIcon{map-marker-alt} Organisation de l'aire}
+\begin{itemize}[leftmargin=*]
+    \item Aire d'entreposage définie
+    \item Distance des zones sensibles
+    \item Balisage et rangement régulier
+    \item Pictogrammes et codes couleurs
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{\faIcon{sync} Collecte et valorisation}
+\begin{itemize}[leftmargin=*]
+    \item Prestataire agréé
+    \item Réemploi / Recyclage
+    \item Transformation en énergie
+    \item Traçabilité des produits dangereux
+\end{itemize}
+\end{minipage}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% Cas n°3 - Petit volume
+\begin{tcolorbox}[
+    colback=white,
+    colframe=ecoVert,
+    title={\faIcon{box} Cas n°3 : Tri autonome - Petit volume},
+    fonttitle=\bfseries,
+    colbacktitle=ecoVert,
+    coltitle=white,
+    rounded corners,
+    boxrule=1.5pt
+]
+
+\textbf{Situation :} Absence de tri collectif / Quantité faible
+
+\vspace{0.3cm}
+
+\begin{center}
+\begin{tikzpicture}[
+    etape/.style={rectangle, rounded corners=8pt, minimum width=3.2cm, minimum height=1.5cm, align=center, font=\small, text=white}
+]
+    \node[etape, fill=ecoVertFonce] (e1) at (0,0) {\faIcon{tree}\\Tri bois\\(sain / traité)};
+    \node[etape, fill=ecoBleu] (e2) at (4,0) {\faIcon{magnet}\\Récup. métaux\\(seaux, caisses)};
+    \node[etape, fill=ecoMarron] (e3) at (8,0) {\faIcon{recycle}\\Tri recyclables\\(plastique, carton)};
+    \node[etape, fill=orange!80!black] (e4) at (12,0) {\faIcon{truck}\\Évacuation\\(fin de journée)};
+    
+    \draw[->, thick, gray] (e1) -- (e2);
+    \draw[->, thick, gray] (e2) -- (e3);
+    \draw[->, thick, gray] (e3) -- (e4);
+\end{tikzpicture}
+\end{center}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% INTERDICTIONS
+\begin{tcolorbox}[
+    colback=ecoRouge!5,
+    colframe=ecoRouge,
+    title={\faIcon{ban} Interdictions strictes},
+    fonttitle=\bfseries,
+    colbacktitle=ecoRouge,
+    coltitle=white,
+    rounded corners,
+    boxrule=2pt
+]
+
+\begin{center}
+\begin{tikzpicture}
+    \node[circle, fill=red!20, minimum size=2.5cm, align=center] (i1) at (0,0) {\faIcon{fire}\\\textbf{Brûler}\\les déchets};
+    \node[circle, fill=red!20, minimum size=2.5cm, align=center] (i2) at (5,0) {\faIcon{arrow-down}\\\textbf{Enfouir}\\les déchets};
+    \node[circle, fill=red!20, minimum size=2.5cm, align=center] (i3) at (10,0) {\faIcon{trash}\\\textbf{Dépôt}\\sauvage};
+\end{tikzpicture}
+\end{center}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% Fiche interne
+\begin{center}
+\begin{tikzpicture}
+    \node[fill=ecoVertClair, rounded corners=10pt, inner sep=15pt, text width=13cm, align=center] {
+        \faIcon{clipboard-list} \textbf{Pour chaque projet}\\[0.3cm]
+        Nous utilisons une \textbf{fiche interne} pour préparer la gestion de nos déchets.
+    };
+\end{tikzpicture}
+\end{center}
+
+{% if image_orga_chantier %}
+\begin{center}
+    \includegraphics[width=0.9\textwidth]{ {{image_orga_chantier}} }
+\end{center}
+{% endif %}

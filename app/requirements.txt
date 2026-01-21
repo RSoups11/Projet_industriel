@@ -1,0 +1,22 @@
+# Bois & Techniques - Générateur de Mémoires Techniques
+# Version 2.0.0 - Interface NiceGUI
+
+# === FRAMEWORK UI ===
+nicegui>=1.4.0
+pywebview>=4.0.0  # Pour le mode application native
+
+# === DONNÉES ===
+pandas>=2.0.0
+jinja2>=3.0.0
+
+# === PDF / LATEX ===
+# Note: pdflatex doit être installé séparément (texlive-full sur Ubuntu)
+pypdf>=4.0.0  # Utilisé (optionnel) pour compter les pages des PDF
+
+# === UTILITAIRES ===
+pathlib2>=2.3.0;python_version<"3.4"
+
+# === DÉVELOPPEMENT (optionnel) ===
+# pytest>=7.0.0
+# black>=23.0.0
+# mypy>=1.0.0

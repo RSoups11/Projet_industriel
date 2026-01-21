@@ -1,0 +1,105 @@
+{
+    "intro": {
+        "title": "Haute qualité environnementale",
+        "text": "Nous sommes labélisés RGE : Notre démarche HQE (Haute qualité environnementale) tend à offrir des ouvrages sains et confortables dont les impacts sur l'environnement, évalués sur l'ensemble du cycle de vie, sont les plus maîtrisés possibles. C'est une démarche d'optimisation multicritères qui s'appuie sur une donnée fondamentale : tout bâtiment doit avant tout répondre à un usage et assurer un cadre de vie adéquat à ses utilisateurs. Comme l'atteste nos efforts réalisés dans le choix de nos fournisseurs, nos matériaux, la gestion de nos déchets et leurs retraitements, la société Bois \\& Techniques agis concrètement pour améliorer la qualité environnementale de nos constructions neuves et des bâti existant."
+    },
+    "eco_construction": {
+        "title": "ECO-Construction (famille F1)",
+        "cibles": [
+            {
+                "titre": "Cible n°02 « choix intégré des procédés et produits de construction »",
+                "sections": [
+                    {
+                        "titre": "Durabilité, entretien et adaptabilité des bâtiments",
+                        "contenu": "Nous adaptons nos choix constructifs à la durée de vie souhaitée de l'ouvrage.\nNous prenons en compte l'adaptabilité de l'ouvrage dans le temps et son démontage/séparation des produits et des systèmes constructifs.\nNous prenons en compte la facilité d'accès pour l'entretien du bâti.\nNous privilégions des produits de construction faciles à entretenir."
+                    },
+                    {
+                        "titre": "Choix des procédés de construction",
+                        "contenu": "Nous choisissons des produits et des systèmes constructifs dont les caractéristiques sont vérifiées.\nNous optimisons la manutention sur le chantier et nous prenons en considération la santé des intervenants sur les chantiers (manutentionnaires, poseurs) afin de prévenir et limiter les troubles musculosquelettiques."
+                    },
+                    {
+                        "titre": "Choix des produits de construction",
+                        "contenu": "Les choix des matériaux sont compatibles avec une gestion durable de l'environnement (Label Vert, PEFC, FSC, fournisseurs locaux, matériaux certifié Excell Zone Verte (contrôle substance indésirables ambiance intérieur, panneau classe E1) …etc.)."
+                    }
+                ]
+            },
+            {
+                "titre": "Cible n°03 « chantier à faibles nuisances »",
+                "sections": [
+                    {
+                        "titre": "Gestion différenciée des déchets de chantier",
+                        "contenu": "VOIR : NOTRE DEMARCHE ENVIRONNEMENTALE SUR LES CHANTIERS"
+                    },
+                    {
+                        "titre": "Réduction des pollutions de la parcelle et du voisinage",
+                        "contenu": "Par l'usage de système de vissage en remplacement du clouage.\nNos systèmes constructifs ne nécessitent pas d'eau sur le chantier, évitant ainsi une contamination des sols.\nConcentration des moyens de levage pour limiter les nuisances sur le trafic routier environnant."
+                    }
+                ]
+            }
+        ]
+    },
+    "eco_gestion": {
+        "title": "ECO-Gestion (famille F2)",
+        "cibles": [
+            {
+                "titre": "Cible n°04 « gestion de l'énergie »",
+                "sections": [
+                    {
+                        "titre": "Réduction de la demande et des besoins énergétiques",
+                        "contenu": "Offrir une limitation des perditions énergétiques par les qualités isolantes des systèmes constructifs et matériaux employés."
+                    }
+                ]
+            },
+            {
+                "titre": "Cible n°06 « gestion des déchets d'activités »",
+                "sections": [
+                    {
+                        "titre": "Gestion différenciée des déchets d'activités",
+                        "contenu": "VOIR : NOTRE DEMARCHE ENVIRONNEMENTALE ATELIER ET BUREAUX"
+                    },
+                    {
+                        "titre": "Réduction de la production de déchets",
+                        "contenu": "Faible quantité de déchets produits pendant la phase de construction et de mise en œuvre grâces à nos systèmes constructifs."
+                    }
+                ]
+            }
+        ]
+    },
+    "confort": {
+        "title": "Confort (famille F3)",
+        "cibles": [
+            {
+                "titre": "Cible n°08 « confort hygrothermique »",
+                "sections": [
+                    {
+                        "titre": "Gestion des zonages hygrothermique et permanence des conditions de confort hygrothermique",
+                        "contenu": "Attention toutes particulière sur la mise en œuvre du pare vapeur et le respect des consignes de la maîtrise d'œuvre.\nFormation RGE de notre bureau d'étude.\nLe confort hygrométrique sera assuré par l'utilisation de matériaux de construction respirants.\nLes ponts thermiques entre la structure en béton et les systèmes constructifs seront évités par des détails de construction.\nAdaptation des matériaux aux pièces à fort dégagement d'humidité (salle d'eaux, sous-sol…)."
+                    }
+                ]
+            },
+            {
+                "titre": "Cible n°09 « confort acoustique »",
+                "sections": [
+                    {
+                        "titre": "Correction / isolation acoustique et affaiblissement des bruits",
+                        "contenu": "Nous réduisons efficacement l'apparition de bruits parasite par l'ajout de matière absorbante.\nL'amélioration acoustique est prise en compte dans nos conceptions de structure."
+                    }
+                ]
+            }
+        ]
+    },
+    "sante": {
+        "title": "Santé (famille F4)",
+        "cibles": [
+            {
+                "titre": "Cible n°14 « qualité de l'air »",
+                "sections": [
+                    {
+                        "titre": "Gestion des risques de pollution par les produits de construction",
+                        "contenu": "Afin de limiter le dégagement des particules fines reconnues nuisible pour la santé nous utilisons des bois certifiés, des colles à base aqueuse ainsi que les traitements de classe 2 (label vert -- SARPECO 850) (tous nos panneaux OSB sont certifiés de classe E1)."
+                    }
+                ]
+            }
+        ]
+    }
+}

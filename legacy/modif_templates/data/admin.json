@@ -1,0 +1,26 @@
+{
+    "qualifications": [
+        "Fabrication et pose de charpente traditionnelle",
+        "Fabrication et pose de bâtiments à ossature bois",
+        "Réparation et renforcement d'ouvrage de charpente",
+        "Restauration de charpente du patrimoine ancien"
+    ],
+    "effectif": {
+        "date": "01/01/2025",
+        "nombre": 11
+    },
+    "chiffres_affaires": [
+        {
+            "annee": "2023",
+            "montant": "2 914 663 €"
+        },
+        {
+            "annee": "2024",
+            "montant": "3 227 324 €"
+        },
+        {
+            "annee": "2025",
+            "montant": "????? €"
+        }
+    ]
+}

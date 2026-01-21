@@ -1,0 +1,163 @@
+% Template pour la Démarche Environnementale Atelier & Bureaux - Thème Écologie
+% Ce fichier sera inclus dans le document principal
+
+\subsection{DÉMARCHE ENVIRONNEMENTALE : ATELIER \& BUREAUX}
+
+\begin{tcolorbox}[
+    colback=ecoFond,
+    colframe=ecoVert,
+    title={\textcolor{white}{\faIcon{industry} Notre Engagement Environnemental}},
+    fonttitle=\bfseries\large,
+    colbacktitle=ecoVertFonce,
+    rounded corners,
+    boxrule=2pt,
+    arc=8pt
+]
+
+Nous attachons une importance toute particulière au traitement de nos déchets et globalement à l'empreinte énergétique de l'entreprise sur son milieu. Notre activité est faiblement productrice de déchets, et ceux-ci sont généralement faciles à recycler par les filières classiques de traitement.
+
+\vspace{0.2cm}
+Cette double démarche (déchets/empreinte énergétique) s'applique dans tous les secteurs de notre activité comme l'atteste notre \textbf{Schéma d'Organisation et de Gestion des Déchets (SOGED)}.
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% ACTIONS CONCRÈTES
+\begin{tcolorbox}[
+    colback=white,
+    colframe=ecoVert,
+    title={\faIcon{check-double} ACTIONS CONCRÈTES},
+    fonttitle=\bfseries,
+    colbacktitle=ecoVert,
+    coltitle=white,
+    rounded corners,
+    boxrule=1.5pt
+]
+
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{\faIcon{desktop} Bureaux}
+\begin{itemize}[leftmargin=*]
+    \item Réduction consommation papier
+    \item Digitalisation des documents
+    \item Impressions N\&B privilégiées
+    \item Une seule imprimante centralisée
+    \item Reprise des consommables vides
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{\faIcon{warehouse} Atelier}
+\begin{itemize}[leftmargin=*]
+    \item Éclairage optimisé
+    \item Lumière naturelle privilégiée
+    \item Tri des déchets
+    \item Fournisseurs locaux
+\end{itemize}
+\end{minipage}
+
+\vspace{0.4cm}
+
+\begin{center}
+\begin{tikzpicture}
+    \node[fill=ecoVertClair, rounded corners=10pt, inner sep=12pt, text width=13cm, align=center] {
+        \faIcon{fire} \textbf{CHAUFFAGE ÉCOLOGIQUE}\\[0.2cm]
+        Notre atelier est chauffé par une \textbf{chaudière à bois} alimentée par nos résidus de fabrication et de chantier.
+    };
+\end{tikzpicture}
+\end{center}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% TRI SÉLECTIF
+\begin{tcolorbox}[
+    colback=white,
+    colframe=ecoBleu,
+    title={\faIcon{recycle} NOTRE DÉMARCHE DE TRI SÉLECTIF},
+    fonttitle=\bfseries,
+    colbacktitle=ecoBleu,
+    coltitle=white,
+    rounded corners,
+    boxrule=1.5pt
+]
+
+Dans sa démarche écologique, \textbf{Bois \& Techniques} trie ses déchets « à la source » grâce à des poubelles de tri et des bennes sélectives.
+
+\vspace{0.4cm}
+
+\begin{center}
+\begin{tikzpicture}[
+    benne/.style={rectangle, rounded corners=5pt, minimum width=5.5cm, minimum height=1.8cm, align=center, font=\small}
+]
+    % Ligne 1
+    \node[benne, fill=ecoVertClair] (b1) at (0,0) {\faIcon{tree} \textbf{Bois sains}\\Lattes, chutes, volige\\$\rightarrow$ Chauffage atelier};
+    \node[benne, fill=orange!20] (b2) at (6.5,0) {\faIcon{exclamation-triangle} \textbf{Bois traités/peints}\\$\rightarrow$ Centre de traitement};
+    
+    % Ligne 2
+    \node[benne, fill=red!15] (b3) at (0,-2.5) {\faIcon{biohazard} \textbf{Déchets spéciaux}\\Mastics, colles, peintures\\$\rightarrow$ TREDI / Déchetterie};
+    \node[benne, fill=yellow!20] (b4) at (6.5,-2.5) {\faIcon{cog} \textbf{Copeaux et sciure}\\$\rightarrow$ Fabrication briquettes pour chauffage interne};
+    
+    % Ligne 3
+    \node[benne, fill=gray!20] (b5) at (0,-5) {\faIcon{building} \textbf{Déchets inertes}\\Tuiles, gravats\\$\rightarrow$ Remblaiement};
+    \node[benne, fill=blue!15] (b6) at (6.5,-5) {\faIcon{magnet} \textbf{Métaux triés}\\Acier, alu, zinc, cuivre\\$\rightarrow$ Fonderies};
+\end{tikzpicture}
+\end{center}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% RÉDUCTION DES DÉCHETS
+\begin{tcolorbox}[
+    colback=ecoFond,
+    colframe=ecoVertFonce,
+    title={\faIcon{arrow-down} DIMINUER SA PRODUCTION DE DÉCHETS EN ATELIER},
+    fonttitle=\bfseries,
+    colbacktitle=ecoVertFonce,
+    coltitle=white,
+    rounded corners,
+    boxrule=1.5pt
+]
+
+\begin{minipage}[t]{0.32\textwidth}
+\begin{center}
+\faIcon{ruler-combined}\\[0.2cm]
+\textbf{Prédimensionnement}\\
+des pièces pour limiter les déchets
+\end{center}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.32\textwidth}
+\begin{center}
+\faIcon{boxes}\\[0.2cm]
+\textbf{Livraisons ordonnées}\\
+pour prévenir la casse
+\end{center}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.32\textwidth}
+\begin{center}
+\faIcon{box-open}\\[0.2cm]
+\textbf{Produits peu emballés}\\
+pour réduire les déchets
+\end{center}
+\end{minipage}
+
+\vspace{0.4cm}
+
+\begin{center}
+\colorbox{ecoVertClair}{\parbox{0.9\textwidth}{\centering
+\faIcon{users} \textbf{ACTION DE SENSIBILISATION}\\[0.1cm]
+Chaque nouvelle installation de tri est expliquée collectivement et des rappels individuels sont effectués.
+}}
+\end{center}
+
+\end{tcolorbox}
+
+{% if image_hqe_atelier %}
+\begin{center}
+    \includegraphics[width=0.9\textwidth]{ {{image_hqe_atelier}} }
+\end{center}
+{% endif %}

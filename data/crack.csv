@@ -1,0 +1,359 @@
+section;sous-section;texte;image
+CONTEXTE DU PROJET;Contextes, Environnement, Acces chantier et stationnement, Levage, Contraintes du chantier;;
+CONTEXTE DU PROJET;Contraintes du chantier;Travaux hauteur /// ou /// Chute de hauteur /// ou /// Contraintes temporelles : (délai fixé pour une tâche, début d'une tâche à une date donnée fin de tâche à une date donné) /// ou /// Protection de l'existant /// ou /// Chantier neuf /// ou /// Travaux dans site occupé /// ou /// Interactions/influence des autres lots /// ou /// Échafaudage /// ou /// Travaux neuf /// ou ///  Sites occupés;
+CONTEXTE DU PROJET;Contextes;"Nous sommes rendus sur les lieux le ""date?"", inserer plan de masse et vue aerienne, ""adresse?"", ";
+CONTEXTE DU PROJET;Environnement;Pavillonnaire /// ou /// Zone industrielle /// ou ///  Zone artisanale /// ou /// Centre-ville/// ou /// Campagne /// ou /// Centre village /// ou ///  Zone commerciale /// ou ///  Zone urbaine /// ou ///  Zone rurale;
+CONTEXTE DU PROJET;Acces chantier et stationnement;Selon PGC délivrée à l’entreprise retenue;
+CONTEXTE DU PROJET;Levage;Grue automotrice /// ou ///  Camion grue;
+CONTEXTE DU PROJET;RESPECT DES DÉLAIS DU PLANNING PRÉVISIONNEL;"Lors de l'étude du planning transmis dans le cadre du dossier de consultation, nous avons porté une attention particulière à la durée prévue par le planning pour la phase de montage.
+
+Au regard des caractéristiques techniques du projet, du volume des éléments à assembler, des conditions d'accès au site, ainsi que de nos retours d'expérience sur des opérations similaires, cette durée apparaît insuffisante pour garantir une exécution conforme aux exigences de qualité, de sécurité et de coordination des intervenants.
+
+Nos prévisions internes, fondées sur une simulation détaillée, estiment le besoin réel à [OPTION]. Nous recommandons donc d'ajuster le planning initial sur cette base afin d'assurer une exécution réaliste, fluide et sans tension sur les ressources.
+
+[PROPOSITIONS]
+
+durée insuffisante /// ou /// durée suffisante /// ou /// autre";
+
+SITUATION ADMINISTRATIVE DE L’ENTREPRISE;QUALIFICATIONS, EFFECTIFS ET SITUATION ADMINISTRATIVE DE L’ENTREPRISE;"QUALIFICATIONS ENTREPRISE RGE QUALIBAT :
+- Fabrication et pose de charpente traditionnelle
+- Fabrication et pose de bâtiments à ossature bois
+- Réparation et renforcement d’ouvrage de charpente
+- Restaurant de charpente du patrimoine ancien
+EFFECTIF ENTREPRISE AU 01/01/2025 : 12 salariés
+CHIFFRE D’AFFAIRE DES 3 DERNIERES ANNEES (2024, 2023 et 2022) :
+- 2022 : 2 324 861,00€
+- 2023 : 2 914 663,00€
+- 2024 : 3 227 324,26€";
+LISTE DES MATERIAUX MIS EN OEUVRE;UNE MATIERE PREMIERE DE QUALITE CERTIFIEE;"Utilisation de bois certifiés, de colle à base aqueuse ainsi que les traitements de classe 2 (label vert – SARPECO 850).
+
+Les approvisionnements sont faits dans le respect de l’environnement avec une politique d’achats rigoureuse des bois à provenance certifié et une éco certification des bois locaux.
+
+Nous privilégions des produits moins nocifs pour la santé limitant les émissions potentielles (émissions chimiques et radioactives, comportement vis à vis des moisissures et des bactéries, émissions d’odeurs) 
+Matériaux testés en laboratoire et l’ensemble de nos panneaux OSB sont de classe E1 (≤ 8mg/100g) ou garantis
+Fournisseurs locaux et français de sans formaldéhyde. préférence.";
+LISTE DES MATERIAUX MIS EN OEUVRE;Fixation et Assemblage ;"Nature des éléments : Boulons galvanisés à chaud Ø16 et Ø20 ; Visserie électrozinguée ; Vis Ø8 ; Equerres de fixation et sabots galvanisés BEA ; Pointes d’ancrage crantées ; Ferrures mécano-soudées ; Vis anti-fendage ; Pointes brutes ; Pointes galvanisées à chaud ; Chevilles maçonnerie ; Goujons d’ancrage ; Vis inox ; Vis inox ; Boulons TRCC 8 – Ø 10 – Ø 12
+Marque, type, performance : Classe 6.8. Filetage partiel ; BERNER ; EUROTEC ; BEA ; BEA 4/50 ; MTR ; SFS – EUROTEC ; GUNEBO ; GUNEBO ; HILTI HRD UGT Ø 10 – Ø 14 ; HILTI HSAK Ø 12 – Ø 16 ; BERNER A2 torx ; EUROTEC A4 torx ; SCHMERBER
+Provenance : France ; France ; Allemagne ; France ; France ; France - Alsace ; France - Allemagne ; Suède : Suède ; France ; France ; France ; Allemagne ; France
+Doc en annexe : - ; - ; OUI ; OUI ; - ; - ; - ; - ; - ; - ; - ; - ; - ; -";
+LISTE DES MATERIAUX MIS EN OEUVRE;METHODOLOGIE DE TRAITEMENT;"Traitement curatif et préventif par injections et double pulvérisation de l’ensemble des bois de charpente et solivage intérieurs selon les prescriptions techniques en vigueur :
+ 
+Préparation des surfaces
+-Sondage
+-Décapage des bois atteints (Bûchage) 
+-Brossage
+-Dépoussiérage
+  Traitement en profondeur des grosses pièces
+-Percement des puits d’injection tous les 20cm (5 à 6 par ML) 
+-Mise en place d’injecteurs anti-retour sans tête restant définitivement dans les éléments traités 
+-Pièces encastrées dans la maçonnerie : injections doublées et orientées vers la maçonnerie
+-Injections profondes en basse pression 20 à 40 g
+-Application en surface de XILIX 3000P sur l’ensemble des bois en deux couches (100 à 300g par m2)
+ 
+ Traitement en profondeur des chevrons
+-Percement des puits d’injection tous les 30cm (3 à 4 par ML)
+-Mise en place d’injecteurs anti-retour sans tête restant définitivement dans les éléments traités 
+-Injections profondes en basse pression 20 à 40 g
+-Application en surface de XILIX 3000P sur l’ensemble des bois en deux couches (100 à 300g par m2)   
+ PRODUIT XILIX 3000P en phase aqueuse classes 1/2/3A certifié CTBP+    ";
+LISTE DES MATERIAUX MIS EN OEUVRE;Traitement préventif des bois;"Nature des éléments : Traitement SARPECO 850
+Marque, type, performance : Label Vert - SARPECO 850
+Provenance : France
+Doc en annexe : OUI /// ou /// NON";
+LISTE DES MATERIAUX MIS EN OEUVRE;Traitement curatif des bois;"Nature des éléments : Traitement XILIX 3000P
+Marque, type, performance : Label Vert - CTB + - PHASE AQUEUSE ; CLASSE 1/2/3A CERTIFIE CTB-P+ / SOCOTEC
+Provenance : France
+Doc en annexe : OUI /// ou /// NON
+";LISTE DES MATERIAUX MIS EN OEUVRE;Produits proposés par l'intermédiaire des fiches technique;DPFG;
+MOYENS HUMAINS AFFECTES AU PROJET;Le chargé d’affaires : Frederic ANSELM;Il est l’unique interlocuteur de tous les intervenants du projet, il participe aux réunions de chantiers, établit la descente de charges, la note de calculs et les plans en tenant compte des interfaces avec les autres lots. Il organise les travaux de préparation et de levage en assurant un contrôle qualité des ouvrages exécutés à tous les stades de la construction.;
+MOYENS HUMAINS AFFECTES AU PROJET;Le chef d’équipe : Jimmy FROGER /// ou /// THROO Stéphane;Il dirige les opérations de taille et de levage de la charpente en se basant sur les PAC et en étroite collaboration avec le chargé d’affaires. Il applique les consignes de sécurité du PPSPS;
+MOYENS HUMAINS AFFECTES AU PROJET;Les charpentiers : DA COSTA Tristan /// ou /// Thomas MURA /// ou /// Guillaume DIEU /// ou /// RIGALLEAU Jordan /// ou /// Thomas NEFF ;1 à 2 charpentiers(s) seront affectés à ce projet en plus du chef d’équipe. Cet effectif pourra être augmenté selon les contraintes du PLANNING en phase d’exécution des travaux.;
+MOYENS HUMAINS AFFECTES AU PROJET;SECURITE ET SANTE SUR LES CHANTIERS;"CONCRETEMENT :
+NORMES et CERTIFICATIONS MACHINES (fixes et portatives).
+NORMES ASPIRATION.
+SECURITE INCENDIE. (Prévention, lutte, accès).
+NORMES ELECTRIQUE.
+ACCESSIBILITE AUX PERSONNES EN SITUATION DE HANDICAP.
+HYGIENE, SANTE et CONFORT.
+VERIFICATION PERIODIQUE PAR NOS PRESTATAIRES (échelles, harnais, stop-chute, équipement de levage, ligne de vie, installation électrique, détection incendie, RIA, compresseur, chariot élévateur, extincteur, machine atelier, …)
+
+UNE ORGANISATION DE PRODUCTION FAVORISANT LA SECURITE :
+Notre atelier est de façon lean management en privilegiant l'efficience afin de facilité la circulation des pièces de bois au cours des différentes phases de travail. Les zones de stockage, de traçage, d'usinage et de stockage avant expédition sont prévues.
+
+CONFORT DE TRAVAIL :
+Nous mettons à la disposition de notre personnel une salle de repos avec : point d’eau, machine à café, réfrigérateur, micro-onde, table et chaises, vestiaire, douche, sanitaires … etc.
+
+Afin d’offrir des garanties de sécurité au public et nos salariés, notre atelier, construit en 2010, respecte l’ensemble des normes de construction et de prévention/lutte/accès incendie et explosion.
+
+Nos équipes ont à leur disposition les moyens de travailler en sécurité tout en préservant leur santé. Ils participent régulièrement à des formations sur les bonnes pratiques sécuritaires et le bon usage de nos machines (tailles et levages).
+
+UN ACCUEIL DES NOUVEAUX SALARIES METTANT EN AVANT LA SECURITE :
+
+Chaque nouvel arrivant (stagiaire, intérimaire, salarié) se voit fournir, dès son arrivée, un livret d'accueil rappelant les bases de sécurité et les bons comportements à avoir (OPP BTP), une « fiche d'accueil » est rédigée avec lui, afin de faciliter son suivit médical en cas d'accident et de le sensibiliser aux dangers du chantier et les types d'EPI misent à sa disposition.
+
+LA SECURITE S’AFFICHE PARTOUT :
+De nombreuses affiches (INRS) sont placées aux endroits stratégiques de nos bureaux et atelier.
+Puisque la pédagogie est l'art de la répétition nous avons privilégiez des modèles avec des graphismes et slogan plus ancien pour rappeler à nos charpentiers celle qui se trouvaient déjà autour d'eux dans leur lieu de formation (collège, lycée, CFA,…).";
+MOYENS HUMAINS AFFECTES AU PROJET;ORGANIGRAMME FONCTIONNEL DE L'EQUIPE AFFECTEE AUX PROJETS;;../images/organigramme.png
+MOYENS MATERIEL AFFECTES AU PROJET;CONCEPTION et PRECISION, SECURITE, ATELIER DE TAILLE, TRANSPORT, LEVAGE, MACHINE PORTATIVE, PROTECTION / NETTOYAGE DU BÂTI, GESTION DECHET;;
+MOYENS MATERIEL AFFECTES AU PROJET;CONCEPTION et PRECISION;- Lunette et laser pour relevés, implantation et traçage - Panel de logiciel (CAO, DAO, calcul de structure, …) - Purge complémentaire - Scan 3 D pour relever côtes et altimétrie. - Relevé sur site de l’état sanitaire des pièces conservées. - Plans 3D et 2D (Plans P.A.C);
+MOYENS MATERIEL AFFECTES AU PROJET;SECURITE;- EPI (Harnais, casque, lignes de vie, stop-chutes, chaussures, lunette, gant, masque,) - Filets de protection antichute - Echafaudage roulant intérieur (Hussor, Distel) - Mise en place d’échafaudages extérieurs ponctuels (Hussor) - Nacelle - Echelle d’accès (Distel) - ….;
+MOYENS MATERIEL AFFECTES AU PROJET;ATELIER DE TAILLE;- Scie radiale, - Raboteuse Utis, - Compresseurs et outillage pneumatique, - Scie à panneaux Streibig, - Scie à ruban, - Radiale Lyonflex, - Scie à format, - Toupie, - Machines de charpente Mafell (circulaire, mortaiseuse, tronçonneuse sur table, scie à ruban, entailleuse, - Pont roulant 3,2 tonnes - Chariot latéral 4 tonnes - ….;
+MOYENS MATERIEL AFFECTES AU PROJET;TRANSPORT;- Camionnettes 3,5 Tonnes équipées - Camion bras pour approvisionnement - Remorque;
+MOYENS MATERIEL AFFECTES AU PROJET;LEVAGE;- Palan - Grue mobile d’intérieur 600Kg - Vérin 10 tonnes - Tour d’étayage Hussor - Treuil électrique 250Kg - Lève matériaux (chèvre, lève plaque, …) 300Kg;
+MOYENS MATERIEL AFFECTES AU PROJET;MACHINE PORTATIVE;- Machines portatives de nos équipes, soit une vingtaine de machines par véhicule - Matériel d’injection pour résine époxy;
+MOYENS MATERIEL AFFECTES AU PROJET;PROTECTION / NETTOYAGE DU BÂTI;- Bâchage permanent - Aspirateur de chantier - Equipement de nettoyage individuel dans chaque véhicule;
+MOYENS MATERIEL AFFECTES AU PROJET;GESTION DECHET;- Big-bag - 6 Bennes de tri chez Bois & Techniques - Remorque;
+MÉTHODOLOGIE / CHRONOLOGIE;"Deroulement des travaux  ""Restauration""";"Méthode de préparation du chantier :
+L'entreprise Bois & Techniques réalisera un relevé précis des charpentes en place avec détails des assemblages, sections, côte altimétriques, zones dégradées ainsi qu'un dossier photos qui permettront de respecter les configurations d'origine de la restauration.
+D'autre part des notes de calculs seront réalisées afin d'adapter les sections aux différentes charges de couverture, plafond et d'exploitations en accord avec le Maïtre d'oeuvre.
+Les bois de remplacement proviennent du massif forestier vosgien avec certificat de traitement et PEFC et sont séchés à l'air avant utilisation.
+Les assemblages seront réalisés conformément aux existants ou selon détails ci après : (INSERER IMAGE)
+
+Nous avons également un stock de bois ancien en sapin et en chêne afin d’obtenir une parfaite harmonie avec les zones visibles.
+Les bois de charpente à remplacer, à greffer, à résiner, à étayer seront représentés sur nos plans avec les détails d’assemblages et transmis au Maître d’ouvrage pour accord avant travaux.
+Nous réalisons les renforcements par résine époxy armée depuis 25 ans avec le même fournisseur (MAPEI) en respectant leur cahier de charges, notre personnel est habitué et formé à cette technique de réparation.
+**Nous possédons une garantie décennale spécifique pour ces travaux.**
+Un reportage photos sera réalisé en cours des travaux et envoyé au Maître d'œuvre et d'ouvrage à sa demande.
+Un relevé contradictoire sera réalisé en fin de phase et envoyé à votre économiste avec notre situation de travaux.";
+MÉTHODOLOGIE / CHRONOLOGIE;Conception;"Méthode de préparation du chantier : 
+Une collaboration inter-lots est indispensable afin de soulever et de solutionner tous les problèmes techniques et temporels du chantier. 
+L’entreprise délivre ses plans d’exécution des ouvrages, Plans d’Atelier et de chantier (PAC), calepins et épures, notes de calcul, descente de charge, au bureau de contrôle.  
+L’entreprise fournit également tous les renseignements indispensables à l’établissement d’un ordonnancement général définissant les phases des études d’exécution y compris PAC, d’exécution des travaux préparatoires des études de synthèse, des mises au point de fabrication, des commandes de matériel, de présentation des échantillons, des formalités administratives, le PLANNING de pose avec sous-phase, la fabrication atelier, … ";
+MÉTHODOLOGIE / CHRONOLOGIE;Fabrication / Taille en atelier;"LES OPERATIONS REALISEES POUR CE PROJET : 
+Découpe et taillage des bois en atelier /// ou /// 
+Lasure de l’ensemble des bois en atelier /// ou /// 
+Traitement classe 2 par trempage /// ou ///
+Pré débit des bois /// ou /// 
+Taille de la charpente dans nos ateliers /// ou /// 
+Taillage de la charpente en atelier et traitement classe 2 par trempage dans nos ateliers /// ou /// 
+Taillage complet de charpente en atelier y compris murs ossature bois /// ou /// 
+Taillage de la charpente en atelier et traitement classe 3 par autoclave /// ou /// 
+Découpe et taillage des bois en atelier au maximum, le reste sur site  /// ou /// 
+Taillage et traitement classe 2 de la charpente neuve dans nos ateliers /// ou ///  
+Prédébit des bois de renforcement  /// ou /// 
+Relevé précis de la charpente existante /// ou /// 
+Tous les usinages en usine /// ou /// 
+Fabrication et traitement classe 2 dans nos ateliers (délai 5 jours) /// ou /// 
+Transport par camion grue Y/C levage /// ou /// 
+Pose de la charpente par nacelles à bras /// ou /// Relevé précis de la charpente existante /// ou /// Préparation au maximum des bois en atelier /// ou /// Simple adaptation des bois sur chantier /// ou /// Taille de la charpente en atelier /// ou /// Stockage des éléments à l'abri des intempéries";
+MÉTHODOLOGIE / CHRONOLOGIE;Transport et Levage;"Le chantier est posé par nos équipes formées, chaque chef d'équipe est titulaire de plusieurs « CACES » pour pouvoir manipuler nacelles ciseaux, bras articulé, chariot élévateur…
+
+Les operations realisees pour ce projet :
+Livraison par camion /// ou /// Grue /// ou /// Plateau
+Levage par grue mobile /// ou /// Grue à tour des éléments lourds /// ou /// Levage manuel des parties secondaires /// ou /// Levage par échafaudage mobile intérieur
+
+Ouvrages livrés sur chantier : 
+Les ouvrages livrés sur le chantier en attente de pose seront stockés à l'abri des intempéries, des souillures et des chocs. Les conditions de stockage seront telles qu'elles ne subissent aucune déformation ou détérioration"; 
+Les équipes sont encadrées par le chargé d'affaire et par Monsieur GRANDEMANGE (responsable qualité), qui se rend sur le chantier régulièrement.
+Afin de maintenir un niveau de qualité élevé, certains travaux (traitement curatif, couverture) peuvent être sous-traités (le contrat de sous-traitance est soumis à l’accord du maître d’ouvrage en amont). 
+
+LES OPERATIONS REALISEES POUR CE PROJET : 
+Réception échafaudage /// ou /// 
+Relevé de l’état des bois après traitement, croquis des zones à renforcer /// ou /// 
+Charpente métallique /// ou /// 
+Levage de la charpente par échafaudage mobile intérieur /// ou /// 
+Pose des panneaux OSB  /// ou ///
+Réception gros œuvre et échafaudages /// ou /// 
+Formations et habilitations de nos équipiers au site aéroportuaire  /// ou ///
+Relevé de l’existant /// ou /// 
+Gros œuvre /// ou ///
+Renforcement de charpente /// ou /// 
+Bâchage et débâchage selon nécessité /// ou ///
+Montage de la charpente par échafaudage intérieur roulant et nacelle télescopique /// ou ///
+Montage des ossatures de bandeau par nacelle télescopique
+";MÉTHODOLOGIE / CHRONOLOGIE;CHANTIER;ORGANISATION : "
+Les équipes sont encadrées par le chargé d'affaire et par Monsieur GRANDEMANGE, responsable qualité, qui se rend sur le chantier régulièrement. 
+Afin de maintenir un niveau de qualité élevé, certains travaux (traitement curatif, couverture) peuvent être sous-traités (le contrat de sous-traitance est soumis à l'accord du maître d'ouvrage en amont) 
+
+LES OPERATIONS REALISEES POUR CE PROJET : 
+Relevé de l'état des bois après traitement et sablage /// ou /// 
+Charpente métallique /// ou /// 
+Levage de la charpente par échafaudage mobile intérieur /// ou /// 
+Pose des panneaux OSB  /// ou ///
+Réception gros œuvre et échafaudages /// ou /// 
+Formations et habilitations de nos équipiers au site aéroportuaire  /// ou ///
+Relevé de l'existant /// ou /// 
+Gros œuvre /// ou ///
+Renforcement de charpente /// ou /// 
+Bâchage et débâchage selon nécessité /// ou ///
+Montage de la charpente par échafaudage intérieur roulant et nacelle télescopique /// ou ///
+"Montage des ossatures de bandeau par nacelle télescopique""";
+MÉTHODOLOGIE / CHRONOLOGIE;Protection de l'existant ou ses ouvrages pour ce projet;"- Travaux effectués avec des cloueurs pneumatiques, permettant de limiter les chocs et les vibrations.
+- Utilisation de compresseurs à haute pression, avec une vitesse de rotation lente, un fonctionnement silencieux et une absence de vibrations.
+- Préférence pour le vissage au clouage.";
+MÉTHODOLOGIE / CHRONOLOGIE;Organisation en matière d'hygiène et de sécurité;"- Un échafaudage périphérique (hors lot) avec une recette pour l'approvisionnement des matériaux.
+- Une plateforme provisoire sous les zones de travaux. 
+- Echafaudage mobile ponctuel intérieur et/ou ligne de vie avec harnais et top-chute. ";
+MÉTHODOLOGIE / CHRONOLOGIE;PROTECTION / NETTOYAGE;Sols - Murs - Bâchage permanent du chantier (selon attribut du lot) - Filets - Nettoyage en deux pavés;
+MÉTHODOLOGIE / CHRONOLOGIE;Respect des contraintes liées aux monuments historiques;"Les moyens mis en oeuvre pour obtenir : 
+-  Le label BBC : batiment basse consommation ;
+-  La certification RGE : Reconnu Garant de l'Environnement ;
+-  Tests d’étanchéité ;
+-  Taux d'humidité ;
+-  Tests acoustiques ; 
+-  Calculs TH ;
+-  Respect monument historique";
+MÉTHODOLOGIE / CHRONOLOGIE;DEMARCHE HQE;"Nous sommes labélisés RGE : Notre démarche HQE (Hygiène, qualité, environnement, Sécurité) tend à offrir des ouvrages sains et confortables dont les impacts sur l’environnement, évalués sur l’ensemble du cycle de vie, sont les plus maîtrisés possibles. C’est une démarche d’optimisation multicritères qui s’appuie sur une donnée fondamentale : tout bâtiment doit avant tout répondre à un usage et assurer un cadre de vie adéquat à ses utilisateurs. Comme l’atteste nos efforts réalisés dans le choix de nos fournisseurs, nos matériaux, la gestion de nos déchets et leurs retraitements, la société Bois & Techniques agis concrètement pour améliorer la qualité environnementale de nos constructions neuves et des bâti existant.
+
+ECO-Construction : 
+Cible n°02 « choix intégré des procédés et produits de construction »
+
+- Durabilité, entretien et adaptabilité des bâtiments :
+
+Nous adaptons nos choix constructifs à la durée de vie souhaitée de l’ouvrage.
+Nous prenons en compte l’adaptabilité de l’ouvrage dans le temps et son démontage/séparation des produits et des systèmes constructifs.
+Nous prenons en compte la facilité d’accès pour l’entretien du bâti.
+Nous privilégions des produits de construction faciles à entretenir.
+
+- Choix des procédés de construction :
+
+Nous choisissons des produits et des systèmes constructifs dont les caractéristiques sont vérifiées.
+Nous optimisons la manutention sur le chantier et nous prenons en considération la santé
+des intervenants sur les chantiers (manutentionnaires, poseurs) afin de prévenir et limiter
+les troubles musculosquelettiques.
+
+- Choix des produits de construction :
+
+Les choix des matériaux sont compatibles avec une gestion durable de l’environnement (Label Vert, PEFC, FSC, fournisseurs locaux, matériaux certifié Excell Zone Verte (contrôle substance indésirables ambiance intérieur, panneau classe E1) …etc.).
+
+Cible n°03 « chantier à faibles nuisances »
+-Gestion différenciée des déchets de chantier : 
+
+VOIR : NOTRE DEMARCHE ENVIRONNEMENTALE SUR LES CHANTIERS
+
+- Réduction des pollutions de la parcelle et du voisinage :
+
+Par l’usage de système de vissage en remplacement du clouage.
+Nos systèmes constructifs ne nécessitent pas d’eau sur le chantier, évitant ainsi une contamination des sols.
+Concentration des moyens de levage pour limiter les nuisances sur le trafic routier environnant
+
+ECO-Gestion
+
+Cible n°04 « gestion de l’énergie »
+- Réduction de la demande et des besoins énergétiques :
+Offrir une limitation des perditions énergétiques par les qualités isolantes des systèmes constructifs et matériaux employés
+
+Cible n°06 « gestion des déchets d’activités »
+ - Gestion différenciée des déchets d’activités :
+VOIR : NOTRE DEMARCHE ENVIRONNEMENTALE ATELIER ET BUREAUX
+- Réduction de la production de déchets :
+Faible quantité de déchets produits pendant la phase de construction et de mise en œuvre grâces à nos systèmes constructifs.
+
+Confort
+Cible n°08 « confort hygrothermique »
+
+- Gestion des zonages hygrothermique et permanence des conditions de confort hygrothermique :
+
+Attention toutes particulière sur la mise en œuvre du pare vapeur et le respect des consignes de la maîtrise d’œuvre.
+Formation RGE de notre bureau d’étude.
+Le confort hygrométrique sera assuré par l’utilisation de matériaux de construction respirants.
+Les ponts thermiques entre la structure en béton et les systèmes constructifs seront évités par des détails de construction.
+Adaptation des matériaux aux pièces à fort dégagement d’humidité (salle d’eaux, sous-sol…).
+
+Cible n°09 « confort acoustique »
+
+- Correction / isolation acoustique et affaiblissement des bruits :
+
+Nous réduisons efficacement l’apparition de bruits parasite par l’ajout de matière absorbante.
+L’amélioration acoustique est prise en compte dans nos conceptions de structure.
+
+SANTE
+
+Cible n°14 « qualité de l’air »
+- Gestion des risques de pollution par les produits de construction :
+
+Afin de limiter le dégagement des particules fines reconnues nuisible pour la santé nous utilisons des bois certifiés, des colles à base aqueuse ainsi que les traitements de classe 2 (label vert – SARPECO 850) (tous nos panneaux OSB sont certifiés de classe E1).";
+MÉTHODOLOGIE / CHRONOLOGIE;DEMARCHE ENVIRONNEMENTALE : ATELIER & BUREAUX;"Nous attachons une importance toute particulière au traitement de nos déchets et globalement à l’empreinte énergétique de l’entreprise sur son milieu. Notre activité est faiblement productrice de déchets, et ceux-ci sont généralement faciles à recycler par les filières classiques de traitement.
+Cette double démarche (déchets/empreinte énergétique) s’applique dans tous les secteurs de notre activité comme l’atteste notre schéma d’organisation et de gestion des déchets (SOGED) à l’atelier ou sur nos chantiers.
+
+ACTIONS CONCRETEES
+Dans notre ateliers et bureau d’étude :
+- Réduction de notre consommation de papier, consommables.
+- Privilégie la digitalisation des documents aux impressions, si impression nécessaire les impressions noir et blanc seront privilégiées.
+- Une seule imprimante centralisée. Nos contrats de location de matériel bureautique prévoient la reprise des consommables vides et des anciens matériels.
+- Investissement informatique permettant de privilégier le stockage et la transmission des documents par voie numérique.
+- L’éclairage est optimisé et la lumière naturelle est privilégiée.
+- Trie de nos déchets (papier, carton, plastique, bureautique,…).
+- Chauffage de notre atelier par chaudière à bois alimentée par nos résidus de fabrication et de chantier.
+- Le choix de fournisseurs locaux est privilégié.
+
+ACTION CONCRETE : Disposition de nos systèmes de tri dans notre atelier
+img : ../images/HQE_chantier
+
+NOTRE DEMARCHE DE TRI-SELECTIF
+Dans sa démarche écologique, Bois & Techniques trie aujourd'hui ses déchets ""à la source"" grâce à des poubelles de tri et des bennes sélectives. Permettant leur traitement selon leur nature et leur destination.
+- Benne pour : bois sains, lattes, chutes de poutres, volige, cartons non souillés : utilisé comme moyen de CHAUFFAGE DE L’ATELIER.
+- Benne pour déchets bois traités et bois peint EVACUATION VERS UN CENTRE DE TRAITEMENT.
+- Lieu de stockage pour déchets industriels spéciaux : Les mastics, silicones, colles, pots de peinture et Epoxy, mousse Polyuréthane expansée, contenants souillés, graisse, chiffons, et autres déchets. stocké dans un local avec cuve de rétention. Puis évacuation et traitement chez TREDI ou déchetterie de la commune de SOULTZ.
+- Silo pour copeaux et sciure (Fabrication de briquette).
+- Benne pour déchets inerte : tuiles, maçonnerie, divers gravats… évacuation par SCHROLL puis transformation pour réutilisation comme remblaiement.
+- Entreposage des métaux triés : acier, aluminium, zinc, cuivre, visserie, équerre, pointe,… puis recyclage par broyage à destination des fonderies.
+- Benne «mélange» : emballage, polyane, isolant, RECUPERES par la société EDIB pour STOCKAGE et REVALORISATION après EXTRACTION.
+- Poubelle déchets ménagers collectée par la municipalité.
+
+DIMINUER SA PRODUCTION DE DECHETS
+- Prédimensionnement de pièces pour limiter les déchets de matière.
+- Livraisons et stockage mieux ordonnés, pour prévenir la casse, les chutes et les détériorations.
+- Choix de produit moins emballés.
+
+Action de sensibilisation :
+A pour objectif de favoriser l’éducation du personnel de l’entreprise au tri des déchets et aux systèmes de tri mis en place.
+Chaque nouvelle installation de tri ou méthode est expliquée collectivement et des rappels individuels sont effectués à chaque constatation du non-respect de ces engagements.";
+MÉTHODOLOGIE / CHRONOLOGIE;DEMARCHE ENVIRONNEMENTALE : SUR LES CHANTIERS;"L’entreprise Bois &Techniques a mis en place depuis de nombreuses années, pour réduire ses coûts d’élimination, un tri sélectif de ses déchets
+en sortie de production, sur chantier et en retour de chantier.
+Nous avons 3 principes de tri sur les chantiers en fonction du type, de la taille et de la quantité de déchet à traiter.
+Notre activité en construction neuve ne génère presque pas de déchet sur chantier, puisque l’usinage se réalise en atelier.
+
+Cas n°1 : Notre démarche dans un cadre de tri collectif
+- Les différents moyen de gestion et de tri des déchets présent sur le chantier (bennes, poubelles, Big bag, zone de stockage, …) seront identifiés et utilisés par nos équipes dans le respect de leur fonction (DI, DIB, DID).
+-  Nos équipes sont sensibilisées pour répartir correctement leurs déchets dans les différentes bennes par catégorie (inertes, industriels banals, industriels dangereux) et par catégorie de matériaux (métaux, plastiques, bois et dérivés, liquides, …)
+- Dans le cas où certains types de déchets créés par nos équipes sur le chantier ne seraient pas compatibles avec les systèmes collectifs de récupération. Nous nous chargerons de leur évacuation vers notre atelier et mettrons en œuvre notre processus de tri interne.
+
+Cas n°2 : Notre démarche de tri autonome pour gros volume
+Si : Absence de gestion des déchets collective / Quantité de déchet produit importante / Variété de type de déchet.
+- Une aire d’entreposage des déchets sera définie et le nombre de bennes découlera de la spécificité des travaux et de la quantité de déchets générées.
+- L’aire d’entreposage sera placée à bonne distance des zones sensibles pour prévenir tout risque de contamination (sol, personnel, …).
+- Elle sera balisée, rangée régulièrement et maintenu dans un état de propreté afin d’en faciliter l’accès et la récupération des bennes par nos prestataires.
+- Les différentes bennes tenues à disposition, par un prestataire agréé, pour le tri des déchets seront identifiées par la mise en place de pictogrammes ou de codes couleurs représentants les types de déchets qu’elles peuvent contenir.
+- Collecte des déchets par notre prestataire qui les valorisera dans les conditions légales, c'est-à-dire par réemploi, recyclage ou transformation en énergie, à l'exclusion de tout autre mode d'élimination, ou par nos équipes dans le cas de déchets spécifiques et respect de la traçabilité des produits dangereux.
+- Nos équipes sont évidemment sensibilisées pour répartir correctement leurs déchets dans les différentes bennes par catégorie (inertes, industriels banals, industriels dangereux) et par catégorie de matériaux (métaux, plastiques, bois et dérivés, liquides, …).
+- Mise en place de moyen de tri initial à côté de nos zones de travail (sacs poubelle, Big bag, …) afin de mieux gérer le flux de déchets vers les bennes.
+- Entretien et nettoyage régulier des zones de travail.
+
+Interdiction :
+- De brûler les déchets. 
+- D’enfouissement des déchets. 
+- De mise en dépôt sauvage.
+
+Organisation de la gestion des déchets sur un chantier
+
+img : ../images/orga_chantier_gestion
+
+
+Cas n°3 : Notre démarche de tri autonome pour petit volume
+Si : Absence de gestion des déchets collective / Quantité de déchet produit faible.
+- Nos équipes utiliseront le système de tri et de récupération des déchets mis en place par notre société :
+- Tri des bois en deux catégorie (bois sain, et bois traités ou peint) dans nos remorques ou dans les parties de nos camionnettes prévues pour le transport de bois.
+- Récupération des métaux (visserie, pointe, ferrure, …) dans les seaux et caisses prévus à cet effet.
+- Tri des matériaux facilement recyclable dans sac polyane (bouteille plastique, carton, verre).
+- Récupération des résidus de chantier non inertes et non dangereux dans différents Big bag et sac polyane (en fonction des quantités) (gravât, plâtre, isolant, polystyrène, … etc.).
+- Récupération des résidus de chantier dangereux dans différents Big-bags
+et sac polyane (adaptés à cette effet) (bois souillé, peinture, Epoxy, huile, …).
+- Ces déchets seront évacués en fin de journée ou périodiquement par nos soins (dans nos véhicules ou à l’aide de remorques) pour être ensuite répartis dans les aires de stockage de notre atelier avant d’être distribué vers les centres de retraitement de nos prestataires ou de la commune de SOULTZ.
+- Nos équipes sont évidemment sensibilisées pour répartir correctement leurs déchets dans les différentes moyen de tri mis à leur disposition (remorque, sac, Big-bag, caisse, seau,…) par catégorie (inertes, industriels banals, industriels dangereux) et par catégorie de matériaux (métaux, plastiques, bois et dérivés, liquides, …)
+
+Pour chaque projet nous utilisons une fiche interne, pour preparer la gestion de nos dechets.";
+
+Performances en matière de protection de l’environnement et prise en compte des nuisances;;"Il existe un autre type de nuisance qui peuvent être réduites avec de l'anticipation : 
+il s'agit des nuisances sonores et les emissions de poussières en tous genre, pour les habitants limitrophes au chantier.
+Bois & Techniques agit en ce sens - depuis toujours - par 2 grands axes majeurs : 
+- Nous privilégions l'assemblage par vissage plutôt que par cloutage
+- Nos équipes coupent et taillent le bois sur notre site, à l'atelier Bois & Techniques";
+PLANNING – Respect des délais;;"- Grace au relevé de la charpente existante, la taille des bois peut se faire en atelier avant le démarrage des travaux. Il ne restera que la fixation des bois sur site.
+- Nous avons un grand stock de bois sec sur notre site de production. 
+- Il est possible de rajouter des charpentiers supplémentaires selon la phase de travaux.";
+CHANTIER RÉFÉRENCES EN RAPPORT AVEC L'OPÉRATION : ;;5 et 7 rue des Marchands COLMAR /// ou /// Restauration Pfeffel COLMAR /// ou /// Habitat haute Alsace VILLAGE NEUF /// ou /// Fernet Branca SAINT LOUIS;
+RESPECT DES DÉLAIS DU PLANNING PRÉVISIONNEL;;"Lors de l’étude du PLANNING transmis dans le cadre du dossier de consultation,nous avons porté une attention particulière à la durée prévue pour la phase de montage, actuellement estimée à 3 semaines. Au regard des caractéristiques techniques du projet, du volume des éléments à assembler, des conditions d’accès au site, ainsi que de nos retours d’expérience sur des opérations similaires, cette durée apparaît insuffisante pour garantir une exécution conforme aux exigences de qualité, de sécurité et de coordination des intervenants.
+Nos prévisions internes, fondées sur une simulation détaillée estiment le besoin réel à 8 semaines.
+Nous recommandons donc d’ajuster le PLANNING initial sur cette base afin d’assurer une exécution réaliste fluide et sans tension sur les ressources.";

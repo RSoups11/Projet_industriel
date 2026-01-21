@@ -1,0 +1,26 @@
+{
+    "certifications": {
+        "label_vert": {
+            "logo": "../images/logo_excell_label_vert.jpeg",
+            "texte": "Utilisation de bois certifiés, de colle à base aqueuse ainsi que les traitements de classe 2 (label vert -- SARPECO 850)."
+        },
+        "pefc": {
+            "logo": "../images/logo_pefc2 (1).png"
+        },
+        "fsc": {
+            "logo": "../images/logo_fsc.png"
+        },
+        "certifications": {
+            "texte": "Les approvisionnements sont faits dans le respect de l'environnement avec une politique d'achats rigoureuse des bois à provenance certifié et une éco certification des bois locaux."
+        },
+        "local": {
+            "logo": "../images/logo_achetons_local.jpg",
+            "texte": "Fournisseurs locaux et français de préférence."
+        },
+        "zone_verte": {
+            "logo": "../images/logo_excell_zone_verte.png",
+            "texte": "Matériaux testés en laboratoire et l'ensemble de nos panneaux OSB sont de classe E1 ($\\leq$ 8mg/100g) ou garantis sans formaldéhyde."
+        }
+    },
+    "sante_env": "Nous privilégions des produits moins nocifs pour la santé limitant les émissions potentielles (émissions chimiques et radioactives, comportement vis à vis des moisissures et des bactéries, émissions d'odeurs)."
+}

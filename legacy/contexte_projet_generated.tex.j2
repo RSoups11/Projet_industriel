@@ -1,0 +1,104 @@
+% Template stylisé pour la section Contexte du Projet
+% Design adaptatif pour contenus de longueur variable
+
+% En-tête de contexte (si date de visite fournie)
+{% if contexte_date %}
+\begin{tcolorbox}[
+    enhanced,
+    colback=ecoFond,
+    colframe=ecoVert,
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{calendar-check}\hspace{0.3em}Visite de Site},
+    colbacktitle=ecoVert,
+    rounded corners,
+    boxrule=2pt,
+    left=12pt, right=12pt, top=8pt, bottom=8pt
+]
+{{ contexte_date }}
+\end{tcolorbox}
+\vspace{0.4cm}
+{% endif %}
+
+% Grille adaptative pour Environnement, Accès et Levage
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+{% if environnement %}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoBleu,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{map-marker-alt}\hspace{0.3em}Environnement},
+    colbacktitle=ecoBleu,
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+\small
+{{ environnement }}
+\end{tcolorbox}
+{% endif %}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+{% if levage %}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoMarron,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{truck-loading}\hspace{0.3em}Levage},
+    colbacktitle=ecoMarron,
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+\small
+{{ levage }}
+\end{tcolorbox}
+{% endif %}
+\end{minipage}
+
+\vspace{0.4cm}
+
+{% if acces %}
+% Accès chantier - pleine largeur
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=traitBleu,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{parking}\hspace{0.3em}Accès Chantier et Stationnement},
+    colbacktitle=traitBleu,
+    rounded corners,
+    boxrule=1.5pt,
+    left=10pt, right=10pt, top=6pt, bottom=6pt
+]
+{{ acces }}
+\end{tcolorbox}
+\vspace{0.4cm}
+{% endif %}
+
+{% if contraintes %}
+% Contraintes du chantier - pleine largeur, breakable pour listes longues
+\begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=red!3,
+    colframe=red!70!black,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{exclamation-triangle}\hspace{0.3em}Contraintes du Chantier},
+    colbacktitle=red!70!black,
+    rounded corners,
+    boxrule=1.5pt,
+    left=10pt, right=10pt, top=6pt, bottom=6pt
+]
+\small
+{{ contraintes }}
+\end{tcolorbox}
+{% endif %}

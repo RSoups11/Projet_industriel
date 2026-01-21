@@ -1,0 +1,83 @@
+% Template stylisé pour la section Situation Administrative de l'Entreprise
+% Présentation professionnelle des qualifications, effectifs et chiffres
+
+\vspace{0.3cm}
+
+% Qualifications RGE QUALIBAT
+\begin{tcolorbox}[
+    enhanced,
+    colback=ecoFond,
+    colframe=ecoBleu,
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{award}\hspace{0.3em}{{qualifications.title}}},
+    colbacktitle=ecoBleu,
+    rounded corners,
+    boxrule=2pt,
+    left=12pt, right=12pt, top=10pt, bottom=10pt
+]
+
+\begin{itemize}[leftmargin=1.5em, itemsep=4pt]
+{% for qualification in qualifications.elements %}
+    \item[\textcolor{ecoBleu}{\faIcon{check-circle}}] {{qualification}}
+{% endfor %}
+\end{itemize}
+
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+% Deux colonnes : Effectif et Chiffre d'affaires
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoBleu,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{users}\hspace{0.3em}{{effectif.title}}},
+    colbacktitle=ecoBleu,
+    rounded corners,
+    boxrule=1.5pt,
+    halign=center,
+    height=4.5cm
+]
+
+\vspace{0.8cm}
+{\Huge\bfseries\textcolor{ecoBleu}{ {{effectif.number}} }}
+
+\vspace{0.3cm}
+{\large {{effectif.label}} }
+
+\end{tcolorbox}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoMarron,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{chart-line}\hspace{0.3em}{{chiffre_affaires.title}}},
+    colbacktitle=ecoMarron,
+    rounded corners,
+    boxrule=1.5pt,
+    left=10pt, right=10pt,
+    height=4.5cm
+]
+
+\vspace{0.3cm}
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{@{}l r@{}}
+{% for year in chiffre_affaires.years %}
+    \textbf{ {{year.year}} } & {{year.amount}} \\
+{% endfor %}
+\end{tabular}
+
+\vspace{0.3cm}
+{\small\textcolor{ecoVert}{ {{chiffre_affaires.note}} }}
+
+\end{tcolorbox}
+\end{minipage}
