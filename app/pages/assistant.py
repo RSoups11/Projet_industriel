@@ -42,8 +42,10 @@ except Exception:
     pytesseract = None
 
 from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable, ListItem
+from reportlab.lib.styles import getSampleStyleSheet
+from xml.sax.saxutils import escape
 
 
 # ----------------------------- ENV / PARAMS -----------------------------
@@ -508,11 +510,19 @@ class AssistantPage:
     - Informations clés:
     - ...
     - Champs structurés pour auto-remplissage:
-    - Nom du chantier: ...
     - Intitulé de l'opération: ...
+    - Intitulé du lot: ...
     - Adresse du chantier: ...
     - Maître d'ouvrage (MOA): ...
     - Maître d'œuvre (MOE): ...
+    - Type de marché / procédure: ...
+    - Date limite remise des offres: ...
+    - Durée / délai d'exécution: ...
+    - Visite obligatoire: ...
+    - Contact / référent: ...
+    - Montant estimé / budget: ...
+    - Variantes / PSE: ...
+    - Critères d'attribution: ...
     - Dates importantes: ...
 
     Règles pour "Champs structurés pour auto-remplissage":
@@ -553,11 +563,19 @@ class AssistantPage:
     - Informations clés:
     - ...
     - Champs structurés pour auto-remplissage:
-    - Nom du chantier: ...
     - Intitulé de l'opération: ...
+    - Intitulé du lot: ...
     - Adresse du chantier: ...
     - Maître d'ouvrage (MOA): ...
     - Maître d'œuvre (MOE): ...
+    - Type de marché / procédure: ...
+    - Date limite remise des offres: ...
+    - Durée / délai d'exécution: ...
+    - Visite obligatoire: ...
+    - Contact / référent: ...
+    - Montant estimé / budget: ...
+    - Variantes / PSE: ...
+    - Critères d'attribution: ...
     - Dates importantes: ...
 
     Règles "Champs structurés":
@@ -578,27 +596,42 @@ class AssistantPage:
 
     Contraintes:
     - Sois utile pour rédiger le mémoire technique.
-    - Maximum 12 puces par sous-section (regroupe).
+    - Retourne uniquement du Markdown valide (titres + listes).
+    - Maximum 12 puces par section (regroupe).
     - Si une info est absente des documents: écris "non mentionné".
     - Les "Champs structurés" doivent être cohérents et dédupliqués.
 
-    Structure obligatoire:
-    1) Checklist des attendus (mémoire technique)
-    2) Exigences administratives (RC/CCAP)
-    3) Exigences techniques (CCTP/CCTC)
-    4) Délais / planning / phasage
-    5) Points de vigilance / risques de non-conformité / pénalités
-    6) Champs structurés pour auto-remplissage:
-    - Nom du chantier: ...
-    - Intitulé de l'opération: ...
-    - Adresse du chantier: ...
-    - Maître d'ouvrage (MOA): ...
-    - Maître d'œuvre (MOE): ...
-    - Dates importantes: ...
+    Structure Markdown obligatoire:
+    # Synthèse IA - Mémoire technique
+    ## 1. Checklist des attendus (mémoire technique)
+    - ...
+    ## 2. Exigences administratives (RC/CCAP)
+    - ...
+    ## 3. Exigences techniques (CCTP/CCTC)
+    - ...
+    ## 4. Délais / planning / phasage
+    - ...
+    ## 5. Points de vigilance / risques / pénalités
+    - ...
+    ## 6. Champs structurés pour auto-remplissage
+    - **Intitulé de l'opération**: ...
+    - **Intitulé du lot**: ...
+    - **Maître d'ouvrage (MOA)**: ...
+    - **Adresse du chantier**: ...
+    - **Maître d'œuvre (MOE)**: ...
+    - **Type de marché / procédure**: ...
+    - **Date limite remise des offres**: ...
+    - **Durée / délai d'exécution**: ...
+    - **Visite obligatoire**: ...
+    - **Contact / référent**: ...
+    - **Montant estimé / budget**: ...
+    - **Variantes / PSE**: ...
+    - **Critères d'attribution**: ...
+    - **Dates importantes**: ...
 
     Règles section 6:
     - Si non trouvé: "non mentionné".
-    - Dates importantes: items "événement: date".
+    - "Dates importantes": liste d'items "événement: date".
 
     Synthèses:
     {corpus}
@@ -607,41 +640,74 @@ class AssistantPage:
 
     # ----------------------------- PDF writer -----------------------------
 
-    def _write_pdf(self, path: Path, title: str, text: str) -> None:
-        c = canvas.Canvas(str(path), pagesize=A4)
-        _, h = A4
-        x, y = 2 * cm, h - 2 * cm
+    def _format_inline(self, text: str) -> str:
+        escaped = escape(text)
+        escaped = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", escaped)
+        escaped = re.sub(r"\*(.+?)\*", r"<i>\1</i>", escaped)
+        return escaped
 
-        c.setFont("Helvetica-Bold", 14)
-        c.drawString(x, y, title)
-        y -= 1 * cm
-        c.setFont("Helvetica", 10)
+    def _write_pdf_from_markdown(self, path: Path, title: str, markdown_text: str) -> None:
+        styles = getSampleStyleSheet()
+        title_style = styles["Title"]
+        h1 = styles["Heading1"]
+        h2 = styles["Heading2"]
+        h3 = styles["Heading3"]
+        body = styles["BodyText"]
 
-        max_chars = 110
-        for paragraph in text.split("\n"):
-            line = paragraph
+        doc = SimpleDocTemplate(
+            str(path),
+            pagesize=A4,
+            leftMargin=2 * cm,
+            rightMargin=2 * cm,
+            topMargin=2 * cm,
+            bottomMargin=2 * cm,
+        )
+
+        story = []
+        if title:
+            story.append(Paragraph(self._format_inline(title), title_style))
+            story.append(Spacer(1, 12))
+
+        lines = markdown_text.splitlines()
+        i = 0
+        while i < len(lines):
+            line = lines[i].rstrip()
             if not line.strip():
-                y -= 12
+                story.append(Spacer(1, 8))
+                i += 1
                 continue
 
-            while len(line) > max_chars:
-                chunk = line[:max_chars]
-                line = line[max_chars:]
-                if y < 2 * cm:
-                    c.showPage()
-                    c.setFont("Helvetica", 10)
-                    y = h - 2 * cm
-                c.drawString(x, y, chunk)
-                y -= 12
+            if line.startswith("# "):
+                story.append(Paragraph(self._format_inline(line[2:].strip()), h1))
+                story.append(Spacer(1, 6))
+                i += 1
+                continue
+            if line.startswith("## "):
+                story.append(Paragraph(self._format_inline(line[3:].strip()), h2))
+                story.append(Spacer(1, 4))
+                i += 1
+                continue
+            if line.startswith("### "):
+                story.append(Paragraph(self._format_inline(line[4:].strip()), h3))
+                story.append(Spacer(1, 4))
+                i += 1
+                continue
 
-            if y < 2 * cm:
-                c.showPage()
-                c.setFont("Helvetica", 10)
-                y = h - 2 * cm
-            c.drawString(x, y, line)
-            y -= 12
+            if line.lstrip().startswith("- "):
+                bullet_items = []
+                while i < len(lines) and lines[i].lstrip().startswith("- "):
+                    bullet_text = lines[i].lstrip()[2:].strip()
+                    bullet_items.append(ListItem(Paragraph(self._format_inline(bullet_text), body)))
+                    i += 1
+                story.append(ListFlowable(bullet_items, bulletType="bullet", leftIndent=14))
+                story.append(Spacer(1, 6))
+                continue
 
-        c.save()
+            story.append(Paragraph(self._format_inline(line), body))
+            story.append(Spacer(1, 4))
+            i += 1
+
+        doc.build(story)
 
     # ----------------------------- Main pipeline -----------------------------
 
@@ -696,8 +762,8 @@ class AssistantPage:
             summary = "Aucune information exploitable n'a été extraite des documents fournis."
 
         out_pdf = self.session_dir / "resume_ia.pdf"
-        self._write_pdf(out_pdf, "Résumé IA – Mémoire technique", summary)
-        return {"url": f"/_uploads/{self.session_id}/resume_ia.pdf"}
+        self._write_pdf_from_markdown(out_pdf, "Résumé IA – Mémoire technique", summary)
+        return {"url": f"/_uploads/{self.session_id}/resume_ia.pdf", "summary": summary}
 
     async def _on_click_analyze(self) -> None:
         if not self._get_uploaded():
@@ -726,7 +792,7 @@ class AssistantPage:
                 )
 
             if self.summary_md:
-                self.summary_md.set_content("✅ Résumé généré. Téléchargez le PDF ci-dessus.")
+                self.summary_md.set_content(result.get("summary", "✅ Résumé généré. Téléchargez le PDF ci-dessus."))
             ui.notify("PDF généré", type="positive")
 
         except Exception as e:
