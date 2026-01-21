@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from nicegui import app, ui, events
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Iterable, Tuple, Set
 from datetime import datetime
 import os
 import re
@@ -37,9 +37,16 @@ except Exception:
 try:
     from pdf2image import convert_from_path  # type: ignore
     import pytesseract  # type: ignore
+    from PIL import ImageOps  # type: ignore
 except Exception:
     convert_from_path = None
     pytesseract = None
+    ImageOps = None
+
+try:
+    import fitz  # type: ignore
+except Exception:
+    fitz = None
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
@@ -70,12 +77,40 @@ DEBUG_TIMING = os.getenv("DEBUG_TIMING", "0") == "1"
 MIN_TEXT_CHARS_PER_PAGE = int(os.getenv("MIN_TEXT_CHARS_PER_PAGE", "120"))
 OCR_MAX_PAGES = int(os.getenv("OCR_MAX_PAGES", "12"))
 OCR_DPI = int(os.getenv("OCR_DPI", "200"))  # 200 = bon compromis vitesse/qualité
+OCR_DPI_HIGH = int(os.getenv("OCR_DPI_HIGH", "300"))
 
 # Chunking (moins d'appels + couverture meilleure)
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "12000"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "100"))
 MAX_CHARS_PER_DOC = int(os.getenv("MAX_CHARS_PER_DOC", "60000"))
 MAX_CHUNKS_PER_DOC = int(os.getenv("MAX_CHUNKS_PER_DOC", "3"))
+MAX_KEYWORD_CHUNKS = int(os.getenv("MAX_KEYWORD_CHUNKS", "4"))
+KEYWORD_WINDOW_CHARS = int(os.getenv("KEYWORD_WINDOW_CHARS", "2500"))
+OCR_QUALITY_THRESHOLD = float(os.getenv("OCR_QUALITY_THRESHOLD", "0.45"))
+OCR_REPEAT_LINE_RATIO = float(os.getenv("OCR_REPEAT_LINE_RATIO", "0.3"))
+
+KEYWORD_MARKERS = [
+    "date limite",
+    "remise des offres",
+    "critères",
+    "pondération",
+    "maître d'ouvrage",
+    "maitre d'ouvrage",
+    "maîtrise d'œuvre",
+    "maitrise d'oeuvre",
+    "adresse",
+    "contact",
+    "délai",
+    "durée",
+    "validité des offres",
+    "visite",
+    "procédure",
+    "ccap",
+    "cctp",
+    "rc",
+]
+
+OCR_NOISE_TOKENS = {"page", "sommaire", "document", "annexe"}
 
 # Limites de génération (vitesse)
 EXTRACT_MAX_TOKENS = int(os.getenv("EXTRACT_MAX_TOKENS", "350"))
@@ -366,19 +401,76 @@ class AssistantPage:
         except Exception:
             return []
 
+    def _extract_text_pymupdf_pages(self, path: Path) -> List[str]:
+        if fitz is None:
+            return []
+        try:
+            doc = fitz.open(str(path))
+            return [(page.get_text("text") or "").strip() for page in doc]
+        except Exception:
+            return []
+
+    def _preprocess_ocr_image(self, img: Any) -> Any:
+        if ImageOps is None:
+            return img
+        try:
+            gray = ImageOps.grayscale(img)
+            gray = ImageOps.autocontrast(gray)
+            return gray
+        except Exception:
+            return img
+
+    def _page_quality_score(self, text: str) -> float:
+        stripped = text.strip()
+        if not stripped:
+            return 0.0
+        length = len(stripped)
+        alnum = sum(1 for ch in stripped if ch.isalnum())
+        words = re.findall(r"[A-Za-zÀ-ÿ0-9]{2,}", stripped)
+        if not words:
+            return 0.0
+        unique_words = len(set(w.lower() for w in words))
+        long_words = sum(1 for w in words if len(w) > 3)
+        punct = sum(1 for ch in stripped if ch in ".,;:!?/\\|-_")
+        noise_hits = sum(1 for w in words if w.lower() in OCR_NOISE_TOKENS)
+        alnum_ratio = alnum / max(1, length)
+        uniq_ratio = unique_words / max(1, len(words))
+        long_ratio = long_words / max(1, len(words))
+        punct_ratio = punct / max(1, length)
+        noise_ratio = noise_hits / max(1, len(words))
+        score = (
+            0.4 * alnum_ratio
+            + 0.3 * uniq_ratio
+            + 0.2 * long_ratio
+            - 0.1 * punct_ratio
+            - 0.2 * noise_ratio
+        )
+        return max(0.0, min(1.0, score))
+
+    def _ocr_image_text(self, img: Any, *, dense: bool) -> str:
+        if pytesseract is None:
+            return ""
+        config = "--oem 1 --psm 6" if dense else "--oem 1 --psm 4"
+        return pytesseract.image_to_string(img, lang="fra", config=config).strip()
+
     def _extract_text_ocr(self, path: Path) -> str:
         if convert_from_path is None or pytesseract is None:
             raise RuntimeError("OCR non disponible (pdf2image/pytesseract/tesseract/poppler manquants)")
         images = convert_from_path(str(path), dpi=OCR_DPI)
-        return "\n".join(pytesseract.image_to_string(img, lang="fra") for img in images).strip()
+        texts = []
+        for img in images:
+            img = self._preprocess_ocr_image(img)
+            texts.append(self._ocr_image_text(img, dense=True))
+        return "\n".join(texts).strip()
 
-    def _ocr_pages(self, path: Path, pages: List[int]) -> Dict[int, str]:
+    def _ocr_pages(self, path: Path, pages: List[int], *, critical_pages: Set[int]) -> Dict[int, str]:
         if convert_from_path is None or pytesseract is None:
             return {}
         if not pages:
             return {}
 
-        pages = sorted(set(pages))[:OCR_MAX_PAGES]
+        pages = sorted(set(pages))
+        pages = self._select_pages_distributed(pages, OCR_MAX_PAGES)
         grouped: List[List[int]] = []
         current: List[int] = []
         for p in pages:
@@ -392,36 +484,144 @@ class AssistantPage:
 
         results: Dict[int, str] = {}
         for group in grouped:
-            images = convert_from_path(
-                str(path),
-                dpi=OCR_DPI,
-                first_page=group[0],
-                last_page=group[-1],
-            )
+            images = convert_from_path(str(path), dpi=OCR_DPI, first_page=group[0], last_page=group[-1])
             for offset, img in enumerate(images):
                 page_number = group[0] + offset
-                results[page_number] = pytesseract.image_to_string(img, lang="fra").strip()
+                dense = page_number in critical_pages
+                img = self._preprocess_ocr_image(img)
+                text = self._ocr_image_text(img, dense=dense)
+                if dense and self._page_quality_score(text) < OCR_QUALITY_THRESHOLD:
+                    try:
+                        retry = convert_from_path(
+                            str(path),
+                            dpi=OCR_DPI_HIGH,
+                            first_page=page_number,
+                            last_page=page_number,
+                        )
+                        if retry:
+                            retry_img = self._preprocess_ocr_image(retry[0])
+                            retry_text = self._ocr_image_text(retry_img, dense=True)
+                            if self._page_quality_score(retry_text) > self._page_quality_score(text):
+                                text = retry_text
+                    except Exception:
+                        pass
+                results[page_number] = text
         return results
 
+    def _strip_repeated_lines(self, page_texts: List[str]) -> List[str]:
+        if not page_texts:
+            return page_texts
+        total_pages = max(1, len(page_texts))
+        counts: Dict[str, int] = {}
+        for text in page_texts:
+            for line in text.splitlines():
+                key = re.sub(r"\s+", " ", line).strip().lower()
+                if len(key) < 4:
+                    continue
+                counts[key] = counts.get(key, 0) + 1
+        repeated = {
+            line
+            for line, count in counts.items()
+            if count / total_pages >= OCR_REPEAT_LINE_RATIO
+        }
+        if not repeated:
+            return page_texts
+        cleaned = []
+        for text in page_texts:
+            kept_lines = []
+            for line in text.splitlines():
+                key = re.sub(r"\s+", " ", line).strip().lower()
+                if key in repeated:
+                    continue
+                kept_lines.append(line)
+            cleaned.append("\n".join(kept_lines).strip())
+        return cleaned
+
+    def _normalize_text(self, text: str) -> str:
+        text = text.replace("\r\n", "\n").replace("\r", "\n")
+        lines = []
+        empty_count = 0
+        for line in text.split("\n"):
+            line = re.sub(r"[ \t]+", " ", line).rstrip()
+            if not line.strip():
+                empty_count += 1
+                if empty_count <= 2:
+                    lines.append("")
+                continue
+            empty_count = 0
+            lines.append(line)
+        return "\n".join(lines).strip()
+
+    def _page_has_keyword(self, text: str) -> bool:
+        lowered = text.lower()
+        return any(marker in lowered for marker in KEYWORD_MARKERS)
+
+    def _keyword_windows(self, text: str, *, limit: int) -> List[str]:
+        lowered = text.lower()
+        hits: List[int] = []
+        for marker in KEYWORD_MARKERS:
+            start = 0
+            marker_lower = marker.lower()
+            while True:
+                idx = lowered.find(marker_lower, start)
+                if idx == -1:
+                    break
+                hits.append(idx)
+                start = idx + len(marker_lower)
+        if not hits:
+            return []
+        hits = sorted(set(hits))
+        windows: List[str] = []
+        for idx in hits:
+            start = max(0, idx - KEYWORD_WINDOW_CHARS // 2)
+            end = min(len(text), idx + KEYWORD_WINDOW_CHARS // 2)
+            window = text[start:end].strip()
+            if window:
+                windows.append(window)
+            if len(windows) >= limit:
+                break
+        return windows
+
     def _extract_text(self, path: Path) -> str:
-        # 1) try embedded text
-        page_texts = self._extract_text_pypdf_pages(path)
+        # 1) try embedded text (PyMuPDF > pypdf)
+        page_texts = self._extract_text_pymupdf_pages(path)
+        if not page_texts:
+            page_texts = self._extract_text_pypdf_pages(path)
         if not page_texts:
             # 2) fallback full OCR
             return self._extract_text_ocr(path)
 
-        # OCR only sparse/empty pages
-        pages_to_ocr = [
-            idx + 1
-            for idx, txt in enumerate(page_texts)
-            if len(txt.strip()) < MIN_TEXT_CHARS_PER_PAGE
-        ]
+        page_texts = self._strip_repeated_lines(page_texts)
+
+        pages_to_ocr: List[int] = []
+        critical_pages: Set[int] = set()
+        page_scores: List[Tuple[int, float]] = []
+        for idx, txt in enumerate(page_texts):
+            score = self._page_quality_score(txt)
+            page_scores.append((idx + 1, score))
+            if score < OCR_QUALITY_THRESHOLD or len(txt.strip()) < MIN_TEXT_CHARS_PER_PAGE:
+                pages_to_ocr.append(idx + 1)
+            if self._page_has_keyword(txt):
+                critical_pages.add(idx + 1)
+
+        for page_num in (1, 2, max(1, len(page_texts)), max(1, len(page_texts) - 1)):
+            if 1 <= page_num <= len(page_texts):
+                critical_pages.add(page_num)
+                pages_to_ocr.append(page_num)
+
+        pages_to_ocr = sorted(set(pages_to_ocr))
         if pages_to_ocr and convert_from_path is not None and pytesseract is not None:
-            ocr_texts = self._ocr_pages(path, pages_to_ocr)
+            ocr_texts = self._ocr_pages(path, pages_to_ocr, critical_pages=critical_pages)
             for page_number, text in ocr_texts.items():
                 page_texts[page_number - 1] = text
 
-        return "\n".join(t for t in page_texts if t).strip()
+        parts = []
+        for idx, text in enumerate(page_texts, start=1):
+            if not text.strip():
+                continue
+            normalized = self._normalize_text(text)
+            parts.append(f"\n--- Page {idx} ---\n{normalized}")
+        return "\n".join(parts).strip()
 
     # ----------------------------- LLM call -----------------------------
 
@@ -452,23 +652,33 @@ class AssistantPage:
 
     # ----------------------------- Chunking helpers -----------------------------
 
-    def _normalize_text(self, text: str) -> str:
-        text = re.sub(r"\s+", " ", text)
-        return text.strip()
+    def _trim_text_distributed(self, text: str, max_chars: int) -> str:
+        if len(text) <= max_chars:
+            return text
+        if max_chars <= 1000:
+            return text[:max_chars].strip()
+        slice_size = max_chars // 3
+        head = text[:slice_size].strip()
+        mid_start = max(0, (len(text) // 2) - (slice_size // 2))
+        mid = text[mid_start : mid_start + slice_size].strip()
+        tail_size = max_chars - (len(head) + len(mid))
+        tail = text[-tail_size:].strip() if tail_size > 0 else ""
+        return " ".join(part for part in (head, mid, tail) if part).strip()
 
-    def _chunk_text(self, text: str) -> List[str]:
-        if len(text) <= CHUNK_SIZE:
+    def _chunk_text(self, text: str, *, chunk_size: int) -> List[str]:
+        if len(text) <= chunk_size:
             return [text]
         chunks: List[str] = []
         start = 0
         while start < len(text):
-            end = min(len(text), start + CHUNK_SIZE)
+            end = min(len(text), start + chunk_size)
             chunk = text[start:end].strip()
             if chunk:
                 chunks.append(chunk)
             if end == len(text):
                 break
-            start = max(0, end - CHUNK_OVERLAP)
+            overlap = min(CHUNK_OVERLAP, max(50, chunk_size // 10))
+            start = max(0, end - overlap)
         return chunks
 
     def _pick_chunks_distributed(self, chunks: List[str], k: int) -> List[str]:
@@ -476,10 +686,38 @@ class AssistantPage:
             return []
         if len(chunks) <= k:
             return chunks
-        # Début / milieu / fin (sans doublons)
-        idxs = [0, len(chunks) // 2, len(chunks) - 1]
-        idxs = sorted(set(idxs))[:k]
+        if k == 1:
+            return [chunks[len(chunks) // 2]]
+        step = (len(chunks) - 1) / (k - 1)
+        idxs = sorted({round(i * step) for i in range(k)})
         return [chunks[i] for i in idxs]
+
+    def _select_pages_distributed(self, pages: List[int], limit: int) -> List[int]:
+        if limit <= 0 or not pages:
+            return []
+        if len(pages) <= limit:
+            return pages
+        step = (len(pages) - 1) / (limit - 1)
+        idxs = sorted({round(i * step) for i in range(limit)})
+        return [pages[i] for i in idxs]
+
+    def _estimate_chunk_size(self, filename: str) -> int:
+        base_prompt = self._build_extraction_prompt(filename, "")
+        prompt_tokens = max(1, len(base_prompt) // 4)
+        available_tokens = max(256, OLLAMA_NUM_CTX - EXTRACT_MAX_TOKENS - prompt_tokens)
+        estimated_size = available_tokens * 4
+        return max(2000, min(CHUNK_SIZE, estimated_size))
+
+    def _dedupe_chunks(self, chunks: Iterable[str]) -> List[str]:
+        seen: Set[str] = set()
+        deduped = []
+        for chunk in chunks:
+            key = chunk.strip()
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            deduped.append(chunk)
+        return deduped
 
     # ----------------------------- Prompts -----------------------------
 
@@ -723,12 +961,16 @@ class AssistantPage:
             raw_text = self._extract_text(abs_path)
             self._log(f"{filename} extract/OCR secs:", round(time.time() - t0, 2))
 
-            text = self._normalize_text(raw_text)[:MAX_CHARS_PER_DOC]
+            text = self._normalize_text(raw_text)
             if not text:
                 continue
 
-            chunks_all = self._chunk_text(text)
+            keyword_chunks = self._keyword_windows(text, limit=MAX_KEYWORD_CHUNKS)
+            generic_text = self._trim_text_distributed(text, MAX_CHARS_PER_DOC)
+            chunk_size = self._estimate_chunk_size(filename)
+            chunks_all = self._chunk_text(generic_text, chunk_size=chunk_size)
             chunks = self._pick_chunks_distributed(chunks_all, MAX_CHUNKS_PER_DOC)
+            chunks = self._dedupe_chunks([*keyword_chunks, *chunks])
 
             chunk_extracts: List[str] = []
             for i, chunk in enumerate(chunks):
