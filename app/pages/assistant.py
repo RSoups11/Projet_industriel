@@ -1,14 +1,14 @@
 """
+assistant.py
+
 Assistant: Upload PDF DCE -> OCR -> Résumé IA -> PDF (ReportLab)
 
-Upload:
-- Persistance des uploads entre pages via app.storage.user
-- Re-upload:
-  - même nom => écrase le fichier + met à jour l'entrée
-  - nouveau nom => ajoute
-- Suppression manuelle via bouton "x"
-- Bouton "Réinitialiser sélection" pour forcer le retrigger même si on re-choisit le même fichier
-- Nettoyage des uploads à la fermeture (atexit) enregistré une seule fois
+Points clés (perf + stabilité):
+- Modèle configurable via env (par défaut qwen2.5:3b-instruct, adapté à 4GB VRAM)
+- Réduction des appels LLM (chunks limités) + sélection répartie (début/milieu/fin)
+- OCR limité + DPI abaissé (paramétrable)
+- Tokens générés plafonnés + prompts contraints (limite de puces/section)
+- Option profiling simple via env DEBUG_TIMING=1
 """
 
 from __future__ import annotations
@@ -23,6 +23,7 @@ import sys
 import shutil
 import atexit
 import asyncio
+import time
 import requests
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -44,22 +45,40 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
 
+
+# ----------------------------- ENV / PARAMS -----------------------------
+
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
-MODEL_NAME = os.getenv("OLLAMA_MODEL", "mistral")
+
+# Avec 4GB VRAM: qwen2.5:3b-instruct (1.9GB) est le plus stable.
+# mistral:instruct (4.1GB) est borderline et peut ralentir si contexte long.
+MODEL_NAME = os.getenv("OLLAMA_MODEL", "qwen2.5:3b-instruct")
+
 OLLAMA_TEMPERATURE = float(os.getenv("OLLAMA_TEMPERATURE", "0.1"))
 OLLAMA_TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT", "240"))
 OLLAMA_NUM_CTX = int(os.getenv("OLLAMA_NUM_CTX", "4096"))
+
+# Optionnel. Par défaut on n'envoie pas num_gpu / num_thread (moins de surprises).
 OLLAMA_NUM_GPU = int(os.getenv("OLLAMA_NUM_GPU", "0"))
 OLLAMA_NUM_THREAD = int(os.getenv("OLLAMA_NUM_THREAD", "0"))
-MIN_TEXT_CHARS_PER_PAGE = 120
-OCR_MAX_PAGES = 12
-CHUNK_SIZE = 10000
-CHUNK_OVERLAP = 150
-MAX_CHARS_PER_DOC = 70000
-MAX_CHUNKS_PER_DOC = 3
-EXTRACT_MAX_TOKENS = 650
-DOC_SYNTH_MAX_TOKENS = 750
-FINAL_SYNTH_MAX_TOKENS = 1600
+
+DEBUG_TIMING = os.getenv("DEBUG_TIMING", "0") == "1"
+
+# Extraction texte / OCR
+MIN_TEXT_CHARS_PER_PAGE = int(os.getenv("MIN_TEXT_CHARS_PER_PAGE", "120"))
+OCR_MAX_PAGES = int(os.getenv("OCR_MAX_PAGES", "12"))
+OCR_DPI = int(os.getenv("OCR_DPI", "200"))  # 200 = bon compromis vitesse/qualité
+
+# Chunking (moins d'appels + couverture meilleure)
+CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "12000"))
+CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "100"))
+MAX_CHARS_PER_DOC = int(os.getenv("MAX_CHARS_PER_DOC", "60000"))
+MAX_CHUNKS_PER_DOC = int(os.getenv("MAX_CHUNKS_PER_DOC", "3"))
+
+# Limites de génération (vitesse)
+EXTRACT_MAX_TOKENS = int(os.getenv("EXTRACT_MAX_TOKENS", "350"))
+DOC_SYNTH_MAX_TOKENS = int(os.getenv("DOC_SYNTH_MAX_TOKENS", "450"))
+FINAL_SYNTH_MAX_TOKENS = int(os.getenv("FINAL_SYNTH_MAX_TOKENS", "900"))
 
 ASSISTANT_STATE_KEY = "assistant_state_v1"
 
@@ -134,6 +153,10 @@ class AssistantPage:
 
         self.upload_row = None
         self.upload_widget = None
+
+    def _log(self, *args: Any) -> None:
+        if DEBUG_TIMING:
+            print("[assistant]", *args, flush=True)
 
     def _count_pages(self, path: Path) -> str:
         if PdfReader is None:
@@ -210,7 +233,8 @@ class AssistantPage:
             await asyncio.sleep(0)
             self._refresh_list()
 
-    # ---- upload helpers ----
+    # ----------------------------- Upload helpers -----------------------------
+
     def _extract_filename(self, e: events.UploadEventArguments) -> str:
         up = getattr(e, "file", None)
         for obj in (up, e):
@@ -282,7 +306,6 @@ class AssistantPage:
 
             content = await self._read_upload_bytes(e)
 
-            # overwrite disque si même nom
             save_path = self.session_dir / filename
             save_path.write_bytes(content)
 
@@ -290,7 +313,6 @@ class AssistantPage:
             pages = self._count_pages(save_path)
             entry = {"filename": save_path.name, "abs_path": str(save_path), "pages": pages}
 
-            # overwrite dans la liste si même nom sinon append
             existing_idx = next((i for i, it in enumerate(uploaded) if it.get("filename") == save_path.name), None)
             if existing_idx is None:
                 uploaded.append(entry)
@@ -306,14 +328,9 @@ class AssistantPage:
             ui.notify(f"Erreur upload: {ex}", type="negative")
 
     def _reset_upload_widget(self) -> None:
-        """
-        Certains navigateurs ne retrigger pas l'upload si tu re-choisis exactement le même fichier.
-        On force un reset (si la méthode existe) ou on recrée le widget.
-        """
         if self.upload_widget is None:
             return
 
-        # 1) reset si dispo
         if hasattr(self.upload_widget, "reset"):
             try:
                 self.upload_widget.reset()
@@ -321,7 +338,6 @@ class AssistantPage:
             except Exception:
                 pass
 
-        # 2) sinon recrée
         if self.upload_row is None:
             return
         try:
@@ -337,15 +353,7 @@ class AssistantPage:
                 max_files=20,
             ).props('accept=".pdf" multiple')
 
-    # ---------- (le reste inchangé) extraction/IA/PDF ----------
-    def _extract_text_pypdf(self, path: Path) -> str:
-        if PdfReader is None:
-            return ""
-        try:
-            reader = PdfReader(str(path))
-            return "\n".join((p.extract_text() or "") for p in reader.pages).strip()
-        except Exception:
-            return ""
+    # ----------------------------- Text extraction / OCR -----------------------------
 
     def _extract_text_pypdf_pages(self, path: Path) -> List[str]:
         if PdfReader is None:
@@ -359,7 +367,7 @@ class AssistantPage:
     def _extract_text_ocr(self, path: Path) -> str:
         if convert_from_path is None or pytesseract is None:
             raise RuntimeError("OCR non disponible (pdf2image/pytesseract/tesseract/poppler manquants)")
-        images = convert_from_path(str(path), dpi=250)
+        images = convert_from_path(str(path), dpi=OCR_DPI)
         return "\n".join(pytesseract.image_to_string(img, lang="fra") for img in images).strip()
 
     def _ocr_pages(self, path: Path, pages: List[int]) -> Dict[int, str]:
@@ -384,7 +392,7 @@ class AssistantPage:
         for group in grouped:
             images = convert_from_path(
                 str(path),
-                dpi=250,
+                dpi=OCR_DPI,
                 first_page=group[0],
                 last_page=group[-1],
             )
@@ -394,10 +402,13 @@ class AssistantPage:
         return results
 
     def _extract_text(self, path: Path) -> str:
+        # 1) try embedded text
         page_texts = self._extract_text_pypdf_pages(path)
         if not page_texts:
+            # 2) fallback full OCR
             return self._extract_text_ocr(path)
 
+        # OCR only sparse/empty pages
         pages_to_ocr = [
             idx + 1
             for idx, txt in enumerate(page_texts)
@@ -410,16 +421,20 @@ class AssistantPage:
 
         return "\n".join(t for t in page_texts if t).strip()
 
+    # ----------------------------- LLM call -----------------------------
+
     def _ollama_generate(self, prompt: str, *, max_tokens: int = 900) -> str:
-        options = {
+        options: Dict[str, Any] = {
             "temperature": OLLAMA_TEMPERATURE,
             "num_predict": max_tokens,
             "num_ctx": OLLAMA_NUM_CTX,
         }
+        # On n'envoie num_gpu/num_thread que si explicitement demandé.
         if OLLAMA_NUM_GPU > 0:
             options["num_gpu"] = OLLAMA_NUM_GPU
         if OLLAMA_NUM_THREAD > 0:
             options["num_thread"] = OLLAMA_NUM_THREAD
+
         r = requests.post(
             OLLAMA_URL,
             json={
@@ -433,6 +448,8 @@ class AssistantPage:
         r.raise_for_status()
         return (r.json().get("response") or "").strip()
 
+    # ----------------------------- Chunking helpers -----------------------------
+
     def _normalize_text(self, text: str) -> str:
         text = re.sub(r"\s+", " ", text)
         return text.strip()
@@ -440,7 +457,7 @@ class AssistantPage:
     def _chunk_text(self, text: str) -> List[str]:
         if len(text) <= CHUNK_SIZE:
             return [text]
-        chunks = []
+        chunks: List[str] = []
         start = 0
         while start < len(text):
             end = min(len(text), start + CHUNK_SIZE)
@@ -452,77 +469,143 @@ class AssistantPage:
             start = max(0, end - CHUNK_OVERLAP)
         return chunks
 
+    def _pick_chunks_distributed(self, chunks: List[str], k: int) -> List[str]:
+        if k <= 0 or not chunks:
+            return []
+        if len(chunks) <= k:
+            return chunks
+        # Début / milieu / fin (sans doublons)
+        idxs = [0, len(chunks) // 2, len(chunks) - 1]
+        idxs = sorted(set(idxs))[:k]
+        return [chunks[i] for i in idxs]
+
+    # ----------------------------- Prompts -----------------------------
+
     def _build_extraction_prompt(self, filename: str, chunk: str) -> str:
         return f"""
-Tu es un expert en analyse de DCE BTP.
-Extrait UNIQUEMENT les informations utiles à la rédaction d'un mémoire technique de réponse à appel d'offres.
-Réponds uniquement en français.
-Rends une liste structurée, sans texte superflu, sous ce format exact:
+    Tu es un expert en analyse de DCE BTP.
+    Extrait UNIQUEMENT les informations utiles à la rédaction d'un mémoire technique de réponse à appel d'offres.
+    Réponds uniquement en français.
+    Aucune invention. Si une info n'est pas dans l'extrait: ne l'ajoute pas.
 
-- Exigences administratives:
-  - ...
-- Exigences techniques:
-  - ...
-- Attendus mémoire technique (contenu et pièces attendues):
-  - ...
-- Délais / planning / phasage:
-  - ...
-- Contraintes / risques / pénalités:
-  - ...
-- Informations clés (intitulé opération, adresse, MOA/MOE, dates limites, visite obligatoire, contact, format de remise):
-  - ...
+    Contraintes de réponse:
+    - Pas de texte superflu (pas d'intro/conclusion).
+    - Maximum 12 puces par section. Regroupe si nécessaire.
+    - Si une section est absente: mets une seule puce "non mentionné".
+    - Respecte STRICTEMENT le format demandé.
 
-Source: {filename}
-Extrait:
-{chunk}
-""".strip()
+    Format exact:
+    - Exigences administratives:
+    - ...
+    - Exigences techniques:
+    - ...
+    - Attendus mémoire technique (contenu et pièces attendues):
+    - ...
+    - Délais / planning / phasage:
+    - ...
+    - Contraintes / risques / pénalités:
+    - ...
+    - Informations clés:
+    - ...
+    - Champs structurés pour auto-remplissage:
+    - Nom du chantier: ...
+    - Intitulé de l'opération: ...
+    - Adresse du chantier: ...
+    - Maître d'ouvrage (MOA): ...
+    - Maître d'œuvre (MOE): ...
+    - Dates importantes: ...
+
+    Règles pour "Champs structurés pour auto-remplissage":
+    - Renseigne uniquement si explicitement présent dans l'extrait.
+    - Sinon écris exactement "non mentionné" après les deux-points.
+    - Pour "Dates importantes": liste les dates + leur signification (ex: "Date limite remise des offres: ...", "Visite obligatoire: ...").
+
+    Source: {filename}
+    Extrait:
+    {chunk}
+    """.strip()
+
 
     def _build_doc_synthesis_prompt(self, filename: str, extracts: List[str]) -> str:
         corpus = "\n\n".join(extracts)
         return f"""
-Tu es un expert en analyse de DCE BTP.
-À partir des extractions ci-dessous, consolide un résumé détaillé et dédupliqué pour le document {filename}.
-Réponds uniquement en français.
-Sois exhaustif et précis. Détaille les exigences quand elles sont présentes.
+    Tu es un expert en analyse de DCE BTP.
+    À partir des extractions ci-dessous, consolide un résumé dédupliqué pour le document {filename}.
+    Réponds uniquement en français. Aucune invention.
 
-Format requis:
-- Exigences administratives:
-  - ...
-- Exigences techniques:
-  - ...
-- Attendus mémoire technique (contenu et pièces attendues):
-  - ...
-- Délais / planning / phasage:
-  - ...
-- Contraintes / risques / pénalités:
-  - ...
-- Informations clés (intitulé opération, adresse, MOA/MOE, dates limites, visite obligatoire, contact, format de remise):
-  - ...
+    Contraintes:
+    - Maximum 15 puces par section (regroupe).
+    - Si une section est absente: une seule puce "non mentionné".
+    - Conserve les chiffres, dates, seuils, pénalités, pièces, formats et contacts tels quels quand ils existent.
+    - Pour "Champs structurés": fusionne et choisis la valeur la plus complète si conflit.
 
-Extractions:
-{corpus}
-""".strip()
+    Format requis:
+    - Exigences administratives:
+    - ...
+    - Exigences techniques:
+    - ...
+    - Attendus mémoire technique (contenu et pièces attendues):
+    - ...
+    - Délais / planning / phasage:
+    - ...
+    - Contraintes / risques / pénalités:
+    - ...
+    - Informations clés:
+    - ...
+    - Champs structurés pour auto-remplissage:
+    - Nom du chantier: ...
+    - Intitulé de l'opération: ...
+    - Adresse du chantier: ...
+    - Maître d'ouvrage (MOA): ...
+    - Maître d'œuvre (MOE): ...
+    - Dates importantes: ...
 
-    def _build_final_prompt(self, extracts: List[str]) -> str:
-        corpus = "\n\n".join(extracts)
+    Règles "Champs structurés":
+    - Si non trouvé dans les extractions: "non mentionné".
+    - "Dates importantes": liste des items "événement: date".
+
+    Extractions:
+    {corpus}
+    """.strip()
+
+
+    def _build_final_prompt(self, doc_summaries: List[str]) -> str:
+        corpus = "\n\n".join(doc_summaries)
         return f"""
-Tu es un assistant expert pour réponses à appel d'offres BTP.
-À partir des extractions suivantes, synthétise un résumé complet et actionnable.
-N'invente rien. Regroupe et déduplique. Réponds uniquement en français.
-Apporte un maximum de détails utiles à la rédaction du mémoire technique.
-Si une information est absente des documents, indique "non mentionné".
+    Tu es un assistant expert pour réponses à appel d'offres BTP.
+    À partir des synthèses par document ci-dessous, produis un résumé final complet et actionnable.
+    N'invente rien. Déduplique. Réponds uniquement en français.
 
-Structure obligatoire:
-1) Checklist des attendus (mémoire technique)
-2) Exigences administratives (RC/CCAP)
-3) Exigences techniques (CCTP/CCTC)
-4) Délais / planning / phasage
-5) Points de vigilance / risques de non-conformité / pénalités
-6) Champs extraits (intitulé opération, adresse, MOA/MOE, délai, date limite, visite obligatoire, contacts, pièces à fournir)
+    Contraintes:
+    - Sois utile pour rédiger le mémoire technique.
+    - Maximum 12 puces par sous-section (regroupe).
+    - Si une info est absente des documents: écris "non mentionné".
+    - Les "Champs structurés" doivent être cohérents et dédupliqués.
 
-Extractions:
-{corpus}
-""".strip()
+    Structure obligatoire:
+    1) Checklist des attendus (mémoire technique)
+    2) Exigences administratives (RC/CCAP)
+    3) Exigences techniques (CCTP/CCTC)
+    4) Délais / planning / phasage
+    5) Points de vigilance / risques de non-conformité / pénalités
+    6) Champs structurés pour auto-remplissage:
+    - Nom du chantier: ...
+    - Intitulé de l'opération: ...
+    - Adresse du chantier: ...
+    - Maître d'ouvrage (MOA): ...
+    - Maître d'œuvre (MOE): ...
+    - Dates importantes: ...
+
+    Règles section 6:
+    - Si non trouvé: "non mentionné".
+    - Dates importantes: items "événement: date".
+
+    Synthèses:
+    {corpus}
+    """.strip()
+
+
+    # ----------------------------- PDF writer -----------------------------
 
     def _write_pdf(self, path: Path, title: str, text: str) -> None:
         c = canvas.Canvas(str(path), pagesize=A4)
@@ -560,38 +643,58 @@ Extractions:
 
         c.save()
 
+    # ----------------------------- Main pipeline -----------------------------
+
     def _generate_summary_blocking(self) -> Dict[str, Any]:
         uploaded = self._get_uploaded()
         doc_summaries: List[str] = []
+
         for f in uploaded:
-            raw_text = self._extract_text(Path(f["abs_path"]))
+            filename = f.get("filename", "document.pdf")
+            abs_path = Path(f["abs_path"])
+
+            t0 = time.time()
+            raw_text = self._extract_text(abs_path)
+            self._log(f"{filename} extract/OCR secs:", round(time.time() - t0, 2))
+
             text = self._normalize_text(raw_text)[:MAX_CHARS_PER_DOC]
             if not text:
                 continue
-            chunks = self._chunk_text(text)[:MAX_CHUNKS_PER_DOC]
+
+            chunks_all = self._chunk_text(text)
+            chunks = self._pick_chunks_distributed(chunks_all, MAX_CHUNKS_PER_DOC)
+
             chunk_extracts: List[str] = []
-            for chunk in chunks:
-                prompt = self._build_extraction_prompt(f["filename"], chunk)
+            for i, chunk in enumerate(chunks):
+                prompt = self._build_extraction_prompt(filename, chunk)
+                t1 = time.time()
                 extract = self._ollama_generate(prompt, max_tokens=EXTRACT_MAX_TOKENS)
+                self._log(f"{filename} LLM extract[{i}] secs:", round(time.time() - t1, 2))
                 if extract:
                     chunk_extracts.append(extract)
 
-            if chunk_extracts:
-                if len(chunk_extracts) == 1:
-                    doc_summary = chunk_extracts[0]
-                else:
-                    doc_prompt = self._build_doc_synthesis_prompt(f["filename"], chunk_extracts)
-                    doc_summary = self._ollama_generate(doc_prompt, max_tokens=DOC_SYNTH_MAX_TOKENS)
-                if doc_summary:
-                    doc_summaries.append(f"Document: {f['filename']}\n{doc_summary}")
+            if not chunk_extracts:
+                continue
+
+            if len(chunk_extracts) == 1:
+                doc_summary = chunk_extracts[0]
+            else:
+                doc_prompt = self._build_doc_synthesis_prompt(filename, chunk_extracts)
+                t2 = time.time()
+                doc_summary = self._ollama_generate(doc_prompt, max_tokens=DOC_SYNTH_MAX_TOKENS)
+                self._log(f"{filename} LLM doc_synth secs:", round(time.time() - t2, 2))
+
+            if doc_summary:
+                doc_summaries.append(f"Document: {filename}\n{doc_summary}")
 
         if doc_summaries:
-            summary = self._ollama_generate(
-                self._build_final_prompt(doc_summaries),
-                max_tokens=FINAL_SYNTH_MAX_TOKENS,
-            )
+            final_prompt = self._build_final_prompt(doc_summaries)
+            t3 = time.time()
+            summary = self._ollama_generate(final_prompt, max_tokens=FINAL_SYNTH_MAX_TOKENS)
+            self._log("FINAL LLM secs:", round(time.time() - t3, 2))
         else:
             summary = "Aucune information exploitable n'a été extraite des documents fournis."
+
         out_pdf = self.session_dir / "resume_ia.pdf"
         self._write_pdf(out_pdf, "Résumé IA – Mémoire technique", summary)
         return {"url": f"/_uploads/{self.session_id}/resume_ia.pdf"}
@@ -629,6 +732,8 @@ Extractions:
         except Exception as e:
             ui.notify(f"Erreur analyse: {e}", type="negative")
 
+    # ----------------------------- UI -----------------------------
+
     def render(self) -> None:
         ui.label("Assistant – OCR → Résumé IA → PDF").classes("text-2xl font-bold text-blue-900")
         ui.label("Upload des PDF du DCE, OCR si besoin, résumé IA, puis export en PDF.").classes("text-sm text-gray-600")
@@ -637,7 +742,6 @@ Extractions:
         with ui.card().classes("p-4"):
             ui.label("1) Importer des PDF").classes("text-lg font-semibold")
 
-            # upload + reset button
             self.upload_row = ui.row().classes("items-center gap-2")
             with self.upload_row:
                 self.upload_widget = ui.upload(
@@ -654,6 +758,15 @@ Extractions:
 
             ui.label(f"Session persistante : {self.session_id}").classes("text-xs text-gray-500 mt-2")
             ui.label(f"Dossier : {self.session_dir}").classes("text-xs text-gray-500")
+
+            ui.separator().classes("my-2")
+            ui.label("Réglages IA").classes("text-sm font-semibold text-gray-700")
+            ui.label(f"Modèle: {MODEL_NAME} | num_ctx: {OLLAMA_NUM_CTX} | temp: {OLLAMA_TEMPERATURE}").classes(
+                "text-xs text-gray-600"
+            )
+            ui.label(
+                f"Chunks: size={CHUNK_SIZE}, overlap={CHUNK_OVERLAP}, max_chunks/doc={MAX_CHUNKS_PER_DOC} | OCR: dpi={OCR_DPI}, max_pages={OCR_MAX_PAGES}"
+            ).classes("text-xs text-gray-600")
 
         ui.separator().classes("my-4")
         ui.label("2) Fichiers importés").classes("text-lg font-semibold")
