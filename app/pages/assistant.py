@@ -23,10 +23,15 @@ import sys
 import shutil
 import atexit
 import asyncio
+import json
 import requests
+from xml.sax.saxutils import escape
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.core.config import AppConfig
+
+POPPLER_PATH = os.getenv("POPPLER_PATH")
+TESSERACT_CMD = os.getenv("TESSERACT_CMD")
 
 try:
     from pypdf import PdfReader  # type: ignore
@@ -40,15 +45,36 @@ except Exception:
     convert_from_path = None
     pytesseract = None
 
+if pytesseract is not None and TESSERACT_CMD:
+    try:
+        pytesseract.pytesseract.tesseract_cmd = TESSERACT_CMD
+    except Exception:
+        pass
+
 from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle,
+    ListFlowable,
+    ListItem,
+    Preformatted,
+)
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "mistral"
 MIN_TEXT_CHARS_BEFORE_OCR = 800
 
 ASSISTANT_STATE_KEY = "assistant_state_v1"
+ASSISTANT_EXTRACTION_KEY = "assistant_extraction_v1"
+
+MAX_CHARS_PER_DOC = 20000
+MAX_TOTAL_CHARS = 80000
 
 
 def _safe_filename(name: str) -> str:
@@ -118,6 +144,8 @@ class AssistantPage:
         self.files_container = None
         self.summary_md = None
         self.summary_link_row = None
+        self.fields_container = None
+        self.last_extract_label = None
 
         self.upload_row = None
         self.upload_widget = None
@@ -337,7 +365,10 @@ class AssistantPage:
     def _extract_text_ocr(self, path: Path) -> str:
         if convert_from_path is None or pytesseract is None:
             raise RuntimeError("OCR non disponible (pdf2image/pytesseract/tesseract/poppler manquants)")
-        images = convert_from_path(str(path), dpi=250)
+        if POPPLER_PATH:
+            images = convert_from_path(str(path), dpi=250, poppler_path=POPPLER_PATH)
+        else:
+            images = convert_from_path(str(path), dpi=250)
         return "\n".join(pytesseract.image_to_string(img, lang="fra") for img in images).strip()
 
     def _extract_text(self, path: Path) -> str:
@@ -348,6 +379,23 @@ class AssistantPage:
                 txt = ocr_txt
         return txt
 
+    def _truncate_text(self, text: str, max_chars: int) -> str:
+        if len(text) <= max_chars:
+            return text
+        return text[:max_chars] + "\n[...]"
+
+    def _prepare_docs_for_llm(self, docs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        remaining = MAX_TOTAL_CHARS
+        prepared: List[Dict[str, Any]] = []
+        for d in docs:
+            raw = d.get("text", "") or ""
+            chunk = raw[: min(MAX_CHARS_PER_DOC, remaining)]
+            prepared.append({"filename": d.get("filename", "document.pdf"), "text": chunk})
+            remaining -= len(chunk)
+            if remaining <= 0:
+                break
+        return prepared
+
     def _ollama_generate(self, prompt: str) -> str:
         r = requests.post(
             OLLAMA_URL,
@@ -357,58 +405,240 @@ class AssistantPage:
         r.raise_for_status()
         return (r.json().get("response") or "").strip()
 
-    def _build_prompt(self, docs: List[Dict[str, Any]]) -> str:
+    def _ollama_generate_json(self, prompt: str) -> Dict[str, Any]:
+        r = requests.post(
+            OLLAMA_URL,
+            json={"model": MODEL_NAME, "prompt": prompt, "stream": False, "format": "json"},
+            timeout=600,
+        )
+        r.raise_for_status()
+        raw = (r.json().get("response") or "").strip()
+        if not raw:
+            return {}
+        try:
+            return json.loads(raw)
+        except Exception:
+            pass
+        start = raw.find("{")
+        end = raw.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            try:
+                return json.loads(raw[start : end + 1])
+            except Exception:
+                return {}
+        return {}
+
+    def _build_analysis_prompt(self, docs: List[Dict[str, Any]]) -> str:
         corpus = "\n".join(f"\n===== {d['filename']} =====\n{d['text']}\n" for d in docs)
         return f"""
-Tu es un assistant pour réponse à appel d'offres BTP.
-Résume précisément ce qui est attendu dans le MÉMOIRE TECHNIQUE à partir des documents du DCE.
+Tu es un assistant pour reponse a appel d'offres BTP.
+Analyse les documents du DCE et retourne un JSON STRICT avec les cles suivantes.
+Si une information est absente, mets une chaine vide.
 
-Structure obligatoire:
-1) Checklist des attendus (mémoire technique)
-2) Exigences administratives (RC/CCAP)
-3) Exigences techniques (CCTP/CCTC)
-4) Points de vigilance / risques de non-conformité
-5) Champs extraits (intitulé opération, adresse, MOA, délais, date limite, visite obligatoire, pièces à fournir)
+JSON attendu:
+{{
+  "fields": {{
+    "intitule_operation": "",
+    "intitule_lot": "",
+    "maitre_ouvrage": "",
+    "adresse_chantier": "",
+    "maitre_oeuvre": "",
+    "type_marche_procedure": "",
+    "date_limite_remise_offres": "",
+    "duree_delai_execution": "",
+    "visite_obligatoire": "",
+    "contact_referent": "",
+    "montant_estime_budget": "",
+    "variantes_pse": "",
+    "criteres_attribution": ""
+  }},
+  "dates_importantes": [],
+  "sources": [],
+  "summary_markdown": ""
+}}
+
+Contraintes:
+- summary_markdown: en markdown lisible, sections obligatoires:
+  1) ## Checklist Memoire technique
+  2) ## Exigences administratives (RC/CCAP)
+  3) ## Exigences techniques (CCTP/CCTC)
+  4) ## Notation / criteres d'attribution
+  5) ## Points de vigilance
+  6) ## Pieces / livrables a fournir
+- Dans "criteres_attribution", inclure les ponderations si elles existent (ex: Prix 40% / Valeur technique 60%).
+- Dans "dates_importantes", mettre des items courts "JJ/MM/AAAA - evenement".
+- "sources" peut contenir des noms de fichiers utiles (RC, CCTP, CCAP...).
 
 Documents:
 {corpus}
 """.strip()
 
-    def _write_pdf(self, path: Path, title: str, text: str) -> None:
-        c = canvas.Canvas(str(path), pagesize=A4)
-        _, h = A4
-        x, y = 2 * cm, h - 2 * cm
+    def _normalize_value(self, value: Any) -> str:
+        if value is None:
+            return ""
+        v = str(value).strip()
+        if not v:
+            return ""
+        lower = v.lower()
+        if lower in {"non mentionne", "non mentionnee", "non precis", "non precise", "n/a"}:
+            return ""
+        return v
 
-        c.setFont("Helvetica-Bold", 14)
-        c.drawString(x, y, title)
-        y -= 1 * cm
-        c.setFont("Helvetica", 10)
+    def _format_markdown_inline(self, text: str) -> str:
+        text = escape(text)
+        text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
+        text = re.sub(r"(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)", r"<i>\1</i>", text)
+        text = re.sub(r"`([^`]+)`", r'<font face="Courier">\1</font>', text)
+        return text
 
-        max_chars = 110
-        for paragraph in text.split("\n"):
-            line = paragraph
-            if not line.strip():
-                y -= 12
+    def _markdown_to_flowables(self, md: str) -> List[Any]:
+        styles = getSampleStyleSheet()
+        h1 = ParagraphStyle("H1", parent=styles["Heading1"], fontSize=14, spaceAfter=6)
+        h2 = ParagraphStyle("H2", parent=styles["Heading2"], fontSize=12, spaceAfter=4)
+        body = ParagraphStyle("Body", parent=styles["BodyText"], fontSize=10, leading=13)
+        code_style = ParagraphStyle("Code", parent=styles["BodyText"], fontName="Courier", fontSize=9, leading=11)
+
+        flowables: List[Any] = []
+        para_lines: List[str] = []
+        list_items: List[str] = []
+        in_code = False
+        code_lines: List[str] = []
+
+        def flush_paragraph():
+            if not para_lines:
+                return
+            text = " ".join(line.strip() for line in para_lines if line.strip())
+            if text:
+                flowables.append(Paragraph(self._format_markdown_inline(text), body))
+                flowables.append(Spacer(1, 6))
+            para_lines.clear()
+
+        def flush_list():
+            if not list_items:
+                return
+            items = [ListItem(Paragraph(self._format_markdown_inline(it), body), leftIndent=12) for it in list_items]
+            flowables.append(ListFlowable(items, bulletType="bullet", leftIndent=12))
+            flowables.append(Spacer(1, 6))
+            list_items.clear()
+
+        def flush_code():
+            if not code_lines:
+                return
+            content = "\n".join(code_lines)
+            flowables.append(Preformatted(content, code_style))
+            flowables.append(Spacer(1, 6))
+            code_lines.clear()
+
+        lines = md.splitlines()
+        for line in lines + [""]:
+            if line.strip().startswith("```"):
+                if in_code:
+                    in_code = False
+                    flush_code()
+                else:
+                    in_code = True
+                    flush_paragraph()
+                    flush_list()
                 continue
 
-            while len(line) > max_chars:
-                chunk = line[:max_chars]
-                line = line[max_chars:]
-                if y < 2 * cm:
-                    c.showPage()
-                    c.setFont("Helvetica", 10)
-                    y = h - 2 * cm
-                c.drawString(x, y, chunk)
-                y -= 12
+            if in_code:
+                code_lines.append(line)
+                continue
 
-            if y < 2 * cm:
-                c.showPage()
-                c.setFont("Helvetica", 10)
-                y = h - 2 * cm
-            c.drawString(x, y, line)
-            y -= 12
+            if not line.strip():
+                flush_paragraph()
+                flush_list()
+                continue
 
-        c.save()
+            if line.startswith("# "):
+                flush_paragraph()
+                flush_list()
+                flowables.append(Paragraph(self._format_markdown_inline(line[2:].strip()), h1))
+                flowables.append(Spacer(1, 6))
+                continue
+            if line.startswith("## "):
+                flush_paragraph()
+                flush_list()
+                flowables.append(Paragraph(self._format_markdown_inline(line[3:].strip()), h2))
+                flowables.append(Spacer(1, 4))
+                continue
+
+            bullet = re.match(r"^(\*|-|\d+\.)\s+(.*)", line.strip())
+            if bullet:
+                flush_paragraph()
+                list_items.append(bullet.group(2))
+                continue
+
+            para_lines.append(line)
+
+        flush_paragraph()
+        flush_list()
+        return flowables
+
+    def _write_markdown_pdf(self, path: Path, title: str, fields: Dict[str, str], summary_md: str) -> None:
+        doc = SimpleDocTemplate(
+            str(path),
+            pagesize=A4,
+            leftMargin=2 * cm,
+            rightMargin=2 * cm,
+            topMargin=2 * cm,
+            bottomMargin=2 * cm,
+        )
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle("Title", parent=styles["Title"], fontSize=16, spaceAfter=12)
+        body = ParagraphStyle("Body", parent=styles["BodyText"], fontSize=10, leading=13)
+
+        flowables: List[Any] = []
+        flowables.append(Paragraph(self._format_markdown_inline(title), title_style))
+
+        table_data = [["Champ", "Information extraite"]]
+        for key, label in [
+            ("intitule_operation", "Intitule de l'operation"),
+            ("intitule_lot", "Intitule du lot"),
+            ("maitre_ouvrage", "Maitre d'ouvrage"),
+            ("adresse_chantier", "Adresse du chantier"),
+            ("maitre_oeuvre", "Maitre d'oeuvre"),
+            ("type_marche_procedure", "Type de marche / procedure"),
+            ("date_limite_remise_offres", "Date limite remise des offres"),
+            ("duree_delai_execution", "Duree / delai d'execution"),
+            ("visite_obligatoire", "Visite obligatoire"),
+            ("contact_referent", "Contact / referent"),
+            ("montant_estime_budget", "Montant estime / budget"),
+            ("variantes_pse", "Variantes / PSE"),
+            ("criteres_attribution", "Criteres d'attribution"),
+        ]:
+            value = fields.get(key, "") or "Non mentionne"
+            table_data.append([label, value])
+
+        table = Table(table_data, colWidths=[6.0 * cm, 9.5 * cm])
+        table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2C3E50")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, 0), 10),
+                    ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+                    ("FONTSIZE", (0, 1), (-1, -1), 9),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                    ("TOPPADDING", (0, 0), (-1, -1), 4),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                ]
+            )
+        )
+        flowables.append(table)
+        flowables.append(Spacer(1, 12))
+
+        if summary_md.strip():
+            flowables.extend(self._markdown_to_flowables(summary_md))
+        else:
+            flowables.append(Paragraph("Aucun resume disponible.", body))
+
+        doc.build(flowables)
 
     def _generate_summary_blocking(self) -> Dict[str, Any]:
         uploaded = self._get_uploaded()
@@ -417,10 +647,88 @@ Documents:
             text = self._extract_text(Path(f["abs_path"]))
             docs.append({"filename": f["filename"], "text": text})
 
-        summary = self._ollama_generate(self._build_prompt(docs))
+        prepared_docs = self._prepare_docs_for_llm(docs)
+        analysis = self._ollama_generate_json(self._build_analysis_prompt(prepared_docs))
+
+        fields = analysis.get("fields") if isinstance(analysis.get("fields"), dict) else {}
+        summary_md = str(analysis.get("summary_markdown") or "")
+        dates_importantes = analysis.get("dates_importantes") if isinstance(analysis.get("dates_importantes"), list) else []
+        sources = analysis.get("sources") if isinstance(analysis.get("sources"), list) else []
+
+        normalized_fields = {k: self._normalize_value(v) for k, v in fields.items()}
+
+        prefill = {
+            "intitule": normalized_fields.get("intitule_operation", ""),
+            "lot": normalized_fields.get("intitule_lot", ""),
+            "moa": normalized_fields.get("maitre_ouvrage", ""),
+            "adresse": normalized_fields.get("adresse_chantier", ""),
+        }
+
         out_pdf = self.session_dir / "resume_ia.pdf"
-        self._write_pdf(out_pdf, "Résumé IA – Mémoire technique", summary)
-        return {"url": f"/_uploads/{self.session_id}/resume_ia.pdf"}
+        self._write_markdown_pdf(out_pdf, "Resume IA - Memoire technique", normalized_fields, summary_md)
+
+        payload = {
+            "fields": normalized_fields,
+            "summary_markdown": summary_md,
+            "dates_importantes": dates_importantes,
+            "sources": sources,
+            "prefill": prefill,
+            "created_at": datetime.now().isoformat(timespec="seconds"),
+        }
+
+        app.storage.user[ASSISTANT_EXTRACTION_KEY] = payload
+
+        return {
+            "url": f"/_uploads/{self.session_id}/resume_ia.pdf",
+            "data": payload,
+        }
+
+    def _render_extracted_fields(self, data: Dict[str, Any]) -> None:
+        if not self.fields_container:
+            return
+
+        self.fields_container.clear()
+
+        fields = data.get("fields") if isinstance(data.get("fields"), dict) else {}
+        dates = data.get("dates_importantes") if isinstance(data.get("dates_importantes"), list) else []
+        sources = data.get("sources") if isinstance(data.get("sources"), list) else []
+
+        rows = []
+        for key, label in [
+            ("intitule_operation", "Intitule de l'operation"),
+            ("intitule_lot", "Intitule du lot"),
+            ("maitre_ouvrage", "Maitre d'ouvrage"),
+            ("adresse_chantier", "Adresse du chantier"),
+            ("maitre_oeuvre", "Maitre d'oeuvre"),
+            ("type_marche_procedure", "Type de marche / procedure"),
+            ("date_limite_remise_offres", "Date limite remise des offres"),
+            ("duree_delai_execution", "Duree / delai d'execution"),
+            ("visite_obligatoire", "Visite obligatoire"),
+            ("contact_referent", "Contact / referent"),
+            ("montant_estime_budget", "Montant estime / budget"),
+            ("variantes_pse", "Variantes / PSE"),
+            ("criteres_attribution", "Criteres d'attribution"),
+        ]:
+            value = fields.get(key, "") or "Non mentionne"
+            rows.append({"champ": label, "valeur": value})
+
+        if dates:
+            rows.append({"champ": "Dates importantes", "valeur": " | ".join(str(d) for d in dates)})
+        if sources:
+            rows.append({"champ": "Sources", "valeur": ", ".join(str(s) for s in sources)})
+
+        with self.fields_container:
+            if not rows:
+                ui.label("Aucune extraction disponible.").classes("text-sm text-gray-500")
+            else:
+                ui.table(
+                    columns=[
+                        {"name": "champ", "label": "Champ", "field": "champ", "align": "left"},
+                        {"name": "valeur", "label": "Information extraite", "field": "valeur", "align": "left"},
+                    ],
+                    rows=rows,
+                    row_key="champ",
+                ).classes("w-full text-sm").props("dense")
 
     async def _on_click_analyze(self) -> None:
         if not self._get_uploaded():
@@ -429,28 +737,42 @@ Documents:
 
         ui.notify("Analyse en cours (OCR + IA)...", type="info")
         if self.summary_md:
-            self.summary_md.set_content("⏳ Analyse en cours...")
+            self.summary_md.set_content("Analyse en cours...")
 
         try:
             result = await asyncio.to_thread(self._generate_summary_blocking)
+            data = result.get("data", {}) if isinstance(result, dict) else {}
 
             self.summary_link_row.clear()
             with self.summary_link_row:
                 ui.html(
-                    f'''
-                    <a href="{result["url"]}"
+                    f"""
+                    <a href="{result['url']}"
                        target="_blank"
                        download
                        class="text-blue-700 underline font-medium">
-                       Télécharger le PDF résumé
+                       Telecharger le PDF resume
                     </a>
-                    ''',
+                    """,
                     sanitize=False,
                 )
 
-            if self.summary_md:
-                self.summary_md.set_content("✅ Résumé généré. Téléchargez le PDF ci-dessus.")
-            ui.notify("PDF généré", type="positive")
+            if self.last_extract_label and isinstance(data, dict):
+                created_at = data.get("created_at", "")
+                if created_at:
+                    self.last_extract_label.text = f"Derniere analyse : {created_at}"
+
+            if isinstance(data, dict):
+                self._render_extracted_fields(data)
+
+            if self.summary_md and isinstance(data, dict):
+                summary_md = str(data.get("summary_markdown") or "")
+                if summary_md.strip():
+                    self.summary_md.set_content(summary_md)
+                else:
+                    self.summary_md.set_content("_Aucun resume disponible._")
+
+            ui.notify("Analyse terminee. PDF genere.", type="positive")
 
         except Exception as e:
             ui.notify(f"Erreur analyse: {e}", type="negative")
@@ -488,11 +810,29 @@ Documents:
 
         ui.separator().classes("my-4")
         with ui.card().classes("p-4"):
-            ui.label("3) Analyse + génération PDF").classes("text-lg font-semibold")
-            ui.button("Analyser + Générer PDF", on_click=self._on_click_analyze).props("color=primary").classes("w-full")
+            ui.label("3) Analyse + generation PDF").classes("text-lg font-semibold")
+            ui.button("Analyser + Generer PDF", on_click=self._on_click_analyze).props("color=primary").classes("w-full")
             self.summary_link_row = ui.row().classes("items-center mt-2").style("gap: 12px;")
 
-        self.summary_md = ui.markdown("").classes("mt-4 w-full")
+        ui.separator().classes("my-4")
+        with ui.card().classes("p-4"):
+            ui.label("4) Synthese extraite").classes("text-lg font-semibold")
+            self.last_extract_label = ui.label("Derniere analyse : -").classes("text-xs text-gray-500")
+            self.fields_container = ui.column().classes("w-full")
+            ui.separator().classes("my-3")
+            ui.label("Resume (markdown)").classes("text-sm text-gray-600")
+            self.summary_md = ui.markdown("").classes("mt-2 w-full")
+
+        existing = app.storage.user.get(ASSISTANT_EXTRACTION_KEY)
+        if isinstance(existing, dict):
+            created_at = existing.get("created_at", "")
+            if created_at and self.last_extract_label:
+                self.last_extract_label.text = f"Derniere analyse : {created_at}"
+            self._render_extracted_fields(existing)
+            if self.summary_md:
+                summary_md = str(existing.get("summary_markdown") or "")
+                if summary_md.strip():
+                    self.summary_md.set_content(summary_md)
 
 
 def render():

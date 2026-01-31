@@ -3,7 +3,7 @@ Page de generation de memoires techniques.
 Interface principale avec STATE MANAGEMENT pour capturer les modifications utilisateur.
 """
 
-from nicegui import ui, events
+from nicegui import ui, events, app
 from pathlib import Path
 from datetime import datetime
 import asyncio
@@ -118,7 +118,31 @@ class GenerationPage:
         for section in self.sections_autorisees:
             # Toutes les sections cochées par défaut
             self.project_state["sections_enabled"][section] = True
+
+        self._apply_assistant_prefill()
     
+    def _apply_assistant_prefill(self) -> None:
+        """Applique les valeurs extraites par l'assistant IA si disponibles."""
+        try:
+            extraction = app.storage.user.get("assistant_extraction_v1", {})
+        except Exception:
+            return
+
+        if not isinstance(extraction, dict):
+            return
+        prefill = extraction.get("prefill", {})
+        if not isinstance(prefill, dict):
+            return
+
+        infos = self.project_state.get("infos_projet", {})
+        if not isinstance(infos, dict):
+            return
+
+        for key in ("intitule", "lot", "moa", "adresse"):
+            value = str(prefill.get(key) or "").strip()
+            if value:
+                infos[key] = value
+
     def _load_template_data(self) -> Dict[str, Any]:
         """Charge les données de templates depuis template_data.json."""
         import json
