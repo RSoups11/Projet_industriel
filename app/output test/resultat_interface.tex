@@ -1,0 +1,1287 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{titlesec}
+\usepackage{longtable}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{colortbl}
+\usepackage[table]{xcolor}
+
+% Package tcolorbox avec breakable
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{fontawesome5}
+
+% Couleurs
+\definecolor{ecoVert}{HTML}{27AE60}
+\definecolor{ecoVertFonce}{HTML}{1E8449}
+\definecolor{ecoVertClair}{HTML}{A9DFBF}
+\definecolor{ecoBleu}{HTML}{3498DB}
+\definecolor{ecoMarron}{HTML}{795548}
+\definecolor{ecoFond}{HTML}{F0FDF4}
+\definecolor{traitBleu}{HTML}{2C3E50}
+\definecolor{grisSection}{HTML}{34495E}
+
+% Style de boite pleine largeur breakable
+\newtcolorbox{fullwidthbox}[2][]{
+    enhanced,
+    breakable,
+    colback=white,
+    colframe=#2,
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    colbacktitle=#2,
+    rounded corners,
+    boxrule=1.5pt,
+    left=10pt, right=10pt, top=8pt, bottom=8pt,
+    width=\textwidth,
+    #1
+}
+
+% Style de boite pour sous-sections
+\newtcolorbox{subsectionbox}[2][]{
+    enhanced,
+    breakable,
+    colback=white,
+    colframe=#2,
+    fonttitle=\bfseries,
+    coltitle=white,
+    colbacktitle=#2,
+    rounded corners,
+    boxrule=1.2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    #1
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\titleformat{\section}{\Large\bfseries\color{grisSection}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\includegraphics[height=1.1cm]{../images/entete.png}}
+\fancyfoot[C]{\thepage}
+
+
+\begin{document}
+
+\thispagestyle{empty}
+
+% ============================================
+% PAGE DE GARDE
+% ============================================
+\begin{titlepage}
+    \centering
+    {\Huge \textbf{MEMOIRE TECHNIQUE}} \\
+    \vspace{1cm}
+    
+    {\Large \textbf{  }} \\
+    \vspace{0.5cm}
+    
+    {\large Lot N02 - Charpente bois } \\
+    \vspace{0.5cm}
+    \rule{\linewidth}{0.5mm} \\
+    \vspace{0.5cm}
+    
+    \begin{center}
+    \textbf{Maitre d'ouvrage :}  \\
+    \vspace{0.3cm}
+    \textbf{Adresse du chantier :}  \\
+    \end{center}
+    
+    
+    \vspace{0.5cm}
+    \begin{center}
+    \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=ecoBleu!50,
+        boxrule=1.5pt,
+        arc=4pt,
+        width=0.95\textwidth,
+        halign=center
+    ]
+    \includegraphics[width=0.9\textwidth, height=12cm, keepaspectratio]{ ../images/exemple_pagegarde.jpeg }
+    \end{tcolorbox}
+    \end{center}
+    
+    
+    \vfill
+
+    \begin{center}
+        \includegraphics{../images/logo_boisTechniques.png}
+    \end{center}
+
+    \vspace{0.3cm}
+
+    \begin{center}
+        \includegraphics[height=1.1cm]{../images/logo_qualibat (1).png}\hfill
+        \includegraphics[height=1.1cm]{../images/logo_garantie-decenale2 (1).png}\hfill
+        \includegraphics[height=1.1cm]{../images/logo_rge (1).png}\hfill
+        \includegraphics[height=1.1cm]{../images/logo_ffb_adherent (1).png}\hfill
+        \includegraphics[height=1.1cm]{../images/logo_fsc.png}\hfill
+        \includegraphics[height=1.1cm]{../images/logo_pefc2 (1).png}
+    \end{center}
+
+    \vspace{0.3cm}
+
+    \textbf{Entreprise Bois et Techniques} \\
+    SIRET : 893 822 841 00027 \\
+    Mail : contact@bois-techniques.fr\\
+    Telephone : 03 89 53 36 58 \\
+    Site web : www.bois-techniques.fr \\
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ============================================
+% PREAMBULE
+% ============================================
+\section*{PREAMBULE}
+\addcontentsline{toc}{section}{PREAMBULE}
+
+\begin{fullwidthbox}[title={\faIcon{info-circle}\hspace{0.3em}Presentation de l'entreprise}]{ecoBleu}
+L'entreprise Bois \& Techniques, situee a Rixheim (68170), est specialisee dans la
+conception, la fabrication et la pose de charpentes bois, ouvrages structurels, et elements
+de couverture. Forte d'une experience significative dans le domaine de la construction
+bois, elle intervient sur des projets varies : logements individuels, batiments collectifs,
+equipements publics ou tertiaires.
+
+\vspace{0.3cm}
+
+L'entreprise dispose de ses propres equipes de charpentiers et couvreurs, encadrees par
+un conducteur de travaux experimente. Les ouvrages sont fabriques dans un atelier equipe
+et adaptes aux exigences de la construction bois moderne.
+
+\vspace{0.3cm}
+
+Realise par le bureau d'etude interne de la societe Bois \& Techniques, le present memoire
+technique a pour objectif de vous exposer les solutions techniques et l'organisation de
+chantier envisagee, afin de mener votre projet dans les meilleures conditions.
+\end{fullwidthbox}
+
+% ============================================
+% SECTIONS DYNAMIQUES - ORDRE STRICT
+% ============================================
+
+
+
+
+
+
+
+
+\newpage
+\section{ SITUATION ADMINISTRATIVE DE L'ENTREPRISE }
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title=Qualifications et effectifs]{grisSection}
+QUALIFICATIONS ENTREPRISE RGE QUALIBAT :
+- Fabrication et pose de charpente traditionnelle
+- Fabrication et pose de batiments a ossature bois
+- Reparation et renforcement d'ouvrage de charpente
+- Restauration de charpente du patrimoine ancien
+
+EFFECTIF ENTREPRISE AU 01/01/2025 : 13 salaries
+
+CHIFFRE D'AFFAIRE DES 3 DERNIERES ANNEES :
+- 2022 : 2 324 861,00 EUR
+- 2023 : 2 914 663,00 EUR
+- 2024 : 3 227 324,26 EUR
+
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\section{ CONTEXTE DU PROJET }
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{map-marker-alt}\hspace{0.3em}Environnement}]{ecoBleu}
+- Pavillonnaire
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{tasks}\hspace{0.3em}Acces chantier et stationnement}]{traitBleu}
+Selon PGC delivree a l'entreprise retenue
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{truck-loading}\hspace{0.3em}Levage}]{ecoMarron}
+- Grue automotrice
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{exclamation-triangle}\hspace{0.3em}Contraintes du chantier}]{red!70!black}
+- Travaux hauteur
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\section{ MOYENS HUMAINS AFFECTES AU PROJET }
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title=Charge d'affaires : Frederic ANSELM]{grisSection}
+Il est l'unique interlocuteur de tous les intervenants du projet, il participe aux reunions de chantiers, etablit la descente de charges, la note de calculs et les plans en tenant compte des interfaces avec les autres lots. Il organise les travaux de preparation et de levage en assurant un controle qualite des ouvrages executes a tous les stades de la construction.
+
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title=Chef d'equipe : Jimmy FROGER]{grisSection}
+Il dirige les operations de taille et de levage de la charpente en se basant sur les PAC et en etroite collaboration avec le charge d'affaires. Il applique les consignes de securite du PPSPS
+
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title=Charpentiers : DA COSTA Tristan]{grisSection}
+1 a 2 charpentiers seront affectes a ce projet en plus du chef d'equipe. Cet effectif pourra etre augmente selon les contraintes du PLANNING en phase d'execution des travaux.
+
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{shield-alt}\hspace{0.3em}Securite et sante sur les chantiers}]{red!60!black}
+CONCRETEMENT :
+- NORMES et CERTIFICATIONS MACHINES (fixes et portatives)
+- NORMES ASPIRATION
+- SECURITE INCENDIE (Prevention, lutte, acces)
+- NORMES ELECTRIQUE
+- ACCESSIBILITE AUX PERSONNES EN SITUATION DE HANDICAP
+- HYGIENE, SANTE et CONFORT
+- CONTROLE ANNUEL PAR NOS PRESTATAIRES
+
+UNE ORGANISATION LOGIQUE FAVORISANT LA SECURITE :
+Notre atelier est organise de facon logique pour faciliter la circulation des pieces de bois au cours des differentes phases de travail.
+
+CONFORT DE TRAVAIL :
+Nous mettons a la disposition de notre personnel une salle de repos avec : point d'eau, machine a cafe, refrigerateur, micro-onde, table et chaises, vestiaire, douche, sanitaires.
+
+0 accident de travail en atelier depuis 11 ans.
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{sitemap}\hspace{0.3em}ORGANIGRAMME FONCTIONNEL DE L'EQUIPE AFFECTEE AUX PROJETS}]{ecoBleu}
+
+\begin{center}
+\includegraphics[width=0.9\textwidth]{ ../images/organigramme.png }
+\end{center}
+
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\section{ MOYENS MATERIEL AFFECTES AU PROJET }
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{drafting-compass}\hspace{0.3em}Conception et precision}]{ecoBleu}
+- Lunette et laser pour releves, implantation et tracage
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{shield-alt}\hspace{0.3em}Securite}]{red!60!black}
+- EPI (Harnais, casque, lignes de vie, stop-chutes, chaussures, lunette, gant, masque)
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{hammer}\hspace{0.3em}Atelier de taille}]{ecoMarron}
+- Scie radiale
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{truck}\hspace{0.3em}Transport}]{ecoVert}
+- Camionnettes 3,5 Tonnes equipees
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title=Levage materiel]{grisSection}
+- Palan
+
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{tools}\hspace{0.3em}Machine portative}]{ecoMarron}
+- Machines portatives de nos equipes (vingtaine de machines par vehicule)
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{broom}\hspace{0.3em}Protection et nettoyage}]{traitBleu}
+- Bachage permanent
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{recycle}\hspace{0.3em}Gestion dechets}]{ecoVert}
+- Big-bag
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\section{ LISTE DES MATERIAUX }
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{certificate}\hspace{0.3em}Matiere premiere certifiee}]{ecoVert}
+Utilisation de bois certifies, de colle a base aqueuse ainsi que les traitements de classe 2 (label vert - SARPECO 850).
+
+Les approvisionnements sont faits dans le respect de l'environnement avec une politique d'achats rigoureuse des bois a provenance certifie et une eco certification des bois locaux.
+
+Nous privilegions des produits moins nocifs pour la sante limitant les emissions potentielles.
+
+Materiaux testes en laboratoire et l'ensemble de nos panneaux OSB sont de classe E1 ou garantis sans formaldehyde.
+Fournisseurs locaux et francais de preference.
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{cogs}\hspace{0.3em}Fixation et assemblage}]{ecoMarron}
+Nature des elements : Boulons galvanises a chaud O16 et O20 ; Visserie electrozinguee ; Vis O8 ; Equerres de fixation et sabots galvanises BEA ; Pointes d'ancrage crantees ; Ferrures mecano-soudees ; Vis anti-fendage ; Pointes brutes ; Pointes galvanisees a chaud ; Chevilles maconnerie ; Goujons d'ancrage ; Vis inox ; Boulons TRCC
+
+Marque, type, performance : Classe 6.8 Filetage partiel ; BERNER ; EUROTEC ; BEA ; MTR ; SFS-EUROTEC ; GUNEBO ; HILTI HRD UGT ; HILTI HSAK ; BERNER A2 torx ; EUROTEC A4 torx ; SCHMERBER
+
+Provenance : France ; Allemagne ; Suede
+
+Doc en annexe : OUI (EUROTEC, BEA)
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{flask}\hspace{0.3em}Traitement preventif des bois}]{ecoBleu}
+Nature des elements : Traitement SARPECO 850
+Marque, type, performance : Label Vert - SARPECO 850
+Provenance : France
+Doc en annexe : OUI
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{flask}\hspace{0.3em}Traitement curatif des bois}]{ecoBleu}
+Nature des elements : Traitement XILIX 3000P
+Marque, type, performance : Label Vert - CTB+ - PHASE AQUEUSE ; CLASSE 1/2/3A CERTIFIE CTB-P+ / SOCOTEC
+Provenance : France
+Doc en annexe : OUI
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{flask}\hspace{0.3em}Methodologie de traitement}]{ecoBleu}
+Traitement curatif et preventif par injections et double pulverisation de l'ensemble des bois de charpente et solivage interieurs selon les prescriptions techniques en vigueur :
+
+Preparation des surfaces :
+- Sondage
+- Decapage des bois atteints
+- Brossage
+- Depoussierage
+
+Traitement en profondeur des grosses pieces :
+- Percement des puits d'injection tous les 20cm (5 a 6 par ML)
+- Mise en place d'injecteurs anti-retour sans tete restant definitivement dans les elements traites
+- Pieces encastrees dans la maconnerie : injections doublees et orientees vers la maconnerie
+- Injections profondes en basse pression 20 a 40 g
+- Application en surface de XILIX 3000P sur l'ensemble des bois en deux couches (100 a 300g par m2)
+
+Traitement en profondeur des chevrons :
+- Percement des puits d'injection tous les 30cm (3 a 4 par ML)
+- Mise en place d'injecteurs anti-retour
+- Injections profondes en basse pression 20 a 40 g
+- Application en surface de XILIX 3000P en deux couches
+
+PRODUIT XILIX 3000P en phase aqueuse classes 1/2/3A certifie CTBP+
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\section{ METHODOLOGIE ET CHRONOLOGIE }
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{clipboard-list}\hspace{0.3em}Deroulement des travaux}]{ecoBleu}
+Methode de preparation du chantier :
+L'entreprise Bois et Techniques realisera un releve precis des charpentes en place avec details des assemblages, sections, cote altimetriques, zones degradees ainsi qu'un dossier photos qui permettront de respecter les configurations d'origine de la restauration.
+
+D'autre part des notes de calculs seront realisees afin d'adapter les sections aux differentes charges de couverture, plafond et d'exploitations en accord avec le Maitre d'oeuvre.
+
+Les bois de remplacement proviennent de la scierie vosgienne et alsacienne avec certificat de traitement et PEFC et sont seches a l'air avant utilisation.
+
+Nous avons egalement un stock de bois ancien en sapin et en chene afin d'obtenir une parfaite harmonie avec les zones visibles.
+
+Les bois de charpente a remplacer, a greffer, a resiner, a etayer seront representes sur nos plans avec les details d'assemblages et transmis au Maitre d'ouvrage pour accord avant travaux.
+
+Nous realisons les renforcements par resine epoxy depuis 25 ans avec le meme fournisseur (Resipoly) en respectant leur cahier de charges.
+
+Nous possedons une garantie decennale specifique pour ces travaux.
+
+Un reportage photos sera realise en cours des travaux et envoye regulierement au Maitre d'oeuvre.
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{drafting-compass}\hspace{0.3em}Conception}]{ecoBleu}
+Methode de preparation du chantier :
+Une collaboration inter-lots est indispensable afin de soulever et de solutionner tous les problemes techniques et temporels du chantier.
+
+L'entreprise delivre ses plans d'execution des ouvrages, Plans d'Atelier et de chantier (PAC), calepins et epures, notes de calcul, descente de charge, au bureau de controle.
+
+L'entreprise fournit egalement tous les renseignements indispensables a l'etablissement d'un ordonnancement general definissant les phases des etudes d'execution y compris PAC, d'execution des travaux preparatoires des etudes de synthese, des mises au point de fabrication, des commandes de materiel, de presentation des echantillons, des formalites administratives, le PLANNING de pose avec sous-phase, la fabrication atelier.
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{hammer}\hspace{0.3em}Fabrication et taille en atelier}]{ecoMarron}
+- Decoupe et taillage des bois en atelier
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{truck-loading}\hspace{0.3em}Transport et levage}]{ecoMarron}
+- Le chantier est pose par nos equipes, chaque chef d'equipe est titulaire de plusieurs CACES pour pouvoir manipuler nacelles ciseaux, bras articule, chariot elevateur.
+
+Les operations realisees pour ce projet :
+Livraison par camion
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{hard-hat}\hspace{0.3em}Operations sur chantier}]{ecoVertFonce}
+- Reception echafaudage
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{broom}\hspace{0.3em}Protection de l'existant}]{traitBleu}
+- Pas de clouage mais un maximum de vissage pour eviter chocs et fissures
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{shield-alt}\hspace{0.3em}Organisation hygiene et securite}]{red!60!black}
+- Un echafaudage peripherique (hors lot) avec une recette pour l'approvisionnement des materiaux
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{broom}\hspace{0.3em}Protection et nettoyage}]{traitBleu}
+Sols - Murs - Bachage permanent du chantier - Filet
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{cog}\hspace{0.3em}Mode operatoire particulier}]{ecoMarron}
+Les moyens mis en oeuvre pour obtenir :
+- Le label BBC
+- La certification
+- Tests d'etancheite
+- Tests acoustiques
+- Calculs TH
+- Respect monument historique
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{leaf}\hspace{0.3em}Demarche HQE}]{ecoVert}
+Nous sommes labellises RGE : Notre demarche HQE (Haute qualite environnementale) tend a offrir des ouvrages sains et confortables dont les impacts sur l'environnement, evalues sur l'ensemble du cycle de vie, sont les plus maitrises possibles.
+
+ECO-Construction :
+Cible n02 - choix integre des procedes et produits de construction
+
+- Durabilite, entretien et adaptabilite des batiments :
+Nous adaptons nos choix constructifs a la duree de vie souhaitee de l'ouvrage.
+Nous prenons en compte l'adaptabilite de l'ouvrage dans le temps et son demontage/separation des produits et des systemes constructifs.
+Nous prenons en compte la facilite d'acces pour l'entretien du bati.
+Nous privilegions des produits de construction faciles a entretenir.
+
+- Choix des procedes de construction :
+Nous choisissons des produits et des systemes constructifs dont les caracteristiques sont verifiees.
+Nous optimisons la manutention sur le chantier et nous prenons en consideration la sante des intervenants sur les chantiers.
+
+- Choix des produits de construction :
+Les choix des materiaux sont compatibles avec une gestion durable de l'environnement (Label Vert, PEFC, FSC, fournisseurs locaux, materiaux certifie Excell Zone Verte).
+
+Cible n03 - chantier a faibles nuisances
+Gestion differenciee des dechets de chantier.
+
+ECO-Gestion :
+Cible n04 - gestion de l'energie
+Reduction de la demande et des besoins energetiques.
+
+Cible n06 - gestion des dechets d'activites
+Gestion differenciee des dechets d'activites.
+
+Confort :
+Cible n08 - confort hygrothermique
+Attention toute particuliere sur la mise en oeuvre du pare vapeur.
+
+Cible n09 - confort acoustique
+Reduction efficace de l'apparition de bruits parasites.
+
+SANTE :
+Cible n14 - qualite de l'air
+Gestion des risques de pollution par les produits de construction.
+
+\begin{center}
+\includegraphics[width=0.8\textwidth]{ ../images/HQE_chantier }
+\end{center}
+
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{map-marker-alt}\hspace{0.3em}Demarche environnementale atelier}]{ecoBleu}
+Nous attachons une importance toute particuliere au traitement de nos dechets et globalement a l'empreinte energetique de l'entreprise sur son milieu.
+
+ACTIONS CONCRETES dans notre atelier et bureau d'etude :
+- Reduction de notre consommation de papier, consommables
+- Privilege de la digitalisation des documents aux impressions
+- Une seule imprimante centralisee
+- Investissement informatique pour stockage et transmission numerique
+- Eclairage optimise et lumiere naturelle privilegiee
+- Tri de nos dechets (papier, carton, plastique, bureautique)
+- Chauffage de notre atelier par chaudiere a bois alimentee par nos residus de fabrication
+- Choix de fournisseurs locaux privilegie
+
+NOTRE DEMARCHE DE TRI-SELECTIF :
+- Benne pour bois sains, lattes, chutes de poutres, volige, cartons non souilles : utilise comme moyen de CHAUFFAGE DE L'ATELIER
+- Benne pour dechets bois traites et bois peint : EVACUATION VERS UN CENTRE DE TRAITEMENT
+- Lieu de stockage pour dechets industriels speciaux : stocke dans un local avec cuve de retention
+- Silo pour copeaux et sciure (Fabrication de briquette)
+- Benne pour dechets inerte : EVACUATION par SCHROLL puis TRANSFORMATION pour REUTILISATION
+- Entreposage des metaux tries : RECYCLAGE par BROYAGE a destination des FONDERIES
+- Benne melange : RECUPERES par la societe EDIB pour STOCKAGE et REVALORISATION
+- Poubelle dechets menagers collectee par la municipalite
+
+DIMINUER SA PRODUCTION DE DECHETS :
+- Predimensionnement de pieces pour limiter les dechets de matiere
+- Livraisons et stockage mieux ordonnes, pour prevenir la casse
+- Choix de produit moins emballes
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{map-marker-alt}\hspace{0.3em}Demarche environnementale chantiers}]{ecoBleu}
+L'entreprise Bois et Techniques a mis en place depuis de nombreuses annees, pour reduire ses couts d'elimination, un tri selectif de ses dechets en sortie de production, sur chantier et en retour de chantier.
+
+CAS N1 : DEMARCHE DANS UN CADRE DE TRI COLLECTIF
+- Les differents moyens de gestion et de tri des dechets presents sur le chantier seront identifies et utilises par nos equipes
+- Nos equipes sont sensibilisees pour repartir correctement leurs dechets dans les differentes bennes par categorie
+- Dans le cas ou certains types de dechets ne seraient pas compatibles avec les systemes collectifs, nous nous chargerons de leur evacuation vers notre atelier
+
+CAS N2 : DEMARCHE DE TRI AUTONOME POUR GROS VOLUME
+- Une aire d'entreposage des dechets sera definie
+- L'aire d'entreposage sera placee a bonne distance des zones sensibles
+- Elle sera balisee, rangee regulierement et maintenue dans un etat de proprete
+- Les differentes bennes seront identifiees par des pictogrammes ou des codes couleurs
+- Collecte des dechets par notre prestataire qui les valorisera dans les conditions legales
+
+CAS N3 : DEMARCHE DE TRI AUTONOME POUR PETIT VOLUME
+- Tri des bois en deux categories (bois sain, et bois traites ou peint)
+- Recuperation des metaux dans les seaux et caisses prevus a cet effet
+- Tri des materiaux facilement recyclables dans sac polyane
+- Recuperation des residus de chantier non inertes et non dangereux dans Big bag
+- Recuperation des residus de chantier dangereux dans Big-bags adaptes
+
+Interdiction :
+- De bruler les dechets
+- D'enfouissement des dechets
+- De mise en depot sauvage
+
+POUR CHAQUE PROJET NOUS UTILISONS UNE FICHE INTERNE POUR PREPARER LA GESTION DE NOS DECHETS.
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\section{ PLANNING }
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{tasks}\hspace{0.3em}Preparation de chantier}]{traitBleu}
+- Purge complementaire
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{subsectionbox}[title={\faIcon{tasks}\hspace{0.3em}Suite du chantier}]{traitBleu}
+- Echafaudage peripherique (hors lot)
+\end{subsectionbox}
+\vspace{0.3cm}
+
+
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{clock}\hspace{0.3em}Respect des delais}]{traitBleu}
+- Grace au releve de la charpente existante, la taille des bois peut se faire en atelier avant le demarrage des travaux. Il ne restera que la fixation des bois sur site.
+- Nous avons un grand stock de bois sec sur notre site de production.
+- Il est possible de rajouter des charpentiers supplementaires selon la phase de travaux.
+
+Lors de l'etude du PLANNING transmis dans le cadre du dossier de consultation, nous avons porte une attention particuliere a la duree prevue pour la phase de montage. Au regard des caracteristiques techniques du projet, du volume des elements a assembler, des conditions d'acces au site, ainsi que de nos retours d'experience sur des operations similaires, nous recommandons d'ajuster le PLANNING initial afin d'assurer une execution realiste, fluide et sans tension sur les ressources.
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\section{ CHANTIER REFERENCES }
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{building}\hspace{0.3em}References en rapport avec l'operation}]{ecoBleu}
+- 5 et 7 rue des Marchands COLMAR
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\section{ PERFORMANCES ENVIRONNEMENTALES }
+
+
+
+
+
+
+
+
+\begin{fullwidthbox}[title={\faIcon{volume-mute}\hspace{0.3em}Reduction des nuisances}]{ecoVert}
+Il existe un autre type de nuisance qui peuvent etre reduites avec de l'anticipation : il s'agit des nuisances sonores et les emissions de poussieres en tous genre, pour les habitants limitrophes au chantier.
+
+Bois et Techniques agit en ce sens depuis toujours par 2 grands axes majeurs :
+- Nous privilegions l'assemblage par vissage plutot que par cloutage
+- Nos equipes coupent et taillent le bois sur notre site, a l'atelier Bois et Techniques
+\end{fullwidthbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+% ============================================
+% ANNEXES
+% ============================================
+\newpage
+\section{ANNEXES}
+\addcontentsline{toc}{section}{ANNEXES}
+
+\begin{fullwidthbox}[title={\faIcon{paperclip}\hspace{0.3em}Documents annexes}]{grisSection}
+Les fiches techniques des produits et materiaux mentionnes dans ce memoire sont disponibles sur demande.
+
+\begin{itemize}
+    \item Fiches techniques des traitements (SARPECO 850, XILIX 3000P)
+    \item Certifications RGE et Qualibat
+    \item Attestations d'assurance decennale
+    \item References chantiers detaillees
+\end{itemize}
+\end{fullwidthbox}
+
+\end{document}

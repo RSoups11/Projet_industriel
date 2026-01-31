@@ -22,11 +22,10 @@
 
 % Packages pour les sections écologie
 \usepackage{tcolorbox}
-\tcbuselibrary{skins}
+\tcbuselibrary{skins,breakable}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, positioning, shadows.blur, calc, arrows.meta}
 \usepackage{xcolor}
-\usepackage{needspace}
 
 % Couleurs écologiques
 \definecolor{ecoVert}{HTML}{27AE60}
@@ -36,10 +35,9 @@
 \definecolor{ecoMarron}{HTML}{795548}
 \definecolor{ecoFond}{HTML}{F0FDF4}
 \definecolor{traitBleu}{HTML}{2C3E50}
-\definecolor{ecoRouge}{HTML}{FF0000}
+\definecolor{gray}{HTML}{5D6D7E}
 
 % Style tcolorbox pour les sous-sections méthodologie (adaptatif)
-% Éviter les ruptures de page à l'intérieur des boîtes
 \newtcolorbox{methodebox}[2][]{
     enhanced,
     colback=white,
@@ -50,7 +48,6 @@
     rounded corners,
     boxrule=1.2pt,
     left=6pt, right=6pt, top=6pt, bottom=6pt,
-    before={\needspace{10cm}},
     #1
 }
 
@@ -205,31 +202,35 @@ En espérant que ce mémoire technique illustrera l'intérêt que nous portons �
 \section{ {{ section.titre }} }
 
 {% set contexte_ss = {} %}
+{% set contexte_colors = {} %}
 {% for ss in section.sous_sections %}
 {% set ss_nom_lower = ss.nom | lower %}
-{% if 'respect des délais' in ss_nom_lower or 'respect des delais' in ss_nom_lower %}
-{% set _ = contexte_ss.update({'respect_delais': ss.contenu}) %}
-{% elif 'contexte' in ss_nom_lower and 'environnement' not in ss_nom_lower and 'contrainte' not in ss_nom_lower %}
+{% if 'contexte' in ss_nom_lower and 'environnement' not in ss_nom_lower and 'contrainte' not in ss_nom_lower %}
 {% set _ = contexte_ss.update({'date': ss.contenu}) %}
+{% set _ = contexte_colors.update({'date': ss.couleur | default('ecoBleu')}) %}
 {% elif 'environnement' in ss_nom_lower %}
 {% set _ = contexte_ss.update({'environnement': ss.contenu}) %}
+{% set _ = contexte_colors.update({'environnement': ss.couleur | default('ecoBleu')}) %}
 {% elif 'acces' in ss_nom_lower or 'accès' in ss_nom_lower %}
 {% set _ = contexte_ss.update({'acces': ss.contenu}) %}
+{% set _ = contexte_colors.update({'acces': ss.couleur | default('ecoBleu')}) %}
 {% elif 'levage' in ss_nom_lower %}
 {% set _ = contexte_ss.update({'levage': ss.contenu}) %}
+{% set _ = contexte_colors.update({'levage': ss.couleur | default('ecoBleu')}) %}
 {% elif 'contrainte' in ss_nom_lower %}
 {% set _ = contexte_ss.update({'contraintes': ss.contenu}) %}
+{% set _ = contexte_colors.update({'contraintes': ss.couleur | default('red!70!black')}) %}
 {% endif %}
 {% endfor %}
 {% if contexte_ss.contraintes %}
 \begin{tcolorbox}[
     enhanced,
-    colback=ecoRouge!3,
-    colframe=ecoRouge,
+    colback=white,
+    colframe={{ contexte_colors.contraintes | default('red!70!black') }},
     fonttitle=\bfseries,
     coltitle=white,
     title={\faIcon{exclamation-triangle}\hspace{0.3em}Contraintes du chantier},
-    colbacktitle=ecoRouge,
+    colbacktitle={{ contexte_colors.contraintes | default('red!70!black') }},
     rounded corners,
     boxrule=1.5pt,
     left=10pt, right=10pt, top=6pt, bottom=6pt
@@ -244,11 +245,11 @@ En espérant que ce mémoire technique illustrera l'intérêt que nous portons �
 \begin{tcolorbox}[
     enhanced,
     colback=white,
-    colframe=ecoBleu,
+    colframe={{ contexte_colors.levage | default('ecoBleu') }},
     fonttitle=\bfseries,
     coltitle=white,
     title={\faIcon{truck-loading}\hspace{0.3em}Levage},
-    colbacktitle=ecoBleu,
+    colbacktitle={{ contexte_colors.levage | default('ecoBleu') }},
     rounded corners,
     boxrule=1.5pt,
     left=8pt, right=8pt, top=6pt, bottom=6pt
@@ -263,11 +264,11 @@ En espérant que ce mémoire technique illustrera l'intérêt que nous portons �
 \begin{tcolorbox}[
     enhanced,
     colback=white,
-    colframe=ecoBleu,
+    colframe={{ contexte_colors.environnement | default('ecoBleu') }},
     fonttitle=\bfseries,
     coltitle=white,
     title={\faIcon{map-marker-alt}\hspace{0.3em}Localisation},
-    colbacktitle=ecoBleu,
+    colbacktitle={{ contexte_colors.environnement | default('ecoBleu') }},
     rounded corners,
     boxrule=1.5pt,
     left=8pt, right=8pt, top=6pt, bottom=6pt
@@ -283,11 +284,11 @@ En espérant que ce mémoire technique illustrera l'intérêt que nous portons �
 \begin{tcolorbox}[
     enhanced,
     colback=white,
-    colframe=ecoBleu,
+    colframe={{ contexte_colors.get('environnement', 'ecoBleu') | default('ecoBleu') }},
     fonttitle=\bfseries\large,
     coltitle=white,
     title={\faIcon{map-marked-alt}\hspace{0.3em}Plan de masse / Vue aérienne},
-    colbacktitle=ecoBleu,
+    colbacktitle={{ contexte_colors.get('environnement', 'ecoBleu') | default('ecoBleu') }},
     rounded corners,
     boxrule=2pt,
     left=12pt, right=12pt, top=8pt, bottom=8pt
@@ -301,18 +302,16 @@ En espérant que ce mémoire technique illustrera l'intérêt que nous portons �
 \end{tcolorbox}
 \vspace{0.4cm}
 {% endif %}
-\newpage
-\
 
 {% if contexte_ss.date %}
-\begin{tcolorbox}[width=\textwidth,
+\begin{tcolorbox}[
     enhanced,
-    colback=ecoFond,
-    colframe=ecoBleu,
+    colback=white,
+    colframe={{ contexte_colors.date | default('ecoBleu') }},
     fonttitle=\bfseries\large,
     coltitle=white,
     title={\faIcon{calendar-check}\hspace{0.3em}Visite de site},
-    colbacktitle=ecoBleu,
+    colbacktitle={{ contexte_colors.date | default('ecoBleu') }},
     rounded corners,
     boxrule=2pt,
     left=12pt, right=12pt, top=8pt, bottom=8pt
@@ -322,7 +321,7 @@ En espérant que ce mémoire technique illustrera l'intérêt que nous portons �
 \vspace{0.4cm}
 {% else %}
 % Affichage par défaut com pointillés
-\begin{tcolorbox}[width=\textwidth,
+\begin{tcolorbox}[
     enhanced,
     colback=ecoFond,
     colframe=ecoBleu,
@@ -347,7 +346,7 @@ Adresse : \dotfill
 {% endif %}
 
 {% if attestation_visite %}
-\begin{tcolorbox}[width=\textwidth, height=\dimexpr\textheight-6cm\relax,
+\begin{tcolorbox}[
     enhanced,
     colback=white,
     colframe=ecoBleu,
@@ -359,30 +358,11 @@ Adresse : \dotfill
     boxrule=2pt,
     left=8pt, right=8pt, top=6pt, bottom=6pt
 ]
-\centering
 {% if '.svg' in attestation_visite %}
-\includegraphics[width=0.95\textwidth, height=\dimexpr\textheight-8cm\relax, keepaspectratio]{ {{attestation_visite}} }
+\includegraphics[width=0.95\textwidth, height=20cm, keepaspectratio]{ {{attestation_visite}} }
 {% else %}
-\includegraphics[width=0.95\textwidth, height=\dimexpr\textheight-8cm\relax, keepaspectratio]{ {{attestation_visite}} }
+\includegraphics[width=0.95\textwidth, height=20cm, keepaspectratio]{ {{attestation_visite}} }
 {% endif %}
-\end{tcolorbox}
-\vspace{0.4cm}
-{% endif %}
-
-{% if contexte_ss.get('respect_delais') %}
-\begin{tcolorbox}[
-    enhanced,
-    colback=white,
-    colframe=ecoBleu,
-    fonttitle=\bfseries,
-    coltitle=white,
-    title={\faIcon{clock}\hspace{0.3em}Respect des délais du planning prévisionnel},
-    colbacktitle=ecoBleu,
-    rounded corners,
-    boxrule=1.5pt,
-    left=10pt, right=10pt, top=6pt, bottom=6pt
-]
-{{ contexte_ss.get('respect_delais') }}
 \end{tcolorbox}
 \vspace{0.4cm}
 {% endif %}
@@ -485,21 +465,21 @@ L'entreprise \textbf{Bois \& Techniques} a réalisé de nombreux chantiers simil
     {% endif %}
     {% elif 'deroulement des travaux' in nom_lower %}
     % Style spécial pour déroulement des travaux
-    \begin{methodebox}[title={\faIcon{clipboard-list}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+    \begin{methodebox}[title={\faIcon{clipboard-list}\hspace{0.3em}{{ ss.nom }}}]{{ ss.couleur }}
     {% if ss.contenu %}
     {{ ss.contenu | replace('\n', ' \\\\\n') | markdown_to_latex }}
     {% endif %}
     \end{methodebox}
     {% elif 'conception' in nom_lower and 'precision' not in nom_lower %}
     % Style spécial pour conception
-    \begin{methodebox}[title={\faIcon{drafting-compass}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+    \begin{methodebox}[title={\faIcon{drafting-compass}\hspace{0.3em}{{ ss.nom }}}]{{ ss.couleur }}
     {% if ss.contenu %}
     {{ ss.contenu | replace('\n', ' \\\\\n') | markdown_to_latex }}
     {% endif %}
     \end{methodebox}
     {% elif 'fabrication' in nom_lower or 'taille' in nom_lower %}
     % Style spécial pour fabrication/taille
-    \begin{methodebox}[title={\faIcon{hammer}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
+    \begin{methodebox}[title={\faIcon{hammer}\hspace{0.3em}{{ ss.nom }}}]{{ ss.couleur }}
     {% if ss.contenu %}
     {% if '\\begin{itemize}' in ss.contenu %}
     {{ ss.contenu | markdown_to_latex }}
@@ -511,7 +491,7 @@ L'entreprise \textbf{Bois \& Techniques} a réalisé de nombreux chantiers simil
     {% elif 'transport' in nom_lower and 'levage' in nom_lower %}
     % Style spécial pour transport et levage
     % Contenu Transport et Levage
-    \begin{methodebox}[title={\faIcon{truck-loading}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+    \begin{methodebox}[title={\faIcon{truck-loading}\hspace{0.3em}{{ ss.nom }}}]{{ ss.couleur }}
     {% if ss.contenu %}
     {% if '\\begin{itemize}' in ss.contenu %}
     {{ ss.contenu | markdown_to_latex }}
@@ -547,7 +527,7 @@ L'entreprise \textbf{Bois \& Techniques} a réalisé de nombreux chantiers simil
     {% endif %}
     {% elif nom_lower == 'chantier' %}
     % Style spécial pour chantier
-    \begin{methodebox}[title={\faIcon{hard-hat}\hspace{0.3em}{{ ss.nom }}}]{ecoVertFonce}
+    \begin{methodebox}[title={\faIcon{hard-hat}\hspace{0.3em}{{ ss.nom }}}]{{ ss.couleur }}
     {% if ss.contenu %}
     {% if '\\begin{itemize}' in ss.contenu %}
     {{ ss.contenu | markdown_to_latex }}
@@ -558,14 +538,18 @@ L'entreprise \textbf{Bois \& Techniques} a réalisé de nombreux chantiers simil
     \end{methodebox}
     {% elif 'protection de l' in nom_lower or 'protection/nettoyage' in nom_lower %}
     % Style spécial pour protection
-    \begin{methodebox}[title={\faIcon{shield-alt}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+    \begin{methodebox}[title={\faIcon{shield-alt}\hspace{0.3em}{{ ss.nom }}}]{{ ss.couleur }}
     {% if ss.contenu %}
-    {{ ss.contenu | markdown_to_latex }}
+    {% if '\\begin{itemize}' in ss.contenu %}
+    {{ ss.contenu }}
+    {% else %}
+    {{ ss.contenu | replace('\n', ' \\\\\n') }}
+    {% endif %}
     {% endif %}
     \end{methodebox}
     {% elif 'organisation' in nom_lower and ('hygiene' in nom_lower or 'hygiène' in nom_lower or 'securite' in nom_lower) %}
     % Style spécial pour hygiène et sécurité
-    \begin{methodebox}[title={\faIcon{first-aid}\hspace{0.3em}{{ ss.nom }}}]{ecoRouge}
+    \begin{methodebox}[title={\faIcon{first-aid}\hspace{0.3em}{{ ss.nom }}}]{{ ss.couleur }}
     {% if ss.contenu %}
     {% if '\\begin{itemize}' in ss.contenu %}
     {{ ss.contenu }}
@@ -575,19 +559,8 @@ L'entreprise \textbf{Bois \& Techniques} a réalisé de nombreux chantiers simil
     {% endif %}
     \end{methodebox}
     {% elif 'mode operatoire' in nom_lower or 'mode opératoire' in nom_lower %}
-    % Style spécial para mode opératoire particulier
-    \begin{methodebox}[title={\faIcon{cogs}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
-    {% if ss.conteu %}
-    {% if '\\begin{itemize}' in ss.conteu %}
-    {{ ss.conteu }}
-    {% else %}
-    {{ ss.conteu | replace('\n', ' \\\\\n') }}
-    {% endif %}
-    {% endif %}
-    \end{methodebox}
-    {% elif 'respect des contraintes' in nom_lower and 'monuments' in nom_lower %}
-    % Style spécial pour Respect des contraintes liées aux monuments historiques
-    \begin{methodebox}[title={\faIcon{building}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
+    % Style spécial pour mode opératoire particulier
+    \begin{methodebox}[title={\faIcon{cogs}\hspace{0.3em}{{ ss.nom }}}]{{ ss.couleur }}
     {% if ss.contenu %}
     {% if '\\begin{itemize}' in ss.contenu %}
     {{ ss.contenu }}
@@ -601,11 +574,11 @@ L'entreprise \textbf{Bois \& Techniques} a réalisé de nombreux chantiers simil
     \begin{tcolorbox}[
         enhanced,
         colback=white,
-        colframe=ecoMarron,
+        colframe={{ ss.couleur }},
         fonttitle=\bfseries\large,
         coltitle=white,
         title={\faIcon{cogs}\hspace{0.3em}{{ ss.nom }}},
-        colbacktitle=ecoMarron,
+        colbacktitle={{ ss.couleur }},
         rounded corners,
         boxrule=2pt,
         left=3pt, right=3pt, top=5pt, bottom=5pt
@@ -622,11 +595,11 @@ L'entreprise \textbf{Bois \& Techniques} a réalisé de nombreux chantiers simil
     \begin{tcolorbox}[
         enhanced,
         colback=white,
-        colframe=ecoVert,
+        colframe={{ ss.couleur }},
         fonttitle=\bfseries\large,
         coltitle=white,
         title={\faIcon{shield-alt}\hspace{0.3em}{{ ss.nom }}},
-        colbacktitle=ecoVert,
+        colbacktitle={{ ss.couleur }},
         rounded corners,
         boxrule=2pt,
         left=3pt, right=3pt, top=5pt, bottom=5pt
@@ -643,11 +616,11 @@ L'entreprise \textbf{Bois \& Techniques} a réalisé de nombreux chantiers simil
     \begin{tcolorbox}[
         enhanced,
         colback=white,
-        colframe=ecoVert,
+        colframe={{ ss.couleur }},
         fonttitle=\bfseries\large,
         coltitle=white,
         title={\faIcon{hammer}\hspace{0.3em}{{ ss.nom }}},
-        colbacktitle=ecoVert,
+        colbacktitle={{ ss.couleur }},
         rounded corners,
         boxrule=2pt,
         left=3pt, right=3pt, top=5pt, bottom=5pt

@@ -1,0 +1,100 @@
+% ============================================
+% SECURITE ET SANTE SUR LES CHANTIERS
+% TEMPLATE JINJA2 - Variables dynamiques avec couleurs par cadre
+% ============================================
+{% set couleur_defaut = securite_sante_couleur if securite_sante_couleur is defined else 'ecoBleu' %}
+{% set couleurs = securite_sante.couleurs if securite_sante.couleurs is defined else {} %}
+
+{% set c_organisation = couleurs.organisation_production if couleurs.organisation_production is defined else couleur_defaut %}
+{% set c_confort = couleurs.confort_travail if couleurs.confort_travail is defined else couleur_defaut %}
+{% set c_accueil = couleurs.accueil_nouveaux if couleurs.accueil_nouveaux is defined else couleur_defaut %}
+{% set c_securite_generale = couleurs.securite_generale if couleurs.securite_generale is defined else couleur_defaut %}
+{% set c_concretement = couleurs.concretement if couleurs.concretement is defined else couleur_defaut %}
+{% set c_habilitations = couleurs.habilitations if couleurs.habilitations is defined else couleur_defaut %}
+{% set c_controle = couleurs.controle_annuel if couleurs.controle_annuel is defined else couleur_defaut %}
+
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_organisation }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{cog}\hspace{0.2em}Organisation de production}, colbacktitle={{ c_organisation }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+
+{{ securite_sante.organisation_production | escape_latex }}
+
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_confort }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{coffee}\hspace{0.2em}Confort de travail}, colbacktitle={{ c_confort }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+
+{{ securite_sante.confort_travail | escape_latex }}
+
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_accueil }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{user-plus}\hspace{0.2em}Accueil des nouveaux salariés},
+    colbacktitle={{ c_accueil }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+{{ securite_sante.accueil_nouveaux | escape_latex }}
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_securite_generale }}, fonttitle=\bfseries, coltitle=white,
+    title={\faIcon{shield-alt}\hspace{0.3em}Sécurité et santé sur les chantiers},
+    colbacktitle={{ c_securite_generale }}, rounded corners, boxrule=1.5pt, left=5pt, right=5pt, top=4pt, bottom=4pt
+]
+\small
+{{ securite_sante.securite_generale | escape_latex }}
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_concretement }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{tasks}\hspace{0.2em}Concrètement}, colbacktitle={{ c_concretement }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+
+\begin{itemize}[leftmargin=*, itemsep=0pt, parsep=0pt, topsep=0pt]
+{% for item in securite_sante.concretement %}
+    \item {{ item | escape_latex }}
+{% endfor %}
+\end{itemize}
+
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_habilitations }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{id-card}\hspace{0.2em}Habilitations}, colbacktitle={{ c_habilitations }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+
+\begin{itemize}[leftmargin=*, itemsep=0pt, parsep=0pt, topsep=0pt]
+{% for item in securite_sante.habilitations %}
+    \item {{ item | escape_latex }}
+{% endfor %}
+\end{itemize}
+
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_controle }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{clipboard-check}\hspace{0.2em}Contrôle annuel}, colbacktitle={{ c_controle }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+{{ securite_sante.controle_annuel | escape_latex }}
+\end{tcolorbox}

@@ -25,7 +25,7 @@ class AppConfig:
         self.CONFIG_FILE = self.BASE_DIR / "app" / "config.json"
         
         # Fichiers par défaut
-        self.DEFAULT_CSV_FILE = self.DATA_DIR / "crack_clean.csv"
+        self.DEFAULT_CSV_FILE = self.DATA_DIR / "bd_interface.csv"
         self.DEFAULT_TEMPLATE = self.TEMPLATES_DIR / "template.tex.j2"
         self.DEFAULT_OUTPUT_TEX = self.OUTPUT_DIR / "resultat.tex"
         

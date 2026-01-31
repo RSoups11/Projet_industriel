@@ -1,6 +1,7 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{fontawesome5}
 \usepackage[french]{babel}
 \usepackage{geometry}
 \usepackage{graphicx}
@@ -10,16 +11,24 @@
 \usepackage{hyperref}
 \geometry{margin=2.5cm}
 \usepackage{fancyhdr}
+\usepackage{subcaption}
 \usepackage{enumitem}
 \usepackage{colortbl}
 \usepackage[table]{xcolor}
 
-% Package tcolorbox avec breakable
+% Support pour les images SVG
+\usepackage{svg}
+\svgsetup{inkscapelatex=false}
+
+% Packages pour les sections écologie
 \usepackage{tcolorbox}
 \tcbuselibrary{skins,breakable}
-\usepackage{fontawesome5}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, positioning, shadows.blur, calc, arrows.meta}
+\usepackage{xcolor}
+\usepackage{needspace}
 
-% Couleurs
+% Couleurs écologiques
 \definecolor{ecoVert}{HTML}{27AE60}
 \definecolor{ecoVertFonce}{HTML}{1E8449}
 \definecolor{ecoVertClair}{HTML}{A9DFBF}
@@ -27,12 +36,34 @@
 \definecolor{ecoMarron}{HTML}{795548}
 \definecolor{ecoFond}{HTML}{F0FDF4}
 \definecolor{traitBleu}{HTML}{2C3E50}
+\definecolor{ecoRouge}{HTML}{C0392B}
 \definecolor{grisSection}{HTML}{34495E}
+\definecolor{ecoViolet}{HTML}{8E44AD}
+\definecolor{ecoOrange}{HTML}{E67E22}
+\definecolor{ecoJaune}{HTML}{F1C40F}
+
+% Style tcolorbox pour les sous-sections méthodologie (adaptatif)
+% Avec répétition du titre sur la page suivante en cas de coupure
+\newtcolorbox{methodebox}[2][]{
+    enhanced,
+    colback=white,
+    colframe=#2,
+    fonttitle=\bfseries,
+    coltitle=white,
+    colbacktitle=#2,
+    rounded corners,
+    boxrule=1.2pt,
+    left=6pt, right=6pt, top=6pt, bottom=6pt,
+    extras middle and last={
+        title after break={\faIcon{arrow-right}\hspace{0.3em}Suite},
+    },
+    #1
+}
 
 % Style de boite pleine largeur breakable
+% Avec répétition du titre sur la page suivante en cas de coupure
 \newtcolorbox{fullwidthbox}[2][]{
     enhanced,
-    breakable,
     colback=white,
     colframe=#2,
     fonttitle=\bfseries\large,
@@ -42,359 +73,945 @@
     boxrule=1.5pt,
     left=10pt, right=10pt, top=8pt, bottom=8pt,
     width=\textwidth,
-    #1
-}
-
-% Style de boite pour sous-sections
-\newtcolorbox{subsectionbox}[2][]{
-    enhanced,
-    breakable,
-    colback=white,
-    colframe=#2,
-    fonttitle=\bfseries,
-    coltitle=white,
-    colbacktitle=#2,
-    rounded corners,
-    boxrule=1.2pt,
-    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    extras middle and last={
+        title after break={\faIcon{arrow-right}\hspace{0.3em}Suite},
+    },
     #1
 }
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.5em}
 
-\titleformat{\section}{\Large\bfseries\color{grisSection}}{\thesection}{1em}{}
-\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+% Ajustement de la hauteur d'en-tête pour éviter les avertissements
+\setlength{\headheight}{80pt}
+\addtolength{\topmargin}{-35pt}
+
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[R]{\includegraphics[height=1.1cm]{../images/entete.png}}
-\fancyfoot[C]{\thepage}
+\fancyhead[C]{
+  \hspace*{-1in}\hspace*{-\oddsidemargin}
+  \includegraphics[width=\paperwidth, height=3cm]{../images/entete.png}
+}
 
+% --- NUMÉROTATION DES PAGES ---
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
 
 \begin{document}
 
 \thispagestyle{empty}
 
 % ============================================
-% PAGE DE GARDE
+% PAGE DE GARDE - Style Terminal
 % ============================================
 \begin{titlepage}
-    \centering
-    {\Huge \textbf{MEMOIRE TECHNIQUE}} \\
-    \vspace{1cm}
-    
-    {\Large \textbf{ {{Intitule_operation}} }} \\
-    \vspace{0.5cm}
-    
-    {\large {{ Lot_Intitule }} } \\
-    \vspace{0.5cm}
-    \rule{\linewidth}{0.5mm} \\
-    \vspace{0.5cm}
-    
+    % Titre centré
     \begin{center}
-    \textbf{Maitre d'ouvrage :} {{ Maitre_ouvrage_nom }} \\
-    \vspace{0.3cm}
-    \textbf{Adresse du chantier :} {{ Adresse_chantier }} \\
+        {\Huge \textbf{MÉMOIRE TECHNIQUE}} \\
+        \vspace{0.25cm}
+        {\Large \textbf{ {{Intitule_operation}} }} \\
+        \vspace{0.15cm}
+        {\large \textbf{ {{ Lot_Intitule | upper }} }} \\
+    \end{center}
+    
+    \vspace{0.15cm}
+    
+    % Maître d'ouvrage et adresse chantier - bien centré
+    \begin{center}
+    {\small \textbf{Maître d'ouvrage :} {{ Maitre_ouvrage_nom }} \\
+    \textbf{Adresse du chantier :} {{ Adresse_chantier }}}
     \end{center}
     
     {% if image_garde %}
-    \vspace{0.5cm}
+    \vspace{0.15cm}
     \begin{center}
+    {% set couleur_garde = situation_admin_couleur if situation_admin_couleur is defined else 'ecoBleu' %}
     \begin{tcolorbox}[
         enhanced,
         colback=white,
-        colframe=ecoBleu!50,
-        boxrule=1.5pt,
-        arc=4pt,
-        width=0.95\textwidth,
+        colframe={{ couleur_garde }}!50,
+        boxrule=1pt,
+        arc=3pt,
+        width=0.9\textwidth,
         halign=center
     ]
-    \includegraphics[width=0.9\textwidth, height=12cm, keepaspectratio]{ {{image_garde}} }
+    {% if '.svg' in image_garde %}
+    \includesvg[width=0.85\textwidth, height=7cm, keepaspectratio]{ {{image_garde}} }
+    {% else %}
+    \includegraphics[width=0.85\textwidth, height=7cm, keepaspectratio]{ {{image_garde}} }
+    {% endif %}
     \end{tcolorbox}
     \end{center}
     {% endif %}
     
-    \vfill
-
+    \vspace{0.15cm}
+    
+    % En-tête avec logo bois et logos de certifications
     \begin{center}
-        \includegraphics{../images/logo_boisTechniques.png}
+    \includegraphics[height=2.5cm]{../images/logo_boisTechniques.png}
+    
+    \vspace{0.1cm}
+    
+    % Première ligne de 4 logos
+    \includegraphics[height=1cm]{../images/logo_pefc2 (1).png}\hspace{0.4cm}
+    \includegraphics[height=1cm]{../images/logo_fsc.png}\hspace{0.4cm}
+    \includegraphics[height=1cm]{../images/logo_rge (1).png}\hspace{0.4cm}
+    \includegraphics[height=1cm]{../images/logo_qualibat (1).png}
+    
+    \vspace{0.1cm}
+    
+    % Deuxième ligne de 4 logos
+    \includegraphics[height=1cm]{../images/logo_garantie-decenale2 (1).png}\hspace{0.4cm}
+    \includegraphics[height=1cm]{../images/logo_ffb_adherent (1).png}\hspace{0.4cm}
+    \includegraphics[height=1cm]{../images/logo_artisan.png}\hspace{0.4cm}
+    \includegraphics[height=1cm]{../images/logo_region_alsace.png}
     \end{center}
-
-    \vspace{0.3cm}
-
+    
+    \vspace{0.05cm}
+    \noindent\rule{\linewidth}{1.5pt}
+    
+    \vspace{0.05cm}
+    
+    % 3 cadres blancs avec bordures pour informations de contact
     \begin{center}
-        \includegraphics[height=1.1cm]{../images/logo_qualibat (1).png}\hfill
-        \includegraphics[height=1.1cm]{../images/logo_garantie-decenale2 (1).png}\hfill
-        \includegraphics[height=1.1cm]{../images/logo_rge (1).png}\hfill
-        \includegraphics[height=1.1cm]{../images/logo_ffb_adherent (1).png}\hfill
-        \includegraphics[height=1.1cm]{../images/logo_fsc.png}\hfill
-        \includegraphics[height=1.1cm]{../images/logo_pefc2 (1).png}
+    \begin{minipage}[c]{5.2cm}
+    \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=black,
+        boxrule=0.5pt,
+        arc=2pt,
+        halign=center,
+        height=2cm,
+        valign=center
+    ]
+    {\fontsize{7.5}{8.5}\selectfont\textbf{ADRESSE :}} \\
+    {\fontsize{7}{8}\selectfont ZI} \\
+    {\fontsize{7}{8}\selectfont 19 Rue de l'Industrie} \\
+    {\fontsize{7}{8}\selectfont 68360 SOULTZ}
+    \end{tcolorbox}
+    \end{minipage}%
+    \hspace{0.08cm}%
+    \begin{minipage}[c]{5.2cm}
+    \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=black,
+        boxrule=0.5pt,
+        arc=2pt,
+        halign=center,
+        height=2cm,
+        valign=center
+    ]
+    {\fontsize{7}{8}\selectfont\textbf{TELEPHONE :} 03 89 53 36 58} \\
+    {\fontsize{7}{8}\selectfont\textbf{COURRIEL :}} \\
+    {\fontsize{7}{8}\selectfont contact@bois-techniques.fr}
+    \end{tcolorbox}
+    \end{minipage}%
+    \hspace{0.08cm}%
+    \begin{minipage}[c]{5.2cm}
+    \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=black,
+        boxrule=0.5pt,
+        arc=2pt,
+        halign=center,
+        height=2cm,
+        valign=center
+    ]
+    {\fontsize{7}{8}\selectfont\textbf{SITE INTERNET :}} \\
+    {\fontsize{7}{8}\selectfont www.bois-techniques.fr}
+    \end{tcolorbox}
+    \end{minipage}
     \end{center}
-
-    \vspace{0.3cm}
-
-    \textbf{Entreprise Bois et Techniques} \\
-    SIRET : 893 822 841 00027 \\
-    Mail : contact@bois-techniques.fr\\
-    Telephone : 03 89 53 36 58 \\
-    Site web : www.bois-techniques.fr \\
+    
+    \vspace{0.05cm}
+    \noindent\rule{\linewidth}{0.5pt}
+    \vspace{0.05cm}
+    
+    % Informations légales
+    {\fontsize{6}{7}\selectfont 
+    Société par actions simplifiée au capital de 100 000€ \\
+    SIRET : 89382284100027 – Numéro TVA Intracommunautaire : FR50893822841 – APE : 4391A \\
+    RCS Colmar B 893 822 841
+    }
+    
 \end{titlepage}
 
+% Table des matières avec sous-sections
+\setcounter{tocdepth}{2}
 \tableofcontents
 \newpage
 
 % ============================================
-% PREAMBULE
+% PRÉAMBULE - Sans cadre
 % ============================================
-\section*{PREAMBULE}
-\addcontentsline{toc}{section}{PREAMBULE}
-
-\begin{fullwidthbox}[title={\faIcon{info-circle}\hspace{0.3em}Presentation de l'entreprise}]{ecoBleu}
-L'entreprise Bois \& Techniques, situee a Rixheim (68170), est specialisee dans la
-conception, la fabrication et la pose de charpentes bois, ouvrages structurels, et elements
-de couverture. Forte d'une experience significative dans le domaine de la construction
-bois, elle intervient sur des projets varies : logements individuels, batiments collectifs,
-equipements publics ou tertiaires.
-
+\section*{PRÉAMBULE}
+\addcontentsline{toc}{section}{PRÉAMBULE}
+\noindent
+{% if preambule %}
+{{ preambule | escape_latex }}
+{% else %}
+L'entreprise Bois \& Techniques, située à Soultz (68360), est spécialisée dans la conception, la fabrication et la pose de charpentes bois, ouvrages structurels. Forte d'une expérience significative dans le domaine de la construction bois, elle intervient sur des projets variés : logements individuels, bâtiments collectifs, équipements publics ou tertiaires. Restauration de structure bois type colombage et solivage.
 \vspace{0.3cm}
 
-L'entreprise dispose de ses propres equipes de charpentiers et couvreurs, encadrees par
-un conducteur de travaux experimente. Les ouvrages sont fabriques dans un atelier equipe
-et adaptes aux exigences de la construction bois moderne.
-
+L'entreprise dispose de ses propres équipes de charpentiers, encadrées par un chef de chantier expérimenté. Les ouvrages sont fabriqués dans un atelier équipé et adaptés aux exigences de la construction bois moderne.
 \vspace{0.3cm}
 
-Realise par le bureau d'etude interne de la societe Bois \& Techniques, le present memoire
-technique a pour objectif de vous exposer les solutions techniques et l'organisation de
-chantier envisagee, afin de mener votre projet dans les meilleures conditions.
-\end{fullwidthbox}
+Réalisé par le bureau d'étude interne de la société Bois \& Techniques, le présent mémoire technique a pour objectif de vous exposer les solutions techniques et l'organisation de chantier envisagée, afin de mener votre projet dans les meilleures conditions. En espérant que ce mémoire technique illustrera l'intérêt que nous portons à votre projet.
+{% endif %}
 
 % ============================================
 % SECTIONS DYNAMIQUES - ORDRE STRICT
 % ============================================
 
 {% set section_order = [
-    'SITUATION ADMINISTRATIVE',
     'CONTEXTE DU PROJET',
+    'SITUATION ADMINISTRATIVE',
     'MOYENS HUMAINS',
     'MOYENS MATERIEL',
-    'LISTE DES MATERIAUX',
-    'METHODOLOGIE',
     'PLANNING',
-    'CHANTIER REFERENCES',
-    'PERFORMANCES ENVIRONNEMENTALES'
+    'METHODOLOGIE',
+    'CHANTIER REFERENCE',
+    'QSE QUALITE SECURITE ENVIRONNEMENT',
+    'LISTE DES MATERIAUX',
+    'ANNEXES'
 ] %}
 
 {% for order_key in section_order %}
 {% for section in data %}
 {% set titre_upper = section.titre | upper %}
-{% if order_key in titre_upper %}
 
+{# Condition de matching - cas spécial pour CHANTIER REFERENCE #}
+{% set is_match = false %}
+{% if order_key == 'CHANTIER REFERENCE' %}
+{% if 'CHANTIER' in titre_upper and 'REFERENCE' in titre_upper %}
+{% set is_match = true %}
+{% endif %}
+{% elif order_key in titre_upper %}
+{% set is_match = true %}
+{% endif %}
+
+{% if is_match %}
+
+{# ============ CONTEXTE DU PROJET ============ #}
+{% if 'CONTEXTE DU PROJET' in titre_upper %}
+\newpage
+\section{ {{ section.titre }} }
+
+{% set contexte_ss = {} %}
+{% set autres_ss = [] %}
+{% for ss in section.sous_sections %}
+{% set ss_nom_norm = ss.nom | normalize %}
+{% set ss_couleur = ss.couleur if ss.couleur else 'ecoBleu' %}
+{% if 'localisation' in ss_nom_norm or 'environnement' in ss_nom_norm %}
+{% set _ = contexte_ss.update({'localisation': ss.contenu, 'localisation_couleur': ss_couleur}) %}
+{% elif 'contrainte' in ss_nom_norm %}
+{% set _ = contexte_ss.update({'contraintes': ss.contenu, 'contraintes_couleur': ss_couleur}) %}
+{% elif 'levage' in ss_nom_norm and 'transport' not in ss_nom_norm %}
+{% set _ = contexte_ss.update({'levage': ss.contenu, 'levage_couleur': ss_couleur}) %}
+{% elif 'acces' in ss_nom_norm or 'stationnement' in ss_nom_norm %}
+{% set _ = contexte_ss.update({'acces': ss.contenu, 'acces_couleur': ss_couleur}) %}
+{% elif 'visite' in ss_nom_norm or 'contexte visite' in ss_nom_norm %}
+{% set _ = contexte_ss.update({'visite': ss.contenu, 'visite_couleur': ss_couleur}) %}
+{% else %}
+{# Collecter les autres sous-sections pour affichage générique #}
+{% set _ = autres_ss.append({'nom': ss.nom, 'contenu': ss.contenu, 'couleur': ss_couleur, 'image': ss.image}) %}
+{% endif %}
+{% endfor %}
+
+{# 1. Localisation #}
+{% if contexte_ss.localisation %}
+{% set loc_color = contexte_ss.localisation_couleur if contexte_ss.localisation_couleur else 'ecoBleu' %}
+\needspace{8\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ loc_color }},
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{map-marker-alt}\hspace{0.3em}Localisation},
+    colbacktitle={{ loc_color }},
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+\small
+{{ contexte_ss.localisation }}
+\end{tcolorbox}
+\vspace{0.4cm}
+{% endif %}
+
+{# 2. Plan de masse / Vue aérienne #}
+{% if plan_emplacement %}
+{% set plan_color = contexte_ss.localisation_couleur if contexte_ss.localisation_couleur else 'ecoBleu' %}
+\needspace{12\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ plan_color }},
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{map-marked-alt}\hspace{0.3em}Plan de masse / Vue aérienne},
+    colbacktitle={{ plan_color }},
+    rounded corners,
+    boxrule=2pt,
+    left=12pt, right=12pt, top=8pt, bottom=8pt
+]
+\centering
+\includegraphics[width=0.90\textwidth, height=10cm, keepaspectratio]{ {{plan_emplacement}} }
+\end{tcolorbox}
+\vspace{0.4cm}
+{% endif %}
+
+{# 3. Contraintes du chantier #}
+{% if contexte_ss.contraintes %}
+{% set contr_color = contexte_ss.contraintes_couleur if contexte_ss.contraintes_couleur else 'red!70!black' %}
+\needspace{8\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback={% if 'red' in contr_color %}red!3{% else %}white{% endif %},
+    colframe={{ contr_color }},
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{exclamation-triangle}\hspace{0.3em}Contraintes du chantier},
+    colbacktitle={{ contr_color }},
+    rounded corners,
+    boxrule=1.5pt,
+    left=10pt, right=10pt, top=6pt, bottom=6pt
+]
+\small
+{{ contexte_ss.contraintes }}
+\end{tcolorbox}
+\vspace{0.4cm}
+{% endif %}
+
+{# 4. Levage #}
+{% if contexte_ss.levage %}
+{% set lev_color = contexte_ss.levage_couleur if contexte_ss.levage_couleur else 'ecoBleu' %}
+\needspace{8\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ lev_color }},
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{truck-loading}\hspace{0.3em}Levage},
+    colbacktitle={{ lev_color }},
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+\small
+{{ contexte_ss.levage }}
+\end{tcolorbox}
+\vspace{0.4cm}
+{% endif %}
+
+{# 4b. Accès chantier et stationnement #}
+{% if contexte_ss.acces %}
+{% set acces_color = contexte_ss.acces_couleur if contexte_ss.acces_couleur else 'ecoBleu' %}
+\needspace{8\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ acces_color }},
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{road}\hspace{0.3em}Accès chantier et stationnement},
+    colbacktitle={{ acces_color }},
+    rounded corners,
+    boxrule=1.5pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+\small
+{{ contexte_ss.acces }}
+\end{tcolorbox}
+\vspace{0.4cm}
+{% endif %}
+
+{# 4c. Autres sous-sections dynamiques (nouvelles ou non standards) #}
+{% for ss_autre in autres_ss %}
+{% set autre_color = ss_autre.couleur if ss_autre.couleur else 'ecoBleu' %}
+\needspace{6\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ autre_color }},
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{info-circle}\hspace{0.3em}{{ ss_autre.nom }}},
+    colbacktitle={{ autre_color }},
+    rounded corners,
+    boxrule=1.2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+\small
+{{ ss_autre.contenu }}
+{% if ss_autre.image %}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{ {{ ss_autre.image }} }
+\end{center}
+{% endif %}
+\end{tcolorbox}
+\vspace{0.3cm}
+{% endfor %}
+
+{# 5. Visite du site + Attestation sur même page #}
+\newpage
+{% if contexte_ss.visite %}
+{% set vis_color = contexte_ss.visite_couleur if contexte_ss.visite_couleur else 'ecoBleu' %}
+\begin{tcolorbox}[width=\textwidth,
+    enhanced,
+    colback=white,
+    colframe={{ vis_color }},
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{calendar-check}\hspace{0.3em}Visite de site},
+    colbacktitle={{ vis_color }},
+    rounded corners,
+    boxrule=2pt,
+    left=12pt, right=12pt, top=8pt, bottom=8pt
+]
+{{ contexte_ss.visite }}
+\end{tcolorbox}
+\vspace{0.4cm}
+{% else %}
+{% set ctx_color = ss_couleur if ss_couleur is defined else 'ecoBleu' %}
+\begin{tcolorbox}[width=\textwidth,
+    enhanced,
+    colback=white,
+    colframe={{ ctx_color }},
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{calendar-check}\hspace{0.3em}Visite de site},
+    colbacktitle={{ ctx_color }},
+    rounded corners,
+    boxrule=2pt,
+    left=12pt, right=12pt, top=8pt, bottom=8pt
+]
+Nous sommes rendus sur les lieux le \dotfill
+
+\vspace{0.3cm}
+
+Adresse : \dotfill
+
+\end{tcolorbox}
+\vspace{0.4cm}
+{% endif %}
+
+{% if attestation_visite %}
+{% set attest_color = ss_couleur if ss_couleur is defined else 'ecoBleu' %}
+\begin{tcolorbox}[width=\textwidth, height=\dimexpr\textheight-6cm\relax,
+    enhanced,
+    colback=white,
+    colframe={{ attest_color }},
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{file-signature}\hspace{0.3em}Attestation de visite},
+    colbacktitle={{ attest_color }},
+    rounded corners,
+    boxrule=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+\centering
+\includegraphics[width=0.95\textwidth, height=\dimexpr\textheight-8cm\relax, keepaspectratio]{ {{attestation_visite}} }
+\end{tcolorbox}
+\vspace{0.4cm}
+{% endif %}
+
+{# ============ SITUATION ADMINISTRATIVE ============ #}
+{% elif 'SITUATION ADMINISTRATIVE' in titre_upper %}
+\newpage
+\section{ {{ section.titre }} }
+{% include 'situation_administrative.tex.j2' %}
+
+{# ============ MOYENS HUMAINS ============ #}
+{% elif 'MOYENS HUMAINS' in titre_upper %}
+\newpage
+\section{ {{ section.titre }} }
+
+{# 3.1 L'équipe #}
+\subsection{L'équipe}
+{% for ss in section.sous_sections %}
+{% set ss_nom_norm = ss.nom | normalize %}
+{% set ss_couleur = ss.couleur if ss.couleur else 'ecoBleu' %}
+{# Exclure les sous-sections gérées par securite_sante.tex.j2 et organigramme #}
+{% if 'securite' not in ss_nom_norm and 'sante' not in ss_nom_norm and 'organigramme' not in ss_nom_norm and 'organisation' not in ss_nom_norm and 'confort' not in ss_nom_norm and 'accueil' not in ss_nom_norm and 'concretement' not in ss_nom_norm and 'habilitation' not in ss_nom_norm and 'controle' not in ss_nom_norm %}
+\needspace{6\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ ss_couleur }},
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{user}\hspace{0.3em}{{ ss.nom }}},
+    colbacktitle={{ ss_couleur }},
+    rounded corners,
+    boxrule=1.2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+{{ ss.contenu }}
+\end{tcolorbox}
+\vspace{0.3cm}
+{% endif %}
+{% endfor %}
+
+{# 3.2 Sécurité et Santé sur les chantiers - DYNAMIQUE depuis sous_sections #}
+\subsection{SÉCURITÉ ET SANTÉ SUR LES CHANTIERS}
+{% for ss in section.sous_sections %}
+{% set ss_nom_norm = ss.nom | normalize %}
+{% set ss_couleur = ss.couleur if ss.couleur else 'ecoBleu' %}
+{# Afficher uniquement les sous-sections sécurité/santé (securite_generale inclut "securite" et "sante") #}
+{% if 'organisation' in ss_nom_norm or 'confort' in ss_nom_norm or 'accueil' in ss_nom_norm or 'securite' in ss_nom_norm or 'concretement' in ss_nom_norm or 'habilitation' in ss_nom_norm or 'controle' in ss_nom_norm %}
+\needspace{6\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ ss_couleur }},
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{shield-alt}\hspace{0.3em}{{ ss.nom }}},
+    colbacktitle={{ ss_couleur }},
+    rounded corners,
+    boxrule=1.2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+{{ ss.contenu }}
+\end{tcolorbox}
+\vspace{0.3cm}
+{% endif %}
+{% endfor %}
+
+{# 3.3 Organigramme fonctionnel de l'équipe #}
+\subsection{ORGANIGRAMME FONCTIONNEL DE L'ÉQUIPE AFFECTÉE AUX PROJETS}
+{% for ss in section.sous_sections %}
+{% set ss_nom_norm = ss.nom | normalize %}
+{% if 'organigramme' in ss_nom_norm %}
+{% if ss.image %}
+\begin{center}
+\includegraphics[width=0.85\textwidth, height=0.7\textheight, keepaspectratio]{ {{ ss.image }} }
+\end{center}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{# ============ MOYENS MATERIEL ============ #}
+{% elif 'MOYENS MATERIEL' in titre_upper %}
+\newpage
+\section{ {{ section.titre }} }
+\vspace{-0.3cm}
+
+{# Afficher toutes les sous-sections de manière dynamique #}
+{% for ss in section.sous_sections %}
+{% set ss_nom_norm = ss.nom | normalize %}
+{% set ss_couleur = ss.couleur if ss.couleur else 'ecoBleu' %}
+
+{% if 'parc machine' in ss_nom_norm or 'intro' in ss_nom_norm %}
+{# Cadre intro special plus grand #}
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ ss_couleur }}, fonttitle=\bfseries\large, coltitle=white,
+    title={\faIcon{tools}\hspace{0.3em}{{ ss.nom }}},
+    colbacktitle={{ ss_couleur }}, rounded corners, boxrule=1.5pt, left=6pt, right=6pt, top=4pt, bottom=4pt
+]
+\small
+{{ ss.contenu }}
+\end{tcolorbox}
+\vspace{0.4cm}
+{% else %}
+{# Cadres standards pour les autres sous-sections #}
+\needspace{6\baselineskip}
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ ss_couleur }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{cog}\hspace{0.2em}{{ ss.nom }}},
+    colbacktitle={{ ss_couleur }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+{{ ss.contenu }}
+\end{tcolorbox}
+\vspace{0.4cm}
+{% endif %}
+{% endfor %}
+
+{# ============ LISTE DES MATERIAUX ============ #}
+{% elif 'LISTE DES MATERIAUX' in titre_upper or 'MATERIAUX MIS EN OEUVRE' in titre_upper %}
 \newpage
 \section{ {{ section.titre }} }
 
 {% for ss in section.sous_sections %}
+{% set nom_norm = ss.nom | normalize %}
+{% set ss_couleur = ss.couleur if ss.couleur else 'ecoBleu' %}
 
-{% set nom_lower = ss.nom | lower %}
-{% set has_itemize = '\\begin{itemize}' in ss.contenu %}
+{% if 'matiere premiere' in nom_norm or 'certifiee' in nom_norm %}
+\subsection{ {{ ss.nom }} }
+\input{../templates/matiere_premiere_generated.tex}
 
-{# Boite de couleur selon le type de contenu #}
-{% if 'contexte' in nom_lower and 'visite' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{calendar-check}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
-{{ ss.contenu | markdown_to_latex }}
-\end{fullwidthbox}
-\vspace{0.4cm}
-
-{% elif 'environnement' in nom_lower %}
-\begin{subsectionbox}[title={\faIcon{map-marker-alt}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
-{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
-\end{subsectionbox}
-\vspace{0.3cm}
-
-{% elif 'levage' in nom_lower and 'materiel' not in nom_lower %}
-\begin{subsectionbox}[title={\faIcon{truck-loading}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
-{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
-\end{subsectionbox}
-\vspace{0.3cm}
-
-{% elif 'contrainte' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{exclamation-triangle}\hspace{0.3em}{{ ss.nom }}}]{ecoRouge}
-{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
-\end{fullwidthbox}
-\vspace{0.4cm}
-
-{% elif 'securite' in nom_lower or 'sante' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{shield-alt}\hspace{0.3em}{{ ss.nom }}}]{ecoRouge}
-{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
-\end{fullwidthbox}
-\vspace{0.4cm}
-
-{% elif 'organigramme' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{sitemap}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
-{% if ss.image %}
-\begin{center}
-\includegraphics[width=0.9\textwidth]{ {{ ss.image }} }
-\end{center}
-{% else %}
-{{ ss.contenu | markdown_to_latex }}
+{% elif 'fixation' in nom_norm and 'assemblage' in nom_norm %}
+{% set fix_color = ss_couleur if ss_couleur else 'ecoMarron' %}
+\needspace{10\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ fix_color }},
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{cogs}\hspace{0.3em}{{ ss.nom }}},
+    colbacktitle={{ fix_color }},
+    rounded corners,
+    boxrule=2pt,
+    left=3pt, right=3pt, top=5pt, bottom=5pt
+]
+{% if ss.contenu %}
+\renewcommand{\arraystretch}{1.3}
+\small
+\rowcolors{2}{ecoFond}{white}
+{{ ss.contenu | replace('\\begin{tabular}{|p{5cm}|p{4.5cm}|p{3cm}|p{1.5cm}|}', '\\begin{tabular}{p{4.5cm}p{4.5cm}p{3cm}p{2cm}}') | replace('\\hline', '') | replace('\\textbf{Nature', '\\rowcolor{ecoMarron!20}\\textbf{Nature') }}
 {% endif %}
-\end{fullwidthbox}
+\end{tcolorbox}
 \vspace{0.4cm}
 
-{% elif 'conception' in nom_lower or 'precision' in nom_lower %}
-\begin{subsectionbox}[title={\faIcon{drafting-compass}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
-{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
-\end{subsectionbox}
-\vspace{0.3cm}
-
-{% elif 'atelier' in nom_lower and 'taille' in nom_lower %}
-\begin{subsectionbox}[title={\faIcon{hammer}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
-{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
-\end{subsectionbox}
-\vspace{0.3cm}
-
-{% elif 'transport' in nom_lower %}
-\begin{subsectionbox}[title={\faIcon{truck}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
-{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
-\end{subsectionbox}
-\vspace{0.3cm}
-
-{% elif 'machine' in nom_lower and 'portative' in nom_lower %}
-\begin{subsectionbox}[title={\faIcon{tools}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
-{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
-\end{subsectionbox}
-\vspace{0.3cm}
-
-{% elif 'protection' in nom_lower or 'nettoyage' in nom_lower %}
-\begin{subsectionbox}[title={\faIcon{broom}\hspace{0.3em}{{ ss.nom }}}]{traitBleu}
-{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
-\end{subsectionbox}
-\vspace{0.3cm}
-
-{% elif 'dechet' in nom_lower or 'gestion' in nom_lower %}
-\begin{subsectionbox}[title={\faIcon{recycle}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
-{% if has_itemize %}{{ ss.contenu | markdown_to_latex }}{% else %}{{ ss.contenu | markdown_to_latex }}{% endif %}
-\end{subsectionbox}
-\vspace{0.3cm}
-
-{% elif 'matiere premiere' in nom_lower or 'certifiee' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{certificate}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{fullwidthbox}
+{% elif 'traitement' in nom_norm and 'preventif' in nom_norm %}
+{% set prev_color = ss_couleur if ss_couleur else 'ecoVert' %}
+\needspace{8\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ prev_color }},
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{shield-alt}\hspace{0.3em}{{ ss.nom }}},
+    colbacktitle={{ prev_color }},
+    rounded corners,
+    boxrule=2pt,
+    left=3pt, right=3pt, top=5pt, bottom=5pt
+]
+{% if ss.contenu %}
+\renewcommand{\arraystretch}{1.3}
+\small
+\rowcolors{2}{ecoFond}{white}
+{{ ss.contenu | replace('\\begin{tabular}{|p{5cm}|p{4.5cm}|p{3cm}|p{1.5cm}|}', '\\begin{tabular}{p{4cm}p{6cm}p{2.5cm}p{1.5cm}}') | replace('\\hline', '') | replace('\\textbf{Nature', '\\rowcolor{ecoVert!20}\\textbf{Nature') }}
+{% endif %}
+\end{tcolorbox}
 \vspace{0.4cm}
 
-{% elif 'fixation' in nom_lower or 'assemblage' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{cogs}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{fullwidthbox}
+{% elif 'traitement' in nom_norm and 'curatif' in nom_norm %}
+{% set cur_color = ss_couleur if ss_couleur else 'ecoVert' %}
+\needspace{8\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ cur_color }},
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{hammer}\hspace{0.3em}{{ ss.nom }}},
+    colbacktitle={{ cur_color }},
+    rounded corners,
+    boxrule=2pt,
+    left=3pt, right=3pt, top=5pt, bottom=5pt
+]
+{% if ss.contenu %}
+\renewcommand{\arraystretch}{1.3}
+\small
+\rowcolors{2}{ecoFond}{white}
+{{ ss.contenu | replace('\\begin{tabular}{|p{5cm}|p{4.5cm}|p{3cm}|p{1.5cm}|}', '\\begin{tabular}{p{4cm}p{6cm}p{2.5cm}p{1.5cm}}') | replace('\\hline', '') | replace('\\textbf{Nature', '\\rowcolor{ecoVert!20}\\textbf{Nature') }}
+{% endif %}
+\end{tcolorbox}
 \vspace{0.4cm}
 
-{% elif 'traitement' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{flask}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{fullwidthbox}
+{% elif 'methodologie de traitement' in nom_norm %}
+{% set meth_color = ss_couleur if ss_couleur else 'ecoVert' %}
+{# Utilisation de la couleur dynamique pour la méthodologie de traitement #}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ meth_color }},
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{spray-can}\hspace{0.3em}{{ ss.nom }}},
+    colbacktitle={{ meth_color }},
+    rounded corners,
+    boxrule=2pt,
+    left=10pt, right=10pt, top=10pt, bottom=10pt
+]
+\input{../templates/methodologie_traitement_content.tex}
+\end{tcolorbox}
 \vspace{0.4cm}
 
-{% elif 'deroulement' in nom_lower or 'travaux' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{clipboard-list}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{fullwidthbox}
-\vspace{0.4cm}
-
-{% elif 'fabrication' in nom_lower or 'taille' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{hammer}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{fullwidthbox}
-\vspace{0.4cm}
-
-{% elif 'operation' in nom_lower and 'chantier' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{hard-hat}\hspace{0.3em}{{ ss.nom }}}]{ecoVertFonce}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{fullwidthbox}
-\vspace{0.4cm}
-
-{% elif 'hygiene' in nom_lower or 'organisation' in nom_lower %}
-\begin{subsectionbox}[title={\faIcon{first-aid}\hspace{0.3em}{{ ss.nom }}}]{ecoRouge}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{subsectionbox}
-\vspace{0.3cm}
-
-{% elif 'mode operatoire' in nom_lower %}
-\begin{subsectionbox}[title={\faIcon{cog}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{subsectionbox}
-\vspace{0.3cm}
-
-{% elif 'hqe' in nom_lower or 'environnement' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{leaf}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+{% else %}
+{# Autres sous-sections avec cadre de couleur dynamique #}
+\needspace{6\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ ss_couleur }},
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{cube}\hspace{0.3em}{{ ss.nom }}},
+    colbacktitle={{ ss_couleur }},
+    rounded corners,
+    boxrule=1.2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+{{ ss.contenu }}
 {% if ss.image %}
 \begin{center}
 \includegraphics[width=0.8\textwidth]{ {{ ss.image }} }
 \end{center}
 {% endif %}
-\end{fullwidthbox}
+\end{tcolorbox}
 \vspace{0.4cm}
+{% endif %}
 
-{% elif 'preparation' in nom_lower or 'chantier' in nom_lower %}
-\begin{subsectionbox}[title={\faIcon{tasks}\hspace{0.3em}{{ ss.nom }}}]{traitBleu}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{subsectionbox}
-\vspace{0.3cm}
+{% endfor %}
 
-{% elif 'delai' in nom_lower or 'respect' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{clock}\hspace{0.3em}{{ ss.nom }}}]{traitBleu}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{fullwidthbox}
-\vspace{0.4cm}
+{# ============ METHODOLOGIE / CHRONOLOGIE ============ #}
+{% elif 'METHODOLOGIE' in titre_upper %}
+\newpage
+\section{ {{ section.titre }} }
 
-{% elif 'reference' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{building}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{fullwidthbox}
-\vspace{0.4cm}
+{% for ss in section.sous_sections %}
+{% set nom_norm = ss.nom | normalize %}
 
-{% elif 'nuisance' in nom_lower or 'reduction' in nom_lower %}
-\begin{fullwidthbox}[title={\faIcon{volume-mute}\hspace{0.3em}{{ ss.nom }}}]{ecoVert}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
-\end{fullwidthbox}
-\vspace{0.4cm}
-
+{% if 'demarche hqe' in nom_norm or 'demarche qse' in nom_norm %}
+{# Ignoré ici, sera traité dans section QSE #}
+{% elif 'demarche environnementale' in nom_norm %}
+{# Ignoré ici - déplacé dans section QSE #}
+{% elif 'hygiene' in nom_norm and 'qualite' in nom_norm %}
+{# Ignoré ici - déplacé dans section QSE #}
+{% elif 'monument historique' in nom_norm or 'mode operatoire' in nom_norm %}
+\needspace{8\baselineskip}
+\begin{methodebox}[title={\faIcon{cogs}\hspace{0.3em}Mode opératoire particulier}]{ecoMarron}
+{% if '\\begin{itemize}' in ss.contenu %}
+{{ ss.contenu }}
 {% else %}
-{# Style par defaut #}
-\begin{fullwidthbox}[title={{ ss.nom }}]{grisSection}
-{% if has_itemize %}{{ ss.contenu }}{% else %}{{ ss.contenu }}{% endif %}
+{{ ss.contenu | replace('\n', ' \\\\\n') }}
+{% endif %}
+\end{methodebox}
+\vspace{0.4cm}
+{% elif 'protection' in nom_norm and 'nettoyage' in nom_norm %}
+\needspace{8\baselineskip}
+\begin{methodebox}[title={\faIcon{shield-alt}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+{% if '\\begin{itemize}' in ss.contenu %}
+{{ ss.contenu }}
+{% else %}
+{{ ss.contenu | replace('\n', ' \\\\\n') }}
+{% endif %}
+\end{methodebox}
+\vspace{0.4cm}
+{% elif 'deroulement' in nom_norm or 'conception' in nom_norm %}
+\needspace{15\baselineskip}
+\begin{methodebox}[title={\faIcon{clipboard-list}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+{% if '\\begin{itemize}' in ss.contenu %}
+{{ ss.contenu | markdown_to_latex }}
+{% else %}
+{{ ss.contenu | replace('\n', ' \\\\\n') | markdown_to_latex }}
+{% endif %}
+\end{methodebox}
+\vspace{0.4cm}
+{% elif 'fabrication' in nom_norm or 'taille' in nom_norm %}
+\needspace{8\baselineskip}
+\begin{methodebox}[title={\faIcon{hammer}\hspace{0.3em}{{ ss.nom }}}]{ecoMarron}
+{% if '\\begin{itemize}' in ss.contenu %}
+{{ ss.contenu | markdown_to_latex }}
+{% else %}
+{{ ss.contenu | replace('\n', ' \\\\\n') | markdown_to_latex }}
+{% endif %}
+\end{methodebox}
+\vspace{0.4cm}
+{% elif 'transport' in nom_norm and 'levage' in nom_norm %}
+\needspace{8\baselineskip}
+\begin{methodebox}[title={\faIcon{truck-loading}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+{% if '\\begin{itemize}' in ss.contenu %}
+{{ ss.contenu | markdown_to_latex }}
+{% else %}
+{{ ss.contenu | replace('\n', ' \\\\\n') | markdown_to_latex }}
+{% endif %}
+\end{methodebox}
+\vspace{0.3cm}
+{% if image_grue %}
+{% set levage_color = moyens_materiel_couleur if moyens_materiel_couleur is defined else 'ecoBleu' %}
+\needspace{12\baselineskip}
+\begin{center}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ levage_color }},
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{truck-monster}\hspace{0.3em}Moyens de levage},
+    colbacktitle={{ levage_color }},
+    rounded corners,
+    boxrule=2pt,
+    width=\textwidth,
+    halign=center
+]
+\includegraphics[width=0.8\textwidth, height=8cm, keepaspectratio]{ {{image_grue}} }
+\end{tcolorbox}
+\end{center}
+{% endif %}
+{% elif 'operation' in nom_norm and 'chantier' in nom_norm %}
+\needspace{8\baselineskip}
+\begin{methodebox}[title={\faIcon{hard-hat}\hspace{0.3em}{{ ss.nom }}}]{ecoVertFonce}
+{% if '\\begin{itemize}' in ss.contenu %}
+{{ ss.contenu | markdown_to_latex }}
+{% else %}
+{{ ss.contenu | replace('\n', ' \\\\\n') | markdown_to_latex }}
+{% endif %}
+\end{methodebox}
+\vspace{0.4cm}
+{% elif 'protection' in nom_norm and 'existant' in nom_norm %}
+\needspace{8\baselineskip}
+\begin{methodebox}[title={\faIcon{shield-alt}\hspace{0.3em}{{ ss.nom }}}]{ecoBleu}
+{% if '\\begin{itemize}' in ss.contenu %}
+{{ ss.contenu }}
+{% else %}
+{{ ss.contenu | replace('\n', ' \\\\\n') }}
+{% endif %}
+\end{methodebox}
+\vspace{0.4cm}
+{% elif 'hygiene' in nom_norm or 'organisation' in nom_norm %}
+\needspace{8\baselineskip}
+\begin{methodebox}[title={\faIcon{first-aid}\hspace{0.3em}{{ ss.nom }}}]{red!70!black}
+{% if '\\begin{itemize}' in ss.contenu %}
+{{ ss.contenu }}
+{% else %}
+{{ ss.contenu | replace('\n', ' \\\\\n') }}
+{% endif %}
+\end{methodebox}
+\vspace{0.4cm}
+{% else %}
+{# Fallback: Afficher avec un cadre de couleur dynamique #}
+{% set ss_couleur = ss.couleur if ss.couleur else 'ecoBleu' %}
+\needspace{6\baselineskip}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ ss_couleur }},
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{cog}\hspace{0.3em}{{ ss.nom }}},
+    colbacktitle={{ ss_couleur }},
+    rounded corners,
+    boxrule=1.2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+{% if '\\begin{tabular}' in ss.contenu or '\\begin{itemize}' in ss.contenu or '\\begin{center}' in ss.contenu or '\\begin{tcolorbox}' in ss.contenu %}
+{{ ss.contenu }}
+{% else %}
+{{ ss.contenu | replace('\n', ' \\\\\n') }}
+{% endif %}
 {% if ss.image %}
 \begin{center}
 \includegraphics[width=0.9\textwidth]{ {{ ss.image }} }
 \end{center}
 {% endif %}
-\end{fullwidthbox}
+\end{tcolorbox}
 \vspace{0.4cm}
 {% endif %}
 
 {% endfor %}
 
+{# ============ QSE QUALITE SECURITE ENVIRONNEMENT ============ #}
+{% elif 'QSE' in titre_upper or 'HYGIENE' in titre_upper or 'QUALITE ENVIRONNEMENT' in titre_upper or 'HQE' in titre_upper %}
+\newpage
+\section{QSE QUALITÉ SÉCURITÉ ENVIRONNEMENT}
+
+{# Sous-section Démarche environnementale #}
+\input{../templates/demarche_hqe_generated.tex}
+
+{# Sous-section Démarche environnementale atelier #}
+\input{../templates/demarche_env_atelier_generated.tex}
+
+{# Sous-section Démarche environnementale chantiers #}
+\input{../templates/demarche_env_chantiers_generated.tex}
+
+{# ============ PLANNING ============ #}
+{% elif 'PLANNING' in titre_upper %}
+\newpage
+\section{ {{ section.titre }} }
+{% set plan_color = planning_couleur if planning_couleur is defined else 'traitBleu' %}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ plan_color }},
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{calendar-alt}\hspace{0.3em}Analyse du planning},
+    colbacktitle={{ plan_color }},
+    rounded corners,
+    boxrule=2pt,
+    left=10pt, right=10pt, top=6pt, bottom=6pt
+]
+{% for ss in section.sous_sections %}
+{{ ss.contenu }}
+{% endfor %}
+\end{tcolorbox}
+\vspace{0.4cm}
+
+{# Espace pour image planning si fournie #}
+{% for ss in section.sous_sections %}
+{% if ss.image %}
+\begin{center}
+\includegraphics[width=\textwidth, height=0.6\textheight, keepaspectratio]{ {{ ss.image }} }
+\end{center}
+{% endif %}
+{% endfor %}
+
+{# ============ CHANTIERS REFERENCES ============ #}
+{% elif 'CHANTIER' in titre_upper and 'REFERENCE' in titre_upper %}
+\newpage
+\section{ {{ section.titre }} }
+{% set ref_color = situation_admin_couleur if situation_admin_couleur is defined else 'ecoBleu' %}
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe={{ ref_color }},
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{building}\hspace{0.3em}Nos Références},
+    colbacktitle={{ ref_color }},
+    rounded corners,
+    boxrule=2pt,
+    left=10pt, right=10pt, top=10pt, bottom=10pt
+]
+
+\small
+L'entreprise \textbf{Bois \& Techniques} a réalisé de nombreux chantiers similaires. Voici quelques références en rapport avec cette opération :
+
+\vspace{0.3cm}
+
+{% for ss in section.sous_sections %}
+{% if ss.contenu %}
+{{ ss.contenu }}
+{% endif %}
+{% endfor %}
+
+\end{tcolorbox}
+
+{# ============ ANNEXES ============ #}
+{% elif 'ANNEXES' in titre_upper %}
+\newpage
+\section{ANNEXES}
+
+{% for ss in section.sous_sections %}
+{% if ss.contenu %}
+{{ ss.contenu }}
+{% endif %}
+{% if ss.image %}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{ {{ ss.image }} }
+\end{center}
+{% endif %}
+{% endfor %}
+
+{% endif %}
+
 {% endif %}
 {% endfor %}
 {% endfor %}
-
-% ============================================
-% ANNEXES
-% ============================================
-\newpage
-\section{ANNEXES}
-\addcontentsline{toc}{section}{ANNEXES}
-
-\begin{fullwidthbox}[title={\faIcon{paperclip}\hspace{0.3em}Documents annexes}]{grisSection}
-Les fiches techniques des produits et materiaux mentionnes dans ce memoire sont disponibles sur demande.
-
-\begin{itemize}
-    \item Fiches techniques des traitements (SARPECO 850, XILIX 3000P)
-    \item Certifications RGE et Qualibat
-    \item Attestations d'assurance decennale
-    \item References chantiers detaillees
-\end{itemize}
-\end{fullwidthbox}
 
 \end{document}

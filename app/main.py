@@ -26,6 +26,7 @@ def create_header():
         with ui.row().classes('gap-2'):
             ui.button('Nouveau memoire', on_click=lambda: ui.navigate.to('/')).props('flat color=white')
             ui.button('Base de donnees', on_click=lambda: ui.navigate.to('/templates')).props('flat color=white')
+            ui.button('Assistant', on_click=lambda: ui.navigate.to('/assistant')).props('flat color=white')
             ui.button('Parametres', on_click=lambda: ui.navigate.to('/parametres')).props('flat color=white')
             ui.button('Assistant (WIP)', on_click=lambda: ui.navigate.to('/assistant')).props('flat color=white')
 
@@ -59,6 +60,12 @@ def page_parametres():
     parametres.render()
     create_footer()
 
+@ui.page('/assistant')
+def page_assistant():
+    """Page Assistant WIP: import de PDF."""
+    create_header()
+    assistant.render()
+    create_footer()
 
 @ui.page('/assistant')
 def page_assistant():

@@ -1,0 +1,153 @@
+% ============================================
+% MOYENS MATERIEL AFFECTES AU PROJET
+% TEMPLATE JINJA2 - Variables dynamiques avec couleurs par cadre
+% ============================================
+{% set couleur_defaut = moyens_materiel_couleur if moyens_materiel_couleur is defined else 'ecoBleu' %}
+{% set couleurs = moyens_materiel.couleurs if moyens_materiel.couleurs is defined else {} %}
+
+{% set c_intro = couleurs.intro if couleurs.intro is defined else couleur_defaut %}
+{% set c_conception = couleurs.conception if couleurs.conception is defined else couleur_defaut %}
+{% set c_securite = couleurs.securite if couleurs.securite is defined else couleur_defaut %}
+{% set c_atelier = couleurs.atelier if couleurs.atelier is defined else couleur_defaut %}
+{% set c_levage = couleurs.levage if couleurs.levage is defined else couleur_defaut %}
+{% set c_transport = couleurs.transport if couleurs.transport is defined else couleur_defaut %}
+{% set c_machine_portative = couleurs.machine_portative if couleurs.machine_portative is defined else couleur_defaut %}
+{% set c_protection_nettoyage = couleurs.protection_nettoyage if couleurs.protection_nettoyage is defined else couleur_defaut %}
+{% set c_gestion_dechet = couleurs.gestion_dechet if couleurs.gestion_dechet is defined else couleur_defaut %}
+
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_intro }}, fonttitle=\bfseries\large, coltitle=white,
+    title={\faIcon{tools}\hspace{0.3em}Un parc machines récent{,} certifié et entretenu},
+    colbacktitle={{ c_intro }}, rounded corners, boxrule=1.5pt, left=6pt, right=6pt, top=4pt, bottom=4pt
+]
+\small
+{{ moyens_materiel.intro | escape_latex }}
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+% Conception
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_conception }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{drafting-compass}\hspace{0.2em}Conception et Précision},
+    colbacktitle={{ c_conception }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+{% for item in moyens_materiel.conception %}
+    \item {{ item | escape_latex }}
+{% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+% Securite
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_securite }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{hard-hat}\hspace{0.2em}Sécurité},
+    colbacktitle={{ c_securite }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+{% for item in moyens_materiel.securite %}
+    \item {{ item | escape_latex }}
+{% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+% Atelier
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_atelier }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{warehouse}\hspace{0.2em}Atelier de taille},
+    colbacktitle={{ c_atelier }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+{% for item in moyens_materiel.atelier %}
+    \item {{ item | escape_latex }}
+{% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+% Levage
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_levage }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{truck-loading}\hspace{0.2em}Levage et montage},
+    colbacktitle={{ c_levage }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+{% for item in moyens_materiel.levage %}
+    \item {{ item | escape_latex }}
+{% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+% Transport
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_transport }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{truck}\hspace{0.2em}Transport},
+    colbacktitle={{ c_transport }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+{% for item in moyens_materiel.transport %}
+    \item {{ item | escape_latex }}
+{% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+% Machine portative
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_machine_portative }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{tools}\hspace{0.2em}Machines portatives},
+    colbacktitle={{ c_machine_portative }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+{% for item in moyens_materiel.machine_portative %}
+    \item {{ item | escape_latex }}
+{% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+% Protection et nettoyage
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_protection_nettoyage }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{broom}\hspace{0.2em}Protection et nettoyage},
+    colbacktitle={{ c_protection_nettoyage }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+{% for item in moyens_materiel.protection_nettoyage %}
+    \item {{ item | escape_latex }}
+{% endfor %}
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.4cm}
+
+% Gestion des dechets
+\begin{tcolorbox}[
+    enhanced, colback=white, colframe={{ c_gestion_dechet }}, fonttitle=\bfseries\small, coltitle=white,
+    title={\faIcon{recycle}\hspace{0.2em}Gestion des déchets},
+    colbacktitle={{ c_gestion_dechet }}, rounded corners, boxrule=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt
+]
+\footnotesize
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+{% for item in moyens_materiel.gestion_dechet %}
+    \item {{ item | escape_latex }}
+{% endfor %}
+\end{itemize}
+\end{tcolorbox}

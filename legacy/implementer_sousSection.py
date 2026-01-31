@@ -6,7 +6,7 @@ import unicodedata
 import re
 
 # CONFIGURATION 
-FICHIER_CSV = "crack_clean.csv"
+FICHIER_CSV = "bd_interface.csv"
 NOM_TEMPLATE = "template.tex.j2"
 NOM_FICHIER_TEX_FINAL = "resultat.tex"
 

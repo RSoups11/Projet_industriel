@@ -1,5 +1,6 @@
 % Template stylisé pour la section Situation Administrative de l'Entreprise
-% Présentation professionnelle des qualifications, effectifs et chiffres
+% TEMPLATE JINJA2 - Les variables sont remplacées dynamiquement
+{% set couleur = situation_admin_couleur if situation_admin_couleur is defined else 'ecoBleu' %}
 
 \vspace{0.3cm}
 
@@ -7,26 +8,20 @@
 \begin{tcolorbox}[
     enhanced,
     colback=white,
-    colframe=ecoBleu,
+    colframe={{ couleur }},
     fonttitle=\bfseries\large,
     coltitle=white,
     title={\faIcon{award}\hspace{0.3em}Qualifications entreprise RGE QUALIBAT},
-    colbacktitle=ecoBleu,
+    colbacktitle={{ couleur }},
     rounded corners,
     boxrule=2pt,
     left=12pt, right=12pt, top=10pt, bottom=10pt
 ]
 
 \begin{itemize}[leftmargin=1.5em, itemsep=4pt]
-
-    \item[\textcolor{ecoBleu}{\faIcon{check-circle}}] Fabrication et pose de charpente traditionnelle
-
-    \item[\textcolor{ecoBleu}{\faIcon{check-circle}}] Fabrication et pose de bâtiments à ossature bois
-
-    \item[\textcolor{ecoBleu}{\faIcon{check-circle}}] Réparation et renforcement d'ouvrage de charpente
-
-    \item[\textcolor{ecoBleu}{\faIcon{check-circle}}] Restauration de charpente du patrimoine ancien
-
+{% for qualif in situation_admin.qualifications %}
+    \item[\textcolor{{ '{' }}{{ couleur }}{{ '}' }}{\faIcon{check-circle}}] {{ qualif | escape_latex }}
+{% endfor %}
 \end{itemize}
 
 \end{tcolorbox}
@@ -37,11 +32,11 @@
 \begin{tcolorbox}[
     enhanced,
     colback=white,
-    colframe=ecoBleu,
+    colframe={{ couleur }},
     fonttitle=\bfseries,
     coltitle=white,
-    title={\faIcon{users}\hspace{0.3em}Effectif au 01/01/2025},
-    colbacktitle=ecoBleu,
+    title={\faIcon{users}\hspace{0.3em}Effectif au {{ situation_admin.effectif_date }}},
+    colbacktitle={{ couleur }},
     rounded corners,
     boxrule=1.5pt,
     halign=center,
@@ -49,7 +44,7 @@
 ]
 
 \vspace{0.3cm}
-{\Huge\bfseries\textcolor{ecoBleu}{12}}
+{\Huge\bfseries\textcolor{{ '{' }}{{ couleur }}{{ '}' }}{ {{ situation_admin.effectif_nombre }} }}
 \hspace{1cm}
 {\large salariés }
 \vspace{0.3cm}
@@ -62,11 +57,11 @@
 \begin{tcolorbox}[
     enhanced,
     colback=white,
-    colframe=ecoMarron,
+    colframe={{ couleur }},
     fonttitle=\bfseries,
     coltitle=white,
     title={\faIcon{chart-line}\hspace{0.3em}Chiffre d'affaires},
-    colbacktitle=ecoMarron,
+    colbacktitle={{ couleur }},
     rounded corners,
     boxrule=1.5pt,
     left=10pt, right=10pt, top=8pt, bottom=8pt
@@ -75,12 +70,12 @@
 \vspace{0.3cm}
 \centering
 \renewcommand{\arraystretch}{1.6}
-\begin{tabular}{@{}ccc@{}}
-    \textbf{2022} & \textbf{2023} & \textbf{2024} \\
-    2 324 861 € & 2 914 663 € & 3 227 324 € \\
+\begin{tabular}{@{}{% for ca in situation_admin.chiffre_affaires %}c{% if not loop.last %} {% endif %}{% endfor %}@{}}
+{% for ca in situation_admin.chiffre_affaires %}    \textbf{ {{ ca.annee }} }{% if not loop.last %} & {% endif %}{% endfor %} \\
+{% for ca in situation_admin.chiffre_affaires %}    {{ ca.montant }}{% if not loop.last %} & {% endif %}{% endfor %} \\
 \end{tabular}
 
 \vspace{0.3cm}
-{\small\textcolor{ecoVert}{ \faIcon{arrow-up} Croissance continue }}
+{\small\textcolor{ecoVert}{ \faIcon{arrow-up} {{ situation_admin.tendance_ca | escape_latex }} }}
 
 \end{tcolorbox}

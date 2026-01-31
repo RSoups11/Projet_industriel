@@ -1,5 +1,11 @@
 """
 Service de gestion des templates.
+
+# ==============================================================================
+# ATTENTION - FICHIER ENTIÈREMENT NON UTILISÉ
+# La classe TemplateService n'est jamais instanciée dans l'application.
+# Les templates sont gérés directement par LaTeXService et Jinja2.
+# ==============================================================================
 """
 
 import os
@@ -9,6 +15,9 @@ from typing import Dict, List, Any, Optional
 import jinja2
 
 
+# ==============================================================================
+# ANCIENNE CLASSE - NON UTILISÉE
+# ==============================================================================
 class TemplateService:
     """Service pour gérer et modifier les templates LaTeX/Jinja2."""
     

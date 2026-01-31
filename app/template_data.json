@@ -1,0 +1,451 @@
+{
+    "situation_administrative": {
+        "qualifications": [
+            "Fabrication et pose de charpente traditionnelle",
+            "Fabrication et pose de bâtiments à ossature bois",
+            "Réparation et renforcement d'ouvrage de charpente",
+            "Restauration de charpente du patrimoine ancien"
+        ],
+        "effectif_date": "01/01/2026",
+        "effectif_nombre": "12",
+        "chiffre_affaires": [
+            {
+                "annee": "2023",
+                "montant": "2 914 663 €"
+            },
+            {
+                "annee": "2024",
+                "montant": "3 227 324 €"
+            },
+            {
+                "annee": "2025",
+                "montant": "??? €"
+            }
+        ],
+        "tendance_ca": "Croissance continue"
+    },
+    "securite_sante": {
+        "organisation_production": "Notre atelier est organisé de façon lean management en privilégiant l'efficience afin de faciliter la circulation des pièces de bois au cours des différentes phases de travail. Les zones de stockage, de traçage, d'usinage et de stockage avant expédition sont prévues.",
+        "confort_travail": "Que ce soit en atelier ou sur chantier, nous mettons à la disposition de notre personnel une salle de repos avec : point d'eau, machine à café, réfrigérateur, micro-onde, table et chaises, vestiaire, douche, sanitaires…",
+        "accueil_nouveaux": "Chaque nouvel arrivant (stagiaire, intérimaire, salarié) se voit fournir, dès son arrivée, un livret d'accueil rappelant les bases de sécurité et les bons comportements à avoir (OPP BTP), une « fiche d'accueil » est rédigée avec lui, afin de faciliter son suivi médical en cas d'accident et de le sensibiliser aux dangers du chantier et les types d'EPI mis à sa disposition.",
+        "securite_generale": "Afin d'offrir des garanties de sécurité au public et nos salariés, notre atelier, construit en 2010, respecte l'ensemble des normes de construction et de prévention/lutte/accès incendie et explosion. Nos équipes ont à leur disposition les moyens de travailler en sécurité tout en préservant leur santé. Ils participent régulièrement à des formations sur les bonnes pratiques sécuritaires et le bon usage de nos machines (tailles et levages).",
+        "habilitations": [
+            "CACES Levage",
+            "CACES Conduite de pont roulant",
+            "CACES Nacelle",
+            "SSTT (Sauveteur Secouriste du Travail)"
+        ],
+        "concretement": [
+            "NORMES et CERTIFICATIONS MACHINES (fixes et portatives).",
+            "NORMES ASPIRATION.",
+            "SECURITE INCENDIE. (Prévention, lutte, accès).",
+            "NORMES ELECTRIQUE.",
+            "ACCESSIBILITE AUX PERSONNES EN SITUATION DE HANDICAP.",
+            "HYGIENE, SANTE et CONFORT."
+        ],
+        "controle_annuel": "Vérification périodique : Échelles, harnais, stop-chute, équipement de levage, ligne de vie, installation électrique, détection incendie, RIA, compresseur, chariot élévateur, extincteur, machine atelier…",
+        "securite_affiche": "De nombreuses affiches (INRS et OPP BTP) sont placées aux endroits stratégiques de nos bureaux et atelier. Puisque la pédagogie est l'art de la répétition nous avons privilégié des modèles avec des graphismes et slogan plus ancien pour rappeler à nos charpentiers celle qui se trouvaient déjà autour d'eux dans leur lieu de formation (collège, lycée, CFA,…).",
+        "_order": [
+            "organisation_production",
+            "confort_travail",
+            "accueil_nouveaux",
+            "securite_generale",
+            "concretement",
+            "habilitations",
+            "controle_annuel"
+        ],
+        "couleurs": {
+            "organisation_production": "ecoBleu",
+            "confort_travail": "ecoVert",
+            "accueil_nouveaux": "ecoOrange",
+            "securite_generale": "ecoRouge",
+            "concretement": "ecoMarron",
+            "habilitations": "ecoViolet",
+            "controle_annuel": "ecoJaune"
+        },
+        "noms": {
+            "organisation_production": "Organisation de production",
+            "confort_travail": "Confort de travail",
+            "accueil_nouveaux": "Accueil des nouveaux salariés",
+            "securite_generale": "Sécurité et santé sur les chantiers",
+            "concretement": "Concrètement",
+            "habilitations": "Habilitations",
+            "controle_annuel": "Contrôle annuel"
+        }
+    },
+    "moyens_materiel": {
+        "intro": "L'entreprise Bois & Techniques dispose d'un parc matériel complet et régulièrement entretenu, permettant d'assurer la qualité et la sécurité de nos interventions.",
+        "conception": [
+            "Lunette et laser pour relevés, implantation et traçage",
+            "Panel de logiciel (CAO, DAO, calcul de structure, . . .)",
+            "Purge complémentaire",
+            "Scan 3 D pour relever côtes et altimétrie.",
+            "Relevé sur site de l'état sanitaire des pièces conservées.",
+            "Plans 3D et 2D (Plans P.A.C)."
+        ],
+        "securite": [
+            "EPI (Harnais, casque, lignes de vie, stop-chutes, chaussures, lunette, gant, masque)",
+            "Filets de protection antichute",
+            "Echafaudage roulant intérieur (Hussor, Distel)",
+            "Echafaudages extérieurs ponctuels (Hussor)",
+            "Nacelle / Echelle d'accès (Distel)"
+        ],
+        "atelier": [
+            "Scie radiale / Raboteuse Utis",
+            "Compresseurs et outillage pneumatique",
+            "Scie à panneaux Streibig / Scie à ruban",
+            "Radiale Lyonflex / Scie à format / Toupie",
+            "Machines de charpente Mafell",
+            "Pont roulant 3,2T / Chariot latéral 4T"
+        ],
+        "levage": [
+            "Palan / Grue mobile d'intérieur 600Kg",
+            "Vérin 10 tonnes",
+            "Tour d'étayage Hussor",
+            "Treuil électrique 250Kg",
+            "Lève matériaux (chèvre, lève-plaque) 300Kg"
+        ],
+        "transport": [
+            "Camionnettes 3,5 Tonnes équipées",
+            "Camion bras pour approvisionnement",
+            "Remorque"
+        ],
+        "machine_portative": [
+            "Machines portatives de nos équipes (vingtaine par véhicule)",
+            "Matériel d'injection pour résine époxy"
+        ],
+        "protection_nettoyage": [
+            "Bâchage permanent",
+            "Aspirateur de chantier",
+            "Equipement de nettoyage dans chaque véhicule"
+        ],
+        "gestion_dechet": [
+            "Big-bag",
+            "6 Bennes de tri chez Bois & Techniques",
+            "Remorque"
+        ]
+    },
+    "demarche_hqe": {
+        "intro": "Notre démarche QSE (Qualité Sécurité Environnement) tend à offrir des ouvrages sains et confortables dont les impacts sur l'environnement, évalués sur l'ensemble du cycle de vie, sont les plus maîtrisés possibles. C'est une démarche d'optimisation multicritères qui s'appuie sur une donnée fondamentale : tout bâtiment doit avant tout répondre à un usage et assurer un cadre de vie adéquat à ses utilisateurs. Comme l'atteste nos efforts réalisés dans le choix de nos fournisseurs, nos matériaux, la gestion de nos déchets et leurs retraitements, la société Bois & Techniques agit concrètement pour améliorer la qualité environnementale de nos constructions neuves et des bâtis existants.",
+        "eco_construction": {
+            "cible_02": {
+                "titre": "Cible n°02 « choix intégré des procédés et produits de construction »",
+                "durabilite": "Nous adaptons nos choix constructifs à la durée de vie souhaitée de l'ouvrage. Nous prenons en compte l'adaptabilité de l'ouvrage dans le temps et son démontage/séparation des produits et des systèmes constructifs. Nous prenons en compte la facilité d'accès pour l'entretien du bâti. Nous privilégions des produits de construction faciles à entretenir.",
+                "procedes": "Nous choisissons des produits et des systèmes constructifs dont les caractéristiques sont vérifiées. Nous optimisons la manutention sur le chantier et nous prenons en considération la santé des intervenants sur les chantiers (manutentionnaires, poseurs) afin de prévenir et limiter les troubles musculosquelettiques.",
+                "produits": "Les choix des matériaux sont compatibles avec une gestion durable de l'environnement (Label Vert, PEFC, FSC, fournisseurs locaux, matériaux certifié Excell Zone Verte (contrôle substance indésirables ambiance intérieur, panneau classe E1) …etc.)."
+            },
+            "cible_03": {
+                "titre": "Cible n°03 « chantier à faibles nuisances »",
+                "gestion_dechets": "VOIR : NOTRE DEMARCHE ENVIRONNEMENTALE SUR LES CHANTIERS",
+                "reduction_pollution": "Par l'usage de système de vissage en remplacement du clouage. Nos systèmes constructifs ne nécessitent pas d'eau sur le chantier, évitant ainsi une contamination des sols. Concentration des moyens de levage pour limiter les nuisances sur le trafic routier environnant."
+            }
+        },
+        "eco_gestion": {
+            "cible_04": {
+                "titre": "Cible n°04 « gestion de l'énergie »",
+                "reduction": "Offrir une limitation des perditions énergétiques par les qualités isolantes des systèmes constructifs et matériaux employés."
+            },
+            "cible_06": {
+                "titre": "Cible n°06 « gestion des déchets d'activités »",
+                "gestion": "VOIR : NOTRE DEMARCHE ENVIRONNEMENTALE ATELIER ET BUREAUX",
+                "reduction": "Faible quantité de déchets produits pendant la phase de construction et de mise en œuvre grâces à nos systèmes constructifs."
+            }
+        }
+    },
+    "demarche_env_atelier": {
+        "intro": "Nous attachons une importance toute particulière au traitement de nos déchets et globalement à l'empreinte énergétique de l'entreprise sur son milieu. Notre activité est faiblement productrice de déchets, et ceux-ci sont généralement faciles à recycler par les filières classiques de traitement.\n\nCette double démarche (déchets/empreinte énergétique) s'applique dans tous les secteurs de notre activité comme l'atteste notre schéma d'organisation et de gestion des déchets (SOGED) à l'atelier ou sur nos chantiers.",
+        "actions_concretes": [
+            "Réduction de notre consommation de papier, consommables.",
+            "Privilégie la digitalisation des documents aux impressions, si impression nécessaire les impressions noir et blanc seront privilégiées.",
+            "Une seule imprimante centralisée. Nos contrats de location de matériel bureautique prévoient la reprise des consommables vides et des anciens matériels.",
+            "Investissement informatique permettant de privilégier le stockage et la transmission des documents par voie numérique.",
+            "L'éclairage est optimisé et la lumière naturelle est privilégiée.",
+            "Tri de nos déchets (papier, carton, plastique, bureautique,…).",
+            "Chauffage de notre atelier par chaudière à bois alimentée par nos résidus de fabrication et de chantier.",
+            "Le choix de fournisseurs locaux est privilégié."
+        ],
+        "tri_selectif_intro": "Dans sa démarche écologique, Bois & Techniques trie aujourd'hui ses déchets à la source grâce à des poubelles de tri et des bennes sélectives. Permettant leur traitement selon leur nature et leur destination. Cette sensibilisation est inscrite dans le LIVRET D'ACCUEIL.",
+        "tri_selectif_items": [
+            "Benne pour : bois sains, lattes, chutes de poutres, volige, cartons non souillés : utilisé comme moyen de chauffage de l'atelier interne.",
+            "Benne pour déchets bois traités et bois peint évacuation vers un centre de traitement SCHROLL.",
+            "Lieu de stockage pour déchets industriels spéciaux : Les mastics, silicones, colles, pots de peinture et Epoxy, mousse Polyuréthane expansée, contenants souillés, graisse, chiffons, et autres déchets. stocké dans un local avec cuve de rétention. Puis évacuation et traitement chez TREDI ou déchetterie de la commune de SOULTZ.",
+            "Silo pour copeaux et sciure (Fabrication de briquette).",
+            "Benne pour déchets inerte : tuiles, maçonnerie, divers gravats… évacuation par SCHROLL puis transformation pour réutilisation comme remblaiement.",
+            "Entreposage des métaux triés : acier, aluminium, zinc, cuivre, visserie, équerre, pointe,… puis recyclage par broyage à destination des fonderies.",
+            "Benne mélange : emballage, polyane, isolant, récupérés par la société SCHROLL pour stockage et revalorisation après extraction.",
+            "Poubelle déchets ménagers collectée par la municipalité."
+        ],
+        "diminuer_dechets": [
+            "Recyclage des chutes de bois : résidus utilisés pour le chauffage interne, briquettes.",
+            "Achat en avance des éléments d'assemblage et de quincaillerie en grande quantité. Les emballages sont repris par nos fournisseurs.",
+            "Notre stock est géré par notre système informatique, ce qui nous permet une lecture nette de notre état de stock et une baisse de nos déchets (moins de suremballage).",
+            "Amélioration de la durée de vie des produits (entretien préventif des machines, des véhicules…)."
+        ]
+    },
+    "demarche_env_chantiers": {
+        "intro": "L'entreprise Bois & Techniques a mis en place depuis de nombreuses années, pour réduire ses coûts d'élimination, un tri sélectif de ses déchets en sortie de production, sur chantier et en retour de chantier.\n\nNous avons 3 principes de tri sur les chantiers en fonction du type, de la taille et de la quantité de déchet à traiter.\n\nNotre activité en construction neuve ne génère presque pas de déchet sur chantier, puisque l'usinage se réalise en atelier.",
+        "cas_1_titre": "Cas n°1 : Notre démarche dans un cadre de tri collectif",
+        "cas_1_items": [
+            "Les différents moyens de gestion et de tri des déchets présents sur le chantier (bennes, poubelles, Big bag, zone de stockage, …) seront identifiés et utilisés par nos équipes dans le respect de leur fonction (DI, DIB, DID).",
+            "Nos équipes sont sensibilisées pour répartir correctement leurs déchets dans les différentes bennes par catégorie (inertes, industriels banals, industriels dangereux) et par catégorie de matériaux (métaux, plastiques, bois et dérivés, liquides, …)",
+            "Dans le cas où certains types de déchets créés par nos équipes sur le chantier ne seraient pas compatibles avec les systèmes collectifs de récupération. Nous nous chargerons de leur évacuation vers notre atelier et mettrons en œuvre notre processus de tri interne."
+        ],
+        "cas_2_titre": "Cas n°2 : Notre démarche de tri autonome pour gros volume",
+        "cas_2_condition": "SI : ABSENCE DE GESTION DES DÉCHETS COLLECTIVE / QUANTITÉ DE DÉCHET PRODUIT IMPORTANTE / VARIÉTÉ DE TYPE DE DÉCHET.",
+        "cas_2_items": [
+            "Une aire d'entreposage des déchets sera définie et le nombre de bennes découlera de la spécificité des travaux et de la quantité de déchets générées.",
+            "L'aire d'entreposage sera placée à bonne distance des zones sensibles pour prévenir tout risque de contamination (sol, personnel, …).",
+            "Elle sera balisée, rangée régulièrement et maintenu dans un état de propreté afin d'en faciliter l'accès et la récupération des bennes par nos prestataires.",
+            "Les différentes bennes tenues à disposition, par un prestataire agréé, pour le tri des déchets seront identifiées par la mise en place de pictogrammes ou de codes couleurs représentants les types de déchets qu'elles peuvent contenir.",
+            "Collecte des déchets par notre prestataire qui les valorisera dans les conditions légales, c'est-à-dire par réemploi, recyclage ou transformation en énergie, à l'exclusion de tout autre mode d'élimination, ou par nos équipes dans le cas de déchets spécifiques et respect de la traçabilité des produits dangereux.",
+            "Nos équipes sont évidemment sensibilisées pour répartir correctement leurs déchets dans les différentes bennes par catégorie (inertes, industriels banals, industriels dangereux) et par catégorie de matériaux (métaux, plastiques, bois et dérivés, liquides, …).",
+            "Mise en place de moyen de tri initial à côté de nos zones de travail (sacs poubelle, Big bag, …) afin de mieux gérer le flux de déchets vers les bennes.",
+            "Entretien et nettoyage régulier des zones de travail."
+        ],
+        "proscrit": [
+            "Brûler les déchets.",
+            "Enfouir des déchets.",
+            "Mettre en dépôt sauvage."
+        ],
+        "cas_3_titre": "Cas n°3 : Notre démarche de tri autonome pour faible volume",
+        "cas_3_condition": "SI : FAIBLE VOLUME DE DÉCHET.",
+        "cas_3_items": [
+            "Nos équipes récupèrent leurs déchets dans leur véhicule d'intervention et les rapportent au dépôt en vue de leur traitement dans notre processus interne."
+        ]
+    },
+    "matiere_premiere": {
+        "label_vert": "Utilisation de bois certifiés, de colle à base aqueuse ainsi que les traitements de classe 2 (label vert -- SARPECO 850).",
+        "pefc_fsc": "Les approvisionnements sont faits dans le respect de l'environnement avec une politique d'achats rigoureuse des bois à provenance certifié et une éco certification des bois locaux.",
+        "achetons_local": "Fournisseurs locaux et français de préférence.",
+        "excell_zone_verte": "Matériaux testés en laboratoire et l'ensemble de nos panneaux OSB sont de classe E1 (≤ 8mg/100g) ou garantis sans formaldéhyde.",
+        "sante_env": "Nous privilégions des produits moins nocifs pour la santé limitant les émissions potentielles (émissions chimiques et radioactives, comportement vis à vis des moisissures et des bactéries, émissions d'odeurs)."
+    },
+    "methodologie_traitement": {
+        "intro": "Traitement curatif et préventif par injections et double pulvérisation de l'ensemble des bois de charpente et solivage intérieurs selon les prescriptions techniques en vigueur :",
+        "preparation": [
+            "Sondage",
+            "Décapage des bois atteints (Bûchage)",
+            "Brossage",
+            "Dépoussiérage"
+        ],
+        "grosses_pieces": [
+            "Percement des puits d'injection tous les 20cm (5 à 6 par ML)",
+            "Mise en place d'injecteurs anti retour sans tête restant définitivement dans les éléments traités",
+            "Pièces encastrées dans la maçonnerie : injections doublées et orientées vers la maçonnerie",
+            "Injections profondes en basse pression 20 à 40 g",
+            "Application en surface de XILIX 3000P sur l'ensemble des bois en deux couches (100 à 300g par m²)"
+        ],
+        "chevrons": [
+            "Percement des puits d'injection tous les 30cm (3 à 4 par ML)",
+            "Mise en place d'injecteurs anti retour sans tête restant définitivement dans les éléments traités",
+            "Injections profondes en basse pression 20 à 40 g",
+            "Application en surface de XILIX 3000P sur l'ensemble des bois en deux couches (100 à 300g par m²)"
+        ]
+    },
+    "planning": {
+        "texte": "Lors de l'étude du planning transmis dans le cadre du dossier de consultation, nous avons porté une attention particulière à la durée prévue par le planning pour la phase de montage. Au regard des caractéristiques techniques du projet, du volume des éléments à assembler, des conditions d'accès au site, ainsi que de nos retours d'expérience sur des opérations similaires, cette durée apparaît ........... pour garantir une exécution conforme aux exigences de qualité, de sécurité et de coordination des intervenants. Nos prévisions internes, fondées sur une simulation détaillée estiment le besoin réel à ...... semaines. Nous recommandons donc d'ajuster le planning initial sur cette base afin d'assurer une exécution réaliste fluide et sans tension sur les ressources.",
+        "couleur": "ecoBleu"
+    },
+    "transport_levage": {
+        "intro": "Le chantier est posé par nos équipes, chaque chef d'équipe est titulaire de plusieurs CACES pour pouvoir manipuler nacelles ciseaux, bras articulé, chariot élévateur.",
+        "livraison_options": [
+            "Livraison par camion",
+            "Grue",
+            "Plateau"
+        ],
+        "levage_options": [
+            "Levage par grue mobile",
+            "Grue à tour des éléments lourds",
+            "Levage manuel des parties secondaires",
+            "Levage par échafaudage mobile intérieur"
+        ],
+        "ouvrages_livres": "Les ouvrages livrés sur le chantier en attente de pose seront stockés à l'abri des intempéries, des souillures et des chocs. Les conditions de stockage seront telles qu'elles ne subissent aucune déformation ou détérioration.",
+        "encadrement": "Les équipes sont encadrées par le chargé d'affaire et par Monsieur GRANDEMANGE, responsable qualité, qui se rend sur le chantier régulièrement.",
+        "sous_traitance": "Afin de maintenir un niveau de qualité élevé, certains travaux (traitement curatif, couverture) peuvent être sous-traités (le contrat de sous-traitance est soumis à l'accord du maître d'ouvrage en amont).",
+        "_order": [
+            "intro",
+            "livraison",
+            "levage",
+            "ouvrages_livres",
+            "encadrement",
+            "sous_traitance"
+        ],
+        "couleurs": {
+            "intro": "ecoBleu",
+            "livraison": "ecoVert",
+            "levage": "ecoOrange",
+            "ouvrages_livres": "ecoMarron",
+            "encadrement": "ecoViolet",
+            "sous_traitance": "ecoJaune"
+        },
+        "noms": {
+            "intro": "Introduction",
+            "livraison": "Livraison",
+            "levage": "Levage",
+            "ouvrages_livres": "Stockage des ouvrages livrés",
+            "encadrement": "Encadrement",
+            "sous_traitance": "Sous-traitance"
+        }
+    },
+    "preambule": {
+        "texte": "L'entreprise Bois & Techniques, située à Soultz (68360), est spécialisée dans la conception, la fabrication et la pose de charpentes bois, ouvrages structurels. Forte d'une expérience significative dans le domaine de la construction bois, elle intervient sur des projets variés : logements individuels, bâtiments collectifs, équipements publics ou tertiaires. Restauration de structure bois type colombage et solivage.\n\nL'entreprise dispose de ses propres équipes de charpentiers, encadrées par un chef de chantier expérimenté. Les ouvrages sont fabriqués dans un atelier équipé et adaptés aux exigences de la construction bois moderne.\n\nRéalisé par le bureau d'étude interne de la société Bois & Techniques, le présent mémoire technique a pour objectif de vous exposer les solutions techniques et l'organisation de chantier envisagée, afin de mener votre projet dans les meilleures conditions. En espérant que ce mémoire technique illustrera l'intérêt que nous portons à votre projet."
+    },
+    "table_fixation_assemblage": [
+        {
+            "nature": "Boulons galvanisés à chaud Ø16 et Ø20",
+            "marque": "Classe 6.8. Filetage partiel",
+            "provenance": "France",
+            "doc": "NON"
+        },
+        {
+            "nature": "Visserie électrozinguée",
+            "marque": "BERNER",
+            "provenance": "France",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Vis Ø8",
+            "marque": "EUROTEC",
+            "provenance": "Allemagne",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Équerres de fixation et sabots galvanisés BEA",
+            "marque": "BEA",
+            "provenance": "France",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Pointes d'ancrage crantées",
+            "marque": "BEA 4/50",
+            "provenance": "France",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Ferrures mécano-soudées",
+            "marque": "MTR",
+            "provenance": "France - Alsace",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Vis anti-fendage",
+            "marque": "SFS - EUROTEC",
+            "provenance": "France - Allemagne",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Pointes brutes",
+            "marque": "GUNEBO",
+            "provenance": "Suède",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Pointes galvanisées à chaud",
+            "marque": "GUNEBO",
+            "provenance": "France",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Chevilles maçonnerie",
+            "marque": "HILTI HRD UGT Ø 10 Ø 14",
+            "provenance": "France",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Goujons d'ancrage",
+            "marque": "HILTI HSAK Ø 12 Ø 16",
+            "provenance": "France",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Vis inox",
+            "marque": "BERNER A2 torx",
+            "provenance": "Allemagne",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Vis inox",
+            "marque": "EUROTEC A4 torx",
+            "provenance": "France",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Boulons TRCC 8 - Ø 10 - Ø 12",
+            "marque": "SCHMERBER",
+            "provenance": "",
+            "doc": "OUI"
+        }
+    ],
+    "table_traitement_preventif": [
+        {
+            "nature": "Traitement SARPECO 850",
+            "marque": "SARPECO",
+            "provenance": "France",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Traitement classe 2 (label vert)",
+            "marque": "SARPECO 850",
+            "provenance": "France",
+            "doc": "OUI"
+        }
+    ],
+    "table_traitement_curatif": [
+        {
+            "nature": "Traitement XILIX 3000P",
+            "marque": "XILIX",
+            "provenance": "France",
+            "doc": "OUI"
+        },
+        {
+            "nature": "Traitement curatif par injection",
+            "marque": "XILIX",
+            "provenance": "France",
+            "doc": "OUI"
+        }
+    ],
+    "moyens_humains": {
+        "charge_affaires": {
+            "nom": "Frédéric ANSELM",
+            "description": "Il est l'unique interlocuteur de tous les intervenants du projet, il participe aux réunions de chantiers, établit la descente de charges, la note de calculs et les plans en tenant compte des interfaces avec les autres lots. Il organise les travaux de préparation et de levage en assurant un contrôle qualité des ouvrages exécutés a tous les stades de la construction."
+        },
+        "chefs_equipe": {
+            "noms": [
+                "Jimmy FROGER",
+                "THROO Stéphane"
+            ],
+            "description": "Il dirige les opérations de taille et de levage de la charpente en se basant sur les PAC et en étroite collaboration avec le chargé d'affaires. Il applique les consignes de sécurité du PPSPS"
+        },
+        "charpentiers": {
+            "noms": [
+                "DA COSTA Tristan",
+                "Thomas MURA",
+                "Guillaume DIEU",
+                "RIGALLEAU Jordan",
+                "Thomas NEFF"
+            ],
+            "description": "1 à 2 charpentiers seront affectés à ce projet en plus du chef d'équipe. Cet effectif pourra être augmenté selon les contraintes du PLANNING en phase d'éxecution des travaux."
+        },
+        "organigramme": {
+            "image": "../images/organigramme.png"
+        }
+    },
+    "contexte_projet": {
+        "date_visite_defaut": "",
+        "intro_visite": "Nous nous sommes rendus sur les lieux le",
+        "environnement_options": [
+            "Pavillonnaire",
+            "Zone industrielle",
+            "Zone artisanale",
+            "Centre-ville",
+            "Campagne",
+            "Centre village",
+            "Zone commerciale",
+            "Zone urbaine",
+            "Zone rurale"
+        ],
+        "acces_chantier": "Selon PGC délivrée a l'entreprise retenue",
+        "levage_options": "Grue automotrice /// ou /// Camion grue",
+        "contraintes_options": "Travaux hauteur /// ou /// Chute de hauteur /// ou /// Contraintes temporelles : (délai fixé pour une tâche, début d'une tâche à une date donnée fin de tâche à une date donné) /// ou /// Protection de l'existant /// ou /// Chantier neuf /// ou /// Travaux dans site occupé /// ou /// Intéractions avec autres lots /// ou /// Échafaudage /// ou /// Sites occupés"
+    }
+}

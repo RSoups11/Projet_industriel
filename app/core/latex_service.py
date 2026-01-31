@@ -22,6 +22,47 @@ class LaTeXService:
         )
         # Ajouter le filtre pour convertir markdown bold en LaTeX
         self.env.filters['markdown_to_latex'] = self.markdown_to_latex
+        # Ajouter le filtre pour échapper les caractères LaTeX
+        self.env.filters['escape_latex'] = self.escape_latex_filter
+        # Ajouter le filtre pour normaliser texte (sans accents, minuscules)
+        self.env.filters['normalize'] = self.normalize_text
+    
+    @staticmethod
+    def escape_latex_filter(texte: str) -> str:
+        """Filtre Jinja2 pour échapper les caractères spéciaux LaTeX."""
+        if not texte:
+            return texte
+        # Échapper les caractères spéciaux LaTeX
+        replacements = [
+            ('&', r'\&'),
+            ('%', r'\%'),
+            ('$', r'\$'),
+            ('#', r'\#'),
+            ('_', r'\_'),
+        ]
+        for old, new in replacements:
+            texte = texte.replace(old, new)
+        return texte
+    
+    @staticmethod
+    def normalize_text(texte: str) -> str:
+        """Normalise le texte: minuscules, sans accents pour comparaisons."""
+        if not texte:
+            return texte
+        # Convertir en minuscules
+        texte = texte.lower()
+        # Remplacer les accents
+        accents = {
+            'à': 'a', 'â': 'a', 'ä': 'a', 'á': 'a',
+            'è': 'e', 'ê': 'e', 'ë': 'e', 'é': 'e',
+            'ì': 'i', 'î': 'i', 'ï': 'i', 'í': 'i',
+            'ò': 'o', 'ô': 'o', 'ö': 'o', 'ó': 'o',
+            'ù': 'u', 'û': 'u', 'ü': 'u', 'ú': 'u',
+            'ç': 'c', 'ñ': 'n'
+        }
+        for accent, sans in accents.items():
+            texte = texte.replace(accent, sans)
+        return texte
     
     @staticmethod
     def markdown_to_latex(texte: str) -> str:
@@ -35,11 +76,23 @@ class LaTeXService:
     @staticmethod
     def echapper_latex(texte: str) -> str:
         """
-        Échappe les caractères spéciaux LaTeX.
+        Échappe les caractères spéciaux LaTeX de manière sécurisée.
+        Préserve les commandes LaTeX existantes (commençant par \).
         Convertit aussi les patterns "img : chemin" en inclusion d'image LaTeX.
         """
         if not texte:
             return texte
+        
+        # Protéger les commandes LaTeX légitimes temporairement
+        # Capture \cmd ou \cmd{...} ou \cmd[...] 
+        latex_commands = []
+        def protect_latex_cmd(match):
+            idx = len(latex_commands)
+            latex_commands.append(match.group(0))
+            return f"<<<LATEX_CMD_{idx}>>>"
+        
+        # Protéger \begin, \end, \item, \textbf, etc.
+        texte = re.sub(r'\\(?:begin|end|item|text[a-z]+|includegraphics|hline|&|%)[^{]*(?:\{[^}]*\})?', protect_latex_cmd, texte)
         
         # Pattern pour capturer les chemins d'images
         img_pattern = re.compile(r'img\s*:\s*([^\n]+?)(?:\n|$)', re.IGNORECASE)
@@ -51,13 +104,12 @@ class LaTeXService:
                 chemin = chemin + '.png'
             idx = len(images_trouvees)
             images_trouvees.append(chemin)
-            return f"%%IMG_PLACEHOLDER_{idx}%%\n"
+            return f"<<<IMG_PLACEHOLDER_{idx}>>>\n"
         
         texte = img_pattern.sub(remplacer_img, texte)
         
-        # Échappement des caractères spéciaux
+        # Échappement des caractères spéciaux (sauf \ qui est gérée différemment)
         replacements = [
-            ('\\', r'\textbackslash{}'),
             ('&', r'\&'),
             ('%', r'\%'),
             ('$', r'\$'),
@@ -72,22 +124,24 @@ class LaTeXService:
         for old, new in replacements:
             texte = texte.replace(old, new)
         
+        # Restaurer les commandes LaTeX
+        for idx, cmd in enumerate(latex_commands):
+            texte = texte.replace(f"<<<LATEX_CMD_{idx}>>>", cmd)
+        
         # Remettre les images avec le code LaTeX approprié
         for idx, chemin in enumerate(images_trouvees):
-            latex_img = f"""
-
-\\begin{{center}}
-    \\includegraphics[width=0.9\\textwidth]{{{chemin}}}
-\\end{{center}}
-
-"""
-            placeholder_escaped = f"\\%\\%IMG\\_PLACEHOLDER\\_{idx}\\%\\%"
-            texte = texte.replace(placeholder_escaped, latex_img)
+            latex_img = f"\n\\begin{{center}}\n    \\includegraphics[width=0.9\\textwidth]{{{chemin}}}\n\\end{{center}}\n"
+            texte = texte.replace(f"<<<IMG_PLACEHOLDER_{idx}>>>", latex_img)
         
         return texte
     
     def convertir_fixation_en_tableau(self, texte: str) -> str:
-        """Convertit le texte de fixation/assemblage en tableau LaTeX."""
+        """
+        # ==============================================================================
+        # ANCIENNE FONCTION - NON UTILISÉE
+        # La version utilisée est dans src/table_converters.py
+        # ==============================================================================
+        """
         if not texte:
             return ""
         
@@ -122,7 +176,12 @@ class LaTeXService:
         return tableau
     
     def convertir_traitement_en_tableau(self, texte: str) -> str:
-        """Convertit le texte de traitement en tableau LaTeX."""
+        """
+        # ==============================================================================
+        # ANCIENNE FONCTION - NON UTILISÉE
+        # La version utilisée est dans src/table_converters.py
+        # ==============================================================================
+        """
         if not texte:
             return ""
         
@@ -161,7 +220,9 @@ class LaTeXService:
         infos_projet: Dict[str, str],
         images: Optional[Dict[str, str]] = None,
         template_name: str = "template_v2.tex.j2",
-        output_filename: str = "resultat.tex"
+        output_filename: str = "resultat.tex",
+        template_data: Optional[Dict[str, Any]] = None,
+        couleurs_sections: Optional[Dict[str, str]] = None
     ) -> Path:
         """
         Génère un fichier .tex à partir du template et des données.
@@ -172,12 +233,18 @@ class LaTeXService:
             images: Chemins des images
             template_name: Nom du template Jinja2
             output_filename: Nom du fichier de sortie
+            template_data: Données pour les sous-templates (situation_admin, etc.)
+            couleurs_sections: Couleurs par section
         
         Returns:
             Path du fichier généré
         """
         if images is None:
             images = {}
+        if template_data is None:
+            template_data = {}
+        if couleurs_sections is None:
+            couleurs_sections = {}
         
         template = self.env.get_template(template_name)
         
@@ -191,6 +258,23 @@ class LaTeXService:
             "attestation_visite": images.get("attestation_visite", ""),
             "plan_emplacement": images.get("plan_emplacement", ""),
             "image_grue": images.get("image_grue", ""),
+            # Données des sous-templates
+            "situation_admin": template_data.get("situation_administrative", {}),
+            "securite_sante": template_data.get("securite_sante", {}),
+            "moyens_materiel": template_data.get("moyens_materiel", {}),
+            "demarche_hqe": template_data.get("demarche_hqe", {}),
+            "demarche_env_atelier": template_data.get("demarche_env_atelier", {}),
+            "demarche_env_chantiers": template_data.get("demarche_env_chantiers", {}),
+            "matiere_premiere": template_data.get("matiere_premiere", {}),
+            "methodologie_traitement": template_data.get("methodologie_traitement", {}),
+            "planning": template_data.get("planning", {}),
+            # Préambule: peut être une chaîne ou un dict avec "texte"
+            "preambule": template_data.get("preambule", "") if isinstance(template_data.get("preambule"), str) else template_data.get("preambule", {}).get("texte", ""),
+            # Couleurs dynamiques pour les sections
+            "situation_admin_couleur": couleurs_sections.get("SITUATION ADMINISTRATIVE", "ecoBleu"),
+            "securite_sante_couleur": couleurs_sections.get("SECURITE_SANTE", couleurs_sections.get("MOYENS HUMAINS", "ecoBleu")),
+            "moyens_materiel_couleur": couleurs_sections.get("MOYENS MATERIEL", "ecoBleu"),
+            "planning_couleur": couleurs_sections.get("PLANNING", "ecoBleu"),
         }
         
         resultat_tex = template.render(**contexte)

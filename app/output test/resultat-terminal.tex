@@ -1,0 +1,703 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fontawesome5}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{titlesec}
+\usepackage{longtable}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+\usepackage{fancyhdr}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{colortbl}  % Pour rowcolors dans les tableaux
+\usepackage[table]{xcolor}  % Couleurs avancées pour tableaux
+
+% Support pour les images SVG
+\usepackage{svg}
+\svgsetup{inkscapelatex=false}
+
+% Packages pour les sections écologie
+\usepackage{tcolorbox}
+\tcbuselibrary{skins}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, positioning, shadows.blur, calc, arrows.meta}
+\usepackage{xcolor}
+\usepackage{needspace}
+
+% Couleurs écologiques
+\definecolor{ecoVert}{HTML}{27AE60}
+\definecolor{ecoVertFonce}{HTML}{1E8449}
+\definecolor{ecoVertClair}{HTML}{A9DFBF}
+\definecolor{ecoBleu}{HTML}{3498DB}
+\definecolor{ecoMarron}{HTML}{795548}
+\definecolor{ecoFond}{HTML}{F0FDF4}
+\definecolor{traitBleu}{HTML}{2C3E50}
+\definecolor{ecoRouge}{HTML}{FF0000}
+
+% Style tcolorbox pour les sous-sections méthodologie (adaptatif)
+% Éviter les ruptures de page à l'intérieur des boîtes
+\newtcolorbox{methodebox}[2][]{
+    enhanced,
+    colback=white,
+    colframe=#2,
+    fonttitle=\bfseries,
+    coltitle=white,
+    colbacktitle=#2,
+    rounded corners,
+    boxrule=1.2pt,
+    left=6pt, right=6pt, top=6pt, bottom=6pt,
+    before={\needspace{10cm}},
+    #1
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+% Ajustement de la hauteur d'en-tête pour éviter les avertissements
+\setlength{\headheight}{80pt}
+\addtolength{\topmargin}{-35pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{
+  \hspace*{-1in}\hspace*{-\oddsidemargin}
+  \includegraphics[width=\paperwidth, height=3cm]{../images/entete.png}
+}
+
+% --- NUMÉROTATION DES PAGES ---
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+\thispagestyle{empty}
+
+% PAGE DE GARDE
+\begin{titlepage}
+    % Titre centré
+    \begin{center}
+        {\Huge \textbf{MÉMOIRE TECHNIQUE}} \\
+        \vspace{0.25cm}
+        {\Large \textbf{  }} \\
+        \vspace{0.15cm}
+        {\large \textbf{LOT : CHARPENTE BOIS }} \\
+    \end{center}
+    
+    \vspace{0.15cm}
+    
+    % Maître d'ouvrage et adresse chantier
+    \begin{center}
+    {\small \textbf{Maître d'ouvrage :}  \\
+    \textbf{Adresse du chantier :} }
+    \end{center}
+    
+    
+    \vspace{0.15cm}
+    \begin{center}
+    \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=ecoBleu!50,
+        boxrule=1pt,
+        arc=3pt,
+        width=0.9\textwidth,
+        halign=center
+    ]
+    
+    \includegraphics[width=0.85\textwidth, height=7cm, keepaspectratio]{ ../images/exemple_pagegarde.jpeg }
+    
+    \end{tcolorbox}
+    \end{center}
+    
+    
+    \vspace{0.15cm}
+    
+    % En-tête avec logo bois et logos de certifications
+    \begin{center}
+    \includegraphics[height=3.5cm]{../images/logo_boisTechniques.png}
+    
+    \vspace{0.15cm}
+    
+    % Une ligne de 8 logos
+    \includegraphics[height=1.1cm]{../images/logo_pefc2 (1).png}\hspace{0.5cm}
+    \includegraphics[height=1.1cm]{../images/logo_fsc.png}\hspace{0.5cm}
+    \includegraphics[height=1.1cm]{../images/logo_rge (1).png}\hspace{0.5cm}
+    \includegraphics[height=1.1cm]{../images/logo_qualibat (1).png}\hspace{0.5cm}
+    \includegraphics[height=1.1cm]{../images/logo_garantie-decenale2 (1).png}\hspace{0.5cm}
+    \includegraphics[height=1.1cm]{../images/logo_ffb_adherent (1).png}\hspace{0.5cm}
+    \includegraphics[height=1.1cm]{../images/logo_artisan.png}
+    \includegraphics[height=1.1cm]{../images/logo_region_alsace.png}
+    \end{center}
+    
+    \vspace{0.05cm}
+    \noindent\rule{\linewidth}{1.5pt}
+    
+    \vspace{0.05cm}
+    
+    % Blocs d'informations séparés sans bordures - 3 blocs compacts
+    \begin{center}
+    \begin{minipage}[c]{5.2cm}
+    \centering
+    {\fontsize{7.5}{8.5}\selectfont\textbf{ADRESSE :}} \\
+    {\fontsize{7}{8}\selectfont ZI - 19 Rue de l'Industrie} \\
+    {\fontsize{7}{8}\selectfont 68360 SOULTZ}
+    \end{minipage}%
+    \hspace{0.08cm}%
+    \begin{minipage}[c]{5.2cm}
+    \centering
+    {\fontsize{7}{8}\selectfont\textbf{TELEPHONE :}} \\
+    {\fontsize{7}{8}\selectfont 03 89 53 36 58} \\
+    {\fontsize{7}{8}\selectfont\textbf{COURRIEL :}} \\
+    {\fontsize{7}{8}\selectfont contact@bois-techniques.fr}
+    \end{minipage}%
+    \hspace{0.08cm}%
+    \begin{minipage}[c]{5.2cm}
+    \centering
+    {\fontsize{7}{8}\selectfont\textbf{SITE INTERNET :}} \\
+    {\fontsize{7}{8}\selectfont www.bois-techniques.fr}
+    \end{minipage}
+    \end{center}
+    
+    \vspace{0.05cm}
+    \noindent\rule{\linewidth}{0.5pt}
+    \vspace{0.05cm}
+    
+    {\fontsize{6.5}{7.5}\selectfont SAS au capital de 100 000 euros – TVA intracommunautaire FR 50 893 822 841 – Siret n°893 822 841 00027 – APE 4391A – IBAN FR76 3000 4026 7700 0102 3762 986}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% PRÉAMBULE
+\section*{PRÉAMBULE}
+\noindent
+L'entreprise Bois \& Techniques, située à Soultz (68360), est spécialisée dans la
+conception, la fabrication et la pose de charpentes bois, ouvrages structurels. Forte d'une expérience significative dans le domaine de la construction
+bois, elle intervient sur des projets variés : logements individuels, bâtiments collectifs,
+équipements publics ou tertiaires. Restauration de structure bois type colombage et solivage.
+\vspace{0.3cm}
+
+L'entreprise dispose de ses propres équipes de charpentiers, encadrées par
+un chef de chantier expérimenté. Les ouvrages sont fabriqués dans un atelier équipé
+et adaptés aux exigences de la construction bois moderne.
+\vspace{0.3cm}
+
+Réalisé par le bureau d’étude interne de la société Bois \& Techniques, le présent mémoire
+technique a pour objectif de vous exposer les solutions techniques et l'organisation de
+chantier envisagée, afin de mener votre projet dans les meilleures conditions.
+En espérant que ce mémoire technique illustrera l'intérêt que nous portons à votre projet.
+
+% SECTIONS DYNAMIQUES ISSUES DU CSV
+
+
+
+% Section spéciale pour le contexte du projet (affichage stylisé adaptatif)
+\section{ CONTEXTE DU PROJET }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Plan de masse / Vue aérienne
+
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoBleu,
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{map-marked-alt}\hspace{0.3em}Plan de masse / Vue aérienne},
+    colbacktitle=ecoBleu,
+    rounded corners,
+    boxrule=2pt,
+    left=12pt, right=12pt, top=8pt, bottom=8pt
+]
+\centering
+
+\includegraphics[width=0.90\textwidth, height=10cm, keepaspectratio]{ ../images/vue_aerienne.png }
+
+\end{tcolorbox}
+\vspace{0.4cm}
+
+\newpage
+\
+
+
+% Affichage par défaut com pointillés
+\begin{tcolorbox}[width=\textwidth,
+    enhanced,
+    colback=ecoFond,
+    colframe=ecoBleu,
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{calendar-check}\hspace{0.3em}Visite de site},
+    colbacktitle=ecoBleu,
+    rounded corners,
+    boxrule=2pt,
+    left=12pt, right=12pt, top=8pt, bottom=8pt
+]
+Nous sommes rendus sur les lieux le \dotfill
+
+\vspace{0.3cm}
+
+Adresse : \dotfill
+
+\end{tcolorbox}
+\vspace{0.4cm}
+
+
+
+\begin{tcolorbox}[width=\textwidth, height=\dimexpr\textheight-6cm\relax,
+    enhanced,
+    colback=white,
+    colframe=ecoBleu,
+    fonttitle=\bfseries\large,
+    coltitle=white,
+    title={\faIcon{file-signature}\hspace{0.3em}Attestation de visite},
+    colbacktitle=ecoBleu,
+    rounded corners,
+    boxrule=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+]
+\centering
+
+\includegraphics[width=0.95\textwidth, height=\dimexpr\textheight-8cm\relax, keepaspectratio]{ ../images/attestation_visite.png }
+
+\end{tcolorbox}
+\vspace{0.4cm}
+
+
+
+\begin{tcolorbox}[
+    enhanced,
+    colback=white,
+    colframe=ecoBleu,
+    fonttitle=\bfseries,
+    coltitle=white,
+    title={\faIcon{clock}\hspace{0.3em}Respect des délais du planning prévisionnel},
+    colbacktitle=ecoBleu,
+    rounded corners,
+    boxrule=1.5pt,
+    left=10pt, right=10pt, top=6pt, bottom=6pt
+]
+Lors de l'étude du planning transmis dans le cadre du dossier de consultation, nous avons porté une attention particulière à la durée prévue par le planning pour la phase de montage.
+
+Au regard des caractéristiques techniques du projet, du volume des éléments à assembler, des conditions d'accès au site, ainsi que de nos retours d'expérience sur des opérations similaires, cette durée apparaît insuffisante pour garantir une exécution conforme aux exigences de qualité, de sécurité et de coordination des intervenants.
+
+Nos prévisions internes, fondées sur une simulation détaillée, estiment le besoin réel à durée insuffisante. Nous recommandons donc d'ajuster le planning initial sur cette base afin d'assurer une exécution réaliste, fluide et sans tension sur les ressources.
+\end{tcolorbox}
+\vspace{0.4cm}
+
+
+
+
+
+
+
+
+
+% Section spéciale pour la situation administrative (affichage stylisé)
+\newpage
+\section{ SITUATION ADMINISTRATIVE DE L’ENTREPRISE }
+\input{../templates/situation_administrative_generated.tex}
+
+
+
+
+
+\newpage
+\section{ MOYENS HUMAINS AFFECTES AU PROJET }
+
+    
+    
+    
+    % Inclusion du fichier spécial pour sécurité et santé
+    \subsection{ SECURITE ET SANTE SUR LES CHANTIERS }
+    \input{../templates/securite_sante_generated.tex}
+    
+
+    
+    
+    
+    % Inclusion du PDF de l'organigramme
+    \subsection{ ORGANIGRAMME FONCTIONNEL DE L'EQUIPE AFFECTEE AUX PROJETS }
+    
+    \begin{center}
+    \includegraphics[width=0.85\textwidth, height=0.7\textheight, keepaspectratio]{ ../images/organigramme.png }
+    \end{center}
+    
+    
+    
+
+    
+
+
+
+
+
+% Section spéciale pour les moyens matériels (affichage stylisé)
+\newpage
+\section{ MOYENS MATERIEL AFFECTES AU PROJET }
+\vspace{-0.3cm}
+\input{../templates/moyens_materiel_generated.tex}
+
+
+
+
+
+\newpage
+\section{ MÉTHODOLOGIE / CHRONOLOGIE }
+
+    
+    
+    
+    % Style spécial pour déroulement des travaux
+    \begin{methodebox}[title={\faIcon{clipboard-list}\hspace{0.3em}Deroulement des travaux  "Restauration"}]{ecoBleu}
+    
+    Méthode de préparation du chantier : \\
+L'entreprise Bois \& Techniques réalisera un relevé précis des charpentes en place avec détails des assemblages, sections, côte altimétriques, zones dégradées ainsi qu'un dossier photos qui permettront de respecter les configurations d'origine de la restauration. \\
+D'autre part des notes de calculs seront réalisées afin d'adapter les sections aux différentes charges de couverture, plafond et d'exploitations en accord avec le Maïtre d'oeuvre. \\
+Les bois de remplacement proviennent du massif forestier vosgien avec certificat de traitement et PEFC et sont séchés à l'air avant utilisation. \\
+Les assemblages seront réalisés conformément aux existants ou selon détails ci après : (INSERER IMAGE) \\
+ \\
+Nous avons également un stock de bois ancien en sapin et en chêne afin d’obtenir une parfaite harmonie avec les zones visibles. \\
+Les bois de charpente à remplacer, à greffer, à résiner, à étayer seront représentés sur nos plans avec les détails d’assemblages et transmis au Maître d’ouvrage pour accord avant travaux. \\
+Nous réalisons les renforcements par résine époxy armée depuis 25 ans avec le même fournisseur (MAPEI) en respectant leur cahier de charges, notre personnel est habitué et formé à cette technique de réparation. \\
+\textbf{Nous possédons une garantie décennale spécifique pour ces travaux.} \\
+Un reportage photos sera réalisé en cours des travaux et envoyé au Maître d'œuvre et d'ouvrage à sa demande. \\
+Un relevé contradictoire sera réalisé en fin de phase et envoyé à votre économiste avec notre situation de travaux.
+    
+    \end{methodebox}
+    
+
+    
+    
+    
+    % Style spécial pour conception
+    \begin{methodebox}[title={\faIcon{drafting-compass}\hspace{0.3em}Conception}]{ecoBleu}
+    
+    Méthode de préparation du chantier :  \\
+Une collaboration inter-lots est indispensable afin de soulever et de solutionner tous les problèmes techniques et temporels du chantier.  \\
+L’entreprise délivre ses plans d’exécution des ouvrages, Plans d’Atelier et de chantier (PAC), calepins et épures, notes de calcul, descente de charge, au bureau de contrôle.   \\
+L’entreprise fournit également tous les renseignements indispensables à l’établissement d’un ordonnancement général définissant les phases des études d’exécution y compris PAC, d’exécution des travaux préparatoires des études de synthèse, des mises au point de fabrication, des commandes de matériel, de présentation des échantillons, des formalités administratives, le PLANNING de pose avec sous-phase, la fabrication atelier, …
+    
+    \end{methodebox}
+    
+
+    
+    
+    
+    % Style spécial pour fabrication/taille
+    \begin{methodebox}[title={\faIcon{hammer}\hspace{0.3em}Fabrication / Taille en atelier}]{ecoMarron}
+    
+    
+    LES OPERATIONS REALISEES POUR CE PROJET :
+    
+    
+    \end{methodebox}
+    
+
+    
+    
+    
+    % Style spécial pour transport et levage
+    % Contenu Transport et Levage
+    \begin{methodebox}[title={\faIcon{truck-loading}\hspace{0.3em}Transport et Levage}]{ecoBleu}
+    
+    
+    Le chantier est posé par nos équipes formées, chaque chef d'équipe est titulaire de plusieurs « CACES » pour pouvoir manipuler nacelles ciseaux, bras articulé, chariot élévateur… \\
+ \\
+Les operations realisees pour ce projet : \\
+ \\
+\vspace{0.3cm} \\
+\noindent \\
+Ouvrages livrés sur chantier :  \\
+Les ouvrages livrés sur le chantier en attente de pose seront stockés à l'abri des intempéries, des souillures et des chocs. Les conditions de stockage seront telles qu'elles ne subissent aucune déformation ou détérioration
+    
+    
+    \end{methodebox}
+    \vspace{0.3cm}
+    
+    % Image de la grue, centrée
+    \begin{center}
+    \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=ecoBleu,
+        fonttitle=\bfseries\large,
+        coltitle=white,
+        title={\faIcon{truck-monster}\hspace{0.3em}Moyens de levage},
+        colbacktitle=ecoBleu,
+        rounded corners,
+        boxrule=2pt,
+        width=\textwidth,
+        halign=center
+    ]
+    
+    \includegraphics[width=0.8\textwidth, height=8cm, keepaspectratio]{ ../images/grue.png }
+    
+    \end{tcolorbox}
+    \end{center}
+    
+    
+
+    
+    
+    
+    % Style spécial pour protection
+    \begin{methodebox}[title={\faIcon{shield-alt}\hspace{0.3em}Protection de l'existant ou ses ouvrages pour ce projet}]{ecoBleu}
+    
+    \begin{itemize}
+    \item Travaux effectués avec des cloueurs pneumatiques, permettant de limiter les chocs et les vibrations.
+    \item Utilisation de compresseurs à haute pression, avec une vitesse de rotation lente, un fonctionnement silencieux et une absence de vibrations.
+    \item Préférence pour le vissage au clouage.
+\end{itemize}
+    
+    \end{methodebox}
+    
+
+    
+    
+    
+    % Style spécial pour hygiène et sécurité
+    \begin{methodebox}[title={\faIcon{first-aid}\hspace{0.3em}Organisation en matière d'hygiène et de sécurité}]{ecoRouge}
+    
+    
+    - Un échafaudage périphérique (hors lot) avec une recette pour l'approvisionnement des matériaux. \\
+- Une plateforme provisoire sous les zones de travaux.  \\
+- Echafaudage mobile ponctuel intérieur et/ou ligne de vie avec harnais et top-chute.
+    
+    
+    \end{methodebox}
+    
+
+    
+    
+    
+    \subsection{ PROTECTION / NETTOYAGE }
+    
+    Sols - Murs - Bâchage permanent du chantier (selon attribut du lot) - Filet
+    
+
+    
+    
+
+    
+    
+    
+    % Style spécial pour Respect des contraintes liées aux monuments historiques
+    \begin{methodebox}[title={\faIcon{building}\hspace{0.3em}Respect des contraintes liées aux monuments historiques}]{ecoMarron}
+    
+    
+    Les moyens mis en oeuvre pour obtenir :  \\
+-  Le label BBC ; \\
+-  La certification ; \\
+-  Tests d’étanchéité ;   \\
+-  Tests acoustiques ;  \\
+-  Calculs TH ; \\
+-  Respect monument historique
+    
+    
+    \end{methodebox}
+    
+
+    
+    
+    
+    % Inclusion du fichier spécial pour la démarche HQE
+    \input{../templates/demarche_hqe_generated.tex}
+    
+
+    
+    
+    
+    % Inclusion du fichier spécial pour la démarche environnementale atelier
+    \input{../templates/demarche_env_atelier_generated.tex}
+    
+
+    
+    
+    
+    % Inclusion du fichier spécial pour la démarche environnementale chantiers
+    \input{../templates/demarche_env_chantiers_generated.tex}
+    
+
+    
+
+
+
+
+
+\newpage
+\section{ CHANTIERS DE RÉFÉRENCE }
+
+    
+
+
+
+
+
+\newpage
+\section{ LISTE DES MATERIAUX MIS EN OEUVRE }
+
+    
+    
+    
+    % Inclusion du fichier spécial pour matière première de qualité certifiée
+    \subsection{ UNE MATIERE PREMIERE DE QUALITE CERTIFIEE }
+    \input{../templates/matiere_premiere_generated.tex}
+    
+
+    
+    
+    
+    % Tableau stylé pour Fixation et assemblage
+    \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=ecoMarron,
+        fonttitle=\bfseries\large,
+        coltitle=white,
+        title={\faIcon{cogs}\hspace{0.3em}Fixation et Assemblage},
+        colbacktitle=ecoMarron,
+        rounded corners,
+        boxrule=2pt,
+        left=3pt, right=3pt, top=5pt, bottom=5pt
+    ]
+    
+    \renewcommand{\arraystretch}{1.3}
+    \small
+    \rowcolors{2}{ecoFond}{white}
+    \begin{tabular}{p{4.5cm}p{4.5cm}p{3cm}p{2cm}}
+
+\rowcolor{ecoMarron!20}\textbf{Nature des éléments} & \textbf{Marque, type, performance} & \textbf{Provenance} & \textbf{Doc en annexe} \\
+
+Boulons galvanisés à chaud Ø16 et Ø20 & Classe 6.8. Filetage partiel & France & OUI \\
+
+Visserie électrozinguée & BERNER & France & OUI \\
+
+Vis Ø8 & EUROTEC & Allemagne & OUI \\
+
+Equerres de fixation et sabots galvanisés BEA & BEA & France & OUI \\
+
+Pointes d’ancrage crantées & BEA 4/50 & France & OUI \\
+
+Ferrures mécano-soudées & MTR & France - Alsace & OUI \\
+
+Vis anti-fendage & SFS – EUROTEC & France - Allemagne & OUI \\
+
+Pointes brutes & GUNEBO & Suède : Suède & OUI \\
+
+Pointes galvanisées à chaud & GUNEBO & France & OUI \\
+
+Chevilles maçonnerie & HILTI HRD UGT Ø 10 – Ø 14 & France & OUI \\
+
+Goujons d’ancrage & HILTI HSAK Ø 12 – Ø 16 & France & OUI \\
+
+Vis inox & BERNER A2 torx & Allemagne & OUI \\
+
+Vis inox & EUROTEC A4 torx & France & OUI \\
+
+Boulons TRCC 8 – Ø 10 – Ø 12 & SCHMERBER &  & OUI \\
+
+\end{tabular}
+    
+    \end{tcolorbox}
+    
+
+    
+    
+    
+    % Inclusion du fichier spécial pour méthodologie de traitement
+    \input{../templates/methodologie_traitement_generated.tex}
+    
+
+    
+    
+    
+    % Tableau stylisé pour Traitement Préventif
+    \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=ecoVert,
+        fonttitle=\bfseries\large,
+        coltitle=white,
+        title={\faIcon{shield-alt}\hspace{0.3em}Traitement préventif des bois},
+        colbacktitle=ecoVert,
+        rounded corners,
+        boxrule=2pt,
+        left=3pt, right=3pt, top=5pt, bottom=5pt
+    ]
+    
+    \renewcommand{\arraystretch}{1.3}
+    \small
+    \rowcolors{2}{ecoFond}{white}
+    \begin{tabular}{p{4cm}p{6cm}p{2.5cm}p{1.5cm}}
+
+\rowcolor{ecoVert!20}\textbf{Nature des éléments} & \textbf{Marque, type, performance} & \textbf{Provenance} & \textbf{Doc en annexe} \\
+
+Traitement SARPECO 850 & Label Vert - SARPECO 850 & France & OUI \\
+
+\end{tabular}
+    
+    \end{tcolorbox}
+    
+
+    
+    
+    
+    % Tableau stylisé pour Traitement Curatif
+    \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=ecoVert,
+        fonttitle=\bfseries\large,
+        coltitle=white,
+        title={\faIcon{hammer}\hspace{0.3em}Traitement curatif des bois},
+        colbacktitle=ecoVert,
+        rounded corners,
+        boxrule=2pt,
+        left=3pt, right=3pt, top=5pt, bottom=5pt
+    ]
+    
+    \renewcommand{\arraystretch}{1.3}
+    \small
+    \rowcolors{2}{ecoFond}{white}
+    \begin{tabular}{p{4cm}p{6cm}p{2.5cm}p{1.5cm}}
+
+\rowcolor{ecoVert!20}\textbf{Nature des éléments} & \textbf{Marque, type, performance} & \textbf{Provenance} & \textbf{Doc en annexe} \\
+
+Traitement XILIX 3000P & Label Vert - CTB + - PHASE AQUEUSE ; CLASSE 1/2/3A CERTIFIE CTB-P+ / SOCOTEC & France & OUI \\
+
+\end{tabular}
+    
+    \end{tcolorbox}
+    
+
+    
+
+
+
+
+\newpage
+% ANNEXES
+\section{ANNEXES}
+
+\end{document}

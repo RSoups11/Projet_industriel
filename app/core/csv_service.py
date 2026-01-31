@@ -93,17 +93,11 @@ class CSVService:
     
     def get_sections_hierarchiques(self, df: Optional[pd.DataFrame] = None) -> List[Dict[str, Any]]:
         """
-        Transforme le DataFrame en structure hiérarchique :
-        [
-            {
-                'titre': 'Nom de la section',
-                'sous_sections': [
-                    {'nom': 'Nom de ss', 'contenu': '...', 'image': '...'},
-                    ...
-                ]
-            },
-            ...
-        ]
+        # ==============================================================================
+        # ANCIENNE FONCTION - NON UTILISÉE
+        # Transforme le DataFrame en structure hiérarchique.
+        # Le chargement est fait directement avec pd.read_csv() dans les pages.
+        # ==============================================================================
         """
         if df is None:
             df = self._data
@@ -138,7 +132,12 @@ class CSVService:
         ]
     
     def get_sections_par_titre(self, df: pd.DataFrame, titres_autorises: List[str]) -> Dict[str, pd.DataFrame]:
-        """Retourne un dict de DataFrames groupés par section autorisée."""
+        """
+        # ==============================================================================
+        # ANCIENNE FONCTION - NON UTILISÉE
+        # Retourne un dict de DataFrames groupés par section autorisée.
+        # ==============================================================================
+        """
         result = {}
         for titre in titres_autorises:
             titre_norm = self.normaliser_titre(titre)
@@ -148,12 +147,22 @@ class CSVService:
         return result
     
     def sauvegarder_csv(self, df: pd.DataFrame, output_path: Path):
-        """Sauvegarde un DataFrame en CSV."""
+        """
+        # ==============================================================================
+        # ANCIENNE FONCTION - NON UTILISÉE
+        # Sauvegarde faite directement avec df.to_csv() dans les pages.
+        # ==============================================================================
+        """
         df.to_csv(output_path, sep=";", index=False, encoding='utf-8')
     
     def ajouter_ligne(self, df: pd.DataFrame, section: str, sous_section: str, 
                       texte: str, image: str = "") -> pd.DataFrame:
-        """Ajoute une ligne au DataFrame."""
+        """
+        # ==============================================================================
+        # ANCIENNE FONCTION - NON UTILISÉE
+        # Ajout fait directement avec pd.concat() dans les pages.
+        # ==============================================================================
+        """
         nouvelle_ligne = pd.DataFrame([{
             'section': section,
             'sous-section': sous_section,
@@ -164,12 +173,20 @@ class CSVService:
     
     def modifier_ligne(self, df: pd.DataFrame, index: int, 
                        **kwargs) -> pd.DataFrame:
-        """Modifie une ligne existante."""
+        """
+        # ==============================================================================
+        # ANCIENNE FONCTION - NON UTILISÉE  
+        # ==============================================================================
+        """
         for col, val in kwargs.items():
             if col in df.columns:
                 df.at[index, col] = val
         return df
     
     def supprimer_ligne(self, df: pd.DataFrame, index: int) -> pd.DataFrame:
-        """Supprime une ligne du DataFrame."""
+        """
+        # ==============================================================================
+        # ANCIENNE FONCTION - NON UTILISÉE
+        # ==============================================================================
+        """
         return df.drop(index).reset_index(drop=True)

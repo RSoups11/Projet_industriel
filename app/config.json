@@ -1,21 +1,23 @@
 {
-  "defaults": {
-    "intitule": "",
-    "lot": "Lot N02 - Charpente bois",
-    "moa": "",
-    "adresse": ""
-  },
-  "sections_autorisees": [
-    "SITUATION ADMINISTRATIVE DE L'ENTREPRISE",
-    "CONTEXTE DU PROJET",
-    "MOYENS HUMAINS AFFECTES AU PROJET",
-    "MOYENS MATERIEL AFFECTES AU PROJET",
-    "LISTE DES MATERIAUX",
-    "METHODOLOGIE ET CHRONOLOGIE",
-    "PLANNING",
-    "CHANTIER REFERENCES",
-    "PERFORMANCES ENVIRONNEMENTALES"
-  ],
-  "pdflatex_path": "pdflatex",
-  "theme": "light"
+    "defaults": {
+        "intitule": "",
+        "lot": "CHARPENTE BOIS",
+        "moa": "",
+        "adresse": "",
+        "planning_texte": "Lors de l'étude du planning transmis dans le cadre du dossier de consultation, nous avons porté une attention particulière à la durée prévue par le planning pour la phase de montage. Au regard des caractéristiques techniques du projet, du volume des éléments à assembler, des conditions d'accès au site, ainsi que de nos retours d'expérience sur des opérations similaires, cette durée apparaît ........... pour garantir une exécution conforme aux exigences de qualité, de sécurité et de coordination des intervenants. Nos prévisions internes, fondées sur une simulation détaillée estiment le besoin réel à ...... semaines. Nous recommandons donc d'ajuster le planning initial sur cette base afin d'assurer une exécution réaliste fluide et sans tension sur les ressources."
+    },
+    "sections_autorisees": [
+        "CONTEXTE DU PROJET",
+        "SITUATION ADMINISTRATIVE DE L'ENTREPRISE",
+        "MOYENS HUMAINS AFFECTÉS AU PROJET",
+        "MOYENS MATERIEL AFFECTÉS AU PROJET",
+        "PLANNING",
+        "METHODOLOGIE ET CHRONOLOGIE",
+        "CHANTIER REFERENCES",
+        "QSE QUALITE SECURITE ENVIRONNEMENT",
+        "LISTE DES MATERIAUX",
+        "ANNEXES"
+    ],
+    "pdflatex_path": "pdflatex",
+    "theme": "light"
 }
