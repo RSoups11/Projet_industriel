@@ -156,6 +156,15 @@ class GenerationPage:
         """Rendu principal de la page."""
         # Recharger les données de templates à chaque rendu (pour sync avec Base de données)
         self._refresh_template_data()
+        # Appliquer les valeurs de l'assistant a chaque rendu
+        self._apply_assistant_prefill()
+        # Si les widgets existent deja, synchroniser leur valeur
+        for key, widget in self.input_widgets.items():
+            if key in self.project_state.get("infos_projet", {}):
+                try:
+                    widget.set_value(self.project_state["infos_projet"].get(key, ""))
+                except Exception:
+                    pass
         
         with ui.row().classes('w-full h-full gap-0'):
             # Sidebar gauche

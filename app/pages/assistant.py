@@ -25,6 +25,7 @@ import atexit
 import asyncio
 import json
 import requests
+import unicodedata
 from xml.sax.saxutils import escape
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -66,15 +67,17 @@ from reportlab.platypus import (
     Preformatted,
 )
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "mistral"
+OLLAMA_URL = "http://localhost:11434"
+MODEL_NAME = "llama3.1:8b"
 MIN_TEXT_CHARS_BEFORE_OCR = 800
 
 ASSISTANT_STATE_KEY = "assistant_state_v1"
 ASSISTANT_EXTRACTION_KEY = "assistant_extraction_v1"
 
-MAX_CHARS_PER_DOC = 20000
-MAX_TOTAL_CHARS = 80000
+MAX_CHARS_PER_DOC = 6000
+MAX_TOTAL_CHARS = 12000
+
+NUM_CTX = 16384
 
 
 def _safe_filename(name: str) -> str:
@@ -366,9 +369,9 @@ class AssistantPage:
         if convert_from_path is None or pytesseract is None:
             raise RuntimeError("OCR non disponible (pdf2image/pytesseract/tesseract/poppler manquants)")
         if POPPLER_PATH:
-            images = convert_from_path(str(path), dpi=250, poppler_path=POPPLER_PATH)
+            images = convert_from_path(str(path), dpi=350, poppler_path=POPPLER_PATH)
         else:
-            images = convert_from_path(str(path), dpi=250)
+            images = convert_from_path(str(path), dpi=350)
         return "\n".join(pytesseract.image_to_string(img, lang="fra") for img in images).strip()
 
     def _extract_text(self, path: Path) -> str:
@@ -378,6 +381,35 @@ class AssistantPage:
             if len(ocr_txt) > len(txt):
                 txt = ocr_txt
         return txt
+
+    def _extract_text_with_meta(self, path: Path) -> Dict[str, Any]:
+        meta: Dict[str, Any] = {
+            "filename": path.name,
+            "pypdf_chars": 0,
+            "ocr_chars": 0,
+            "ocr_used": False,
+            "ocr_error": "",
+        }
+        txt_pypdf = self._extract_text_pypdf(path)
+        meta["pypdf_chars"] = len(txt_pypdf)
+
+        if len(txt_pypdf) >= MIN_TEXT_CHARS_BEFORE_OCR:
+            meta["text"] = txt_pypdf
+            return meta
+
+        meta["ocr_used"] = True
+        try:
+            ocr_txt = self._extract_text_ocr(path)
+            meta["ocr_chars"] = len(ocr_txt)
+            if len(ocr_txt) > len(txt_pypdf):
+                meta["text"] = ocr_txt
+            else:
+                meta["text"] = txt_pypdf
+        except Exception as ex:
+            meta["ocr_error"] = str(ex)
+            meta["text"] = txt_pypdf
+
+        return meta
 
     def _truncate_text(self, text: str, max_chars: int) -> str:
         if len(text) <= max_chars:
@@ -396,9 +428,292 @@ class AssistantPage:
                 break
         return prepared
 
+    def _strip_accents(self, text: str) -> str:
+        return "".join(
+            ch for ch in unicodedata.normalize("NFD", text) if unicodedata.category(ch) != "Mn"
+        )
+    def _normalize_lines(self, text: str) -> List[str]:
+        return [ln.strip() for ln in text.splitlines() if ln.strip()]
+
+    def _find_lines_with(self, lines: List[str], patterns: List[str]) -> List[str]:
+        out = []
+        for ln in lines:
+            nln = self._strip_accents(ln).lower()
+            if any(re.search(pat, nln) for pat in patterns):
+                out.append(ln)
+        return out
+
+    def _find_value_near(self, lines: List[str], patterns: List[str], max_lines: int = 4) -> str:
+        nlines = [self._strip_accents(ln).lower() for ln in lines]
+        for i, nln in enumerate(nlines):
+            if any(re.search(pat, nln) for pat in patterns):
+                # try same line
+                if lines[i].strip() and len(lines[i].strip()) > 4:
+                    return lines[i].strip()
+                # else look ahead
+                block = []
+                for j in range(1, max_lines + 1):
+                    if i + j >= len(lines):
+                        break
+                    nxt = lines[i + j].strip()
+                    if not nxt:
+                        break
+                    block.append(nxt)
+                return " ".join(block).strip()
+        return ""
+
+    def _find_date_near(self, lines: List[str], patterns: List[str]) -> str:
+        mois_map = {
+            "janvier": "01", "fevrier": "02", "f?vrier": "02", "mars": "03", "avril": "04",
+            "mai": "05", "juin": "06", "juillet": "07", "aout": "08", "ao?t": "08",
+            "septembre": "09", "octobre": "10", "novembre": "11", "decembre": "12", "d?cembre": "12",
+        }
+        nlines = [self._strip_accents(ln).lower() for ln in lines]
+        for i, nln in enumerate(nlines):
+            if any(re.search(pat, nln) for pat in patterns):
+                m = re.search(r"(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})", lines[i])
+                if m:
+                    return m.group(1)
+                for j in range(1, 4):
+                    if i + j < len(lines):
+                        m2 = re.search(r"(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})", lines[i + j])
+                        if m2:
+                            return m2.group(1)
+        return ""
+
+    def _parse_lot_from_filename(self, filename: str) -> str:
+        name = self._strip_accents(filename).lower()
+        m = re.search(r"lot\s*[_-]?\s*(\d{1,2})", name)
+        if m:
+            lot = f"Lot {m.group(1)}"
+            if "charpente" in name:
+                lot += " - Charpente"
+            if "bois" in name:
+                lot += " bois"
+            return lot
+        m = re.search(r"_lot_\s*(\d{1,2})", name)
+        if m:
+            lot = f"Lot {m.group(1)}"
+            if "charpente" in name:
+                lot += " - Charpente"
+            if "bois" in name:
+                lot += " bois"
+            return lot
+        return ""
+
+    def _regex_extract(self, docs: List[Dict[str, Any]]) -> Dict[str, Any]:
+        def score_address(line: str) -> int:
+            nln = self._strip_accents(line).lower()
+            score = 0
+            if re.search(r"\d{1,3}\s+", line):
+                score += 2
+            if re.search(r"\b(rue|avenue|av\.|boulevard|bd|route|chemin|impasse|allee)\b", nln):
+                score += 2
+            if re.search(r"\b\d{5}\b", line):
+                score += 2
+            if re.search(r"\b(bp|boite postale)\b", nln):
+                score -= 1
+            if "commune" in nln or "mairie" in nln:
+                score -= 1
+            if "chantier" in nln:
+                score += 1
+            if "region" in nln or "zone" in nln or "site" in nln:
+                score -= 2
+            return score
+
+        def best_line(lines: List[str], patterns: List[str]) -> str:
+            candidates = self._find_lines_with(lines, patterns)
+            if not candidates:
+                return ""
+            return max(candidates, key=len)
+
+        def extract_roles(lines: List[str]) -> str:
+            nlines = [self._strip_accents(ln).lower() for ln in lines]
+            roles = []
+            roles_map = [
+                (r"architecte", "Architecte"),
+                (r"economiste", "Economiste"),
+                (r"be fluides|bet fluides|bureau d'etudes", "BET fluides"),
+            ]
+            for pat, label in roles_map:
+                for i, nln in enumerate(nlines):
+                    if re.search(pat, nln):
+                        block = []
+                        for j in range(1, 4):
+                            if i + j >= len(lines):
+                                break
+                            nxt = lines[i + j].strip()
+                            if not nxt:
+                                break
+                            if re.search(r"^(architecte|economiste|be fluides|maitre d.?oeuvre|maitre d.?ouvrage)", self._strip_accents(nxt).lower()):
+                                break
+                            block.append(nxt)
+                        if block:
+                            roles.append(f"{block[0]} ({label})")
+                        break
+            return " - ".join(roles).strip()
+
+        def extract_criteria(lines: List[str]) -> str:
+            nlines = [self._strip_accents(ln).lower() for ln in lines]
+            for i, nln in enumerate(nlines):
+                if "crit" in nln or "ponder" in nln:
+                    window = " ".join(lines[i:i+4])
+                    if "%" in window:
+                        return window.strip()
+            for ln in lines:
+                if "%" in ln:
+                    return ln.strip()
+            return ""
+
+        def extract_contact(lines: List[str]) -> str:
+            emails = [ln for ln in lines if "@" in ln]
+            if emails:
+                return emails[0].strip()
+            return self._find_value_near(lines, [r"contact", r"telephone", r"tel", r"courriel", r"email"], max_lines=3)
+
+        def extract_visite(lines: List[str]) -> str:
+            nlines = [self._strip_accents(ln).lower() for ln in lines]
+            for i, nln in enumerate(nlines):
+                if "visite" in nln:
+                    window = " ".join(lines[i:i+3]).strip()
+                    if window:
+                        return window
+            return ""
+
+        def extract_duree(lines: List[str]) -> str:
+            nlines = [self._strip_accents(ln).lower() for ln in lines]
+            for i, nln in enumerate(nlines):
+                if "delai d'execution" in nln or "duree d'execution" in nln or "delai" in nln:
+                    window = " ".join(lines[i:i+2]).strip()
+                    if window:
+                        return window
+            return ""
+
+        operation = ""
+        lot = ""
+        moa = ""
+        moe = ""
+        adresse = ""
+        type_proc = ""
+        date_limite = ""
+        duree = ""
+        visite = ""
+        contact = ""
+        criteres = ""
+        dates_all: List[str] = []
+
+        for d in docs:
+            filename = d.get("filename", "")
+            text = d.get("text", "") or ""
+            lines = self._normalize_lines(text)
+            if not lines:
+                continue
+
+            if not lot:
+                lot = self._parse_lot_from_filename(filename)
+            if not lot:
+                for ln in lines:
+                    nln = self._strip_accents(ln).lower()
+                    if re.search(r"\blot\b", nln):
+                        # capture numeric + label if present
+                        m = re.search(r"lot\s*n?\s*°?\s*(\d{1,2})", nln)
+                        if m:
+                            lot = f"Lot {m.group(1)}"
+                        else:
+                            lot = ln.strip()
+                        # append known trade keywords
+                        if "charpente" in nln and "charpente" not in lot.lower():
+                            lot += " - Charpente"
+                        if "bois" in nln and "bois" not in lot.lower():
+                            lot += " bois"
+                        break
+
+            # Operation title
+            op_line = best_line(lines, [r"renovation", r"rehabilitation", r"travaux", r"construction"])
+            if op_line and len(op_line) > len(operation):
+                operation = op_line
+                # join with next short line if it looks like a title continuation
+                try:
+                    idx = lines.index(op_line)
+                    if idx + 1 < len(lines):
+                        nxt = lines[idx + 1]
+                        if len(nxt) <= 30 and nxt.isupper():
+                            operation = f"{operation} {nxt}".strip()
+                    # try to capture chantier address right after operation title
+                    for j in range(1, 4):
+                        if idx + j < len(lines):
+                            cand = lines[idx + j]
+                            if score_address(cand) >= 3:
+                                adresse = cand.strip()
+                                break
+                except Exception:
+                    pass
+
+            # MOA
+            if not moa:
+                moa = self._find_value_near(lines, [r"maitre d.?ouvrage", r"pouvoir adjudicateur"], max_lines=6)
+            if not moa:
+                moa = best_line(lines, [r"commune de", r"ville de", r"metropole", r"communaute"])
+
+            # MOE
+            if not moe:
+                moe = extract_roles(lines)
+            if not moe:
+                moe = self._find_value_near(lines, [r"maitre d.?oeuvre", r"architecte"], max_lines=4)
+
+            # Adresse chantier
+            if not adresse:
+                addr_candidates = [ln for ln in lines if score_address(ln) >= 3]
+                if addr_candidates:
+                    adresse = max(addr_candidates, key=score_address)
+            if not adresse:
+                adresse = self._find_value_near(lines, [r"adresse du chantier", r"adresse", r"chantier", r"lieu"], max_lines=3)
+
+            # Type procedure + date limite: prefer RC doc
+            if ("reglement" in self._strip_accents(filename).lower()) or ("rc" in self._strip_accents(filename).lower()):
+                if not type_proc:
+                    type_proc = best_line(lines, [r"procedure", r"marche public", r"marche selon procedure"])
+                if not date_limite:
+                    date_limite = self._find_date_near(lines, [r"date limite", r"remise des offres", r"limite de remise"])
+                if not visite:
+                    visite = extract_visite(lines)
+                if not criteres:
+                    criteres = extract_criteria(lines)
+                if not contact:
+                    contact = extract_contact(lines)
+
+            if not duree:
+                duree = extract_duree(lines)
+
+            if not contact:
+                contact = extract_contact(lines)
+
+            dates_all.extend(re.findall(r"\d{1,2}[./-]\d{1,2}[./-]\d{2,4}", text))
+
+        dates_importantes = list(dict.fromkeys(dates_all))[:8]
+
+        return {
+            "fields": {
+                "intitule_operation": operation,
+                "intitule_lot": lot,
+                "maitre_ouvrage": moa,
+                "adresse_chantier": adresse,
+                "maitre_oeuvre": moe,
+                "type_marche_procedure": type_proc,
+                "date_limite_remise_offres": date_limite,
+                "duree_delai_execution": duree,
+                "visite_obligatoire": visite,
+                "contact_referent": contact,
+                "montant_estime_budget": "",
+                "variantes_pse": "",
+                "criteres_attribution": criteres,
+            },
+            "dates_importantes": dates_importantes,
+        }
+
     def _ollama_generate(self, prompt: str) -> str:
         r = requests.post(
-            OLLAMA_URL,
+            f"{OLLAMA_URL}/api/generate",
             json={"model": MODEL_NAME, "prompt": prompt, "stream": False},
             timeout=600,
         )
@@ -407,12 +722,41 @@ class AssistantPage:
 
     def _ollama_generate_json(self, prompt: str) -> Dict[str, Any]:
         r = requests.post(
-            OLLAMA_URL,
-            json={"model": MODEL_NAME, "prompt": prompt, "stream": False, "format": "json"},
+            f"{OLLAMA_URL}/api/generate",
+            json={
+                "model": MODEL_NAME,
+                "prompt": prompt,
+                "stream": False,
+                "format": "json",
+                "options": {"temperature": 0.2, "top_p": 0.9, "num_ctx": NUM_CTX},
+            },
             timeout=600,
         )
         r.raise_for_status()
         raw = (r.json().get("response") or "").strip()
+        return self._try_parse_json(raw)
+
+    def _ollama_chat_json(self, prompt: str) -> Dict[str, Any]:
+        system = (
+            "Tu es un extracteur d'informations DCE. "
+            "Reponds uniquement avec un JSON valide, sans texte autour."
+        )
+        payload = {
+            "model": MODEL_NAME,
+            "stream": False,
+            "format": "json",
+            "options": {"temperature": 0.2, "top_p": 0.9, "num_ctx": NUM_CTX},
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ],
+        }
+        r = requests.post(f"{OLLAMA_URL}/api/chat", json=payload, timeout=600)
+        r.raise_for_status()
+        raw = (r.json().get("message") or {}).get("content") or ""
+        return self._try_parse_json(raw.strip())
+
+    def _try_parse_json(self, raw: str) -> Dict[str, Any]:
         if not raw:
             return {}
         try:
@@ -643,17 +987,53 @@ Documents:
     def _generate_summary_blocking(self) -> Dict[str, Any]:
         uploaded = self._get_uploaded()
         docs: List[Dict[str, Any]] = []
+        debug_lines: List[str] = []
         for f in uploaded:
-            text = self._extract_text(Path(f["abs_path"]))
+            meta = self._extract_text_with_meta(Path(f["abs_path"]))
+            text = meta.get("text", "")
             docs.append({"filename": f["filename"], "text": text})
+            debug_lines.append(
+                f"{f['filename']} | pypdf={meta.get('pypdf_chars')} ocr={meta.get('ocr_chars')} "
+                f"ocr_used={meta.get('ocr_used')} ocr_error={meta.get('ocr_error')}"
+            )
+            snippet = (text[:500] + "...") if len(text) > 500 else text
+            if snippet:
+                debug_lines.append("---- snippet ----")
+                debug_lines.append(snippet)
+                debug_lines.append("---- end ----")
 
         prepared_docs = self._prepare_docs_for_llm(docs)
-        analysis = self._ollama_generate_json(self._build_analysis_prompt(prepared_docs))
+        analysis_prompt = self._build_analysis_prompt(prepared_docs)
+        analysis = self._ollama_generate_json(analysis_prompt)
+        if not analysis:
+            analysis = self._ollama_chat_json(analysis_prompt)
+        if not analysis:
+            raw_fallback = self._ollama_generate(
+                analysis_prompt + "\n\nIMPORTANT: Retourne uniquement un JSON valide, sans texte autour."
+            )
+            analysis = self._try_parse_json(raw_fallback)
+            if raw_fallback:
+                debug_lines.append("---- ollama_raw_fallback ----")
+                debug_lines.append(raw_fallback[:2000])
+                debug_lines.append("---- end ----")
+        regex_data = self._regex_extract(docs)
+        if not analysis:
+            analysis = regex_data
+            debug_lines.append("---- regex_fallback_used ----")
+            debug_lines.append("true")
+            debug_lines.append("---- end ----")
 
         fields = analysis.get("fields") if isinstance(analysis.get("fields"), dict) else {}
-        summary_md = str(analysis.get("summary_markdown") or "")
+        if isinstance(regex_data.get("fields"), dict):
+            for k, v in regex_data["fields"].items():
+                if not fields.get(k):
+                    fields[k] = v
+        summary_md = ""
         dates_importantes = analysis.get("dates_importantes") if isinstance(analysis.get("dates_importantes"), list) else []
+        if isinstance(regex_data.get("dates_importantes"), list) and not dates_importantes:
+            dates_importantes = regex_data.get("dates_importantes", [])
         sources = analysis.get("sources") if isinstance(analysis.get("sources"), list) else []
+        # Resume ignore: user asked to focus on table only.
 
         normalized_fields = {k: self._normalize_value(v) for k, v in fields.items()}
 
@@ -667,6 +1047,12 @@ Documents:
         out_pdf = self.session_dir / "resume_ia.pdf"
         self._write_markdown_pdf(out_pdf, "Resume IA - Memoire technique", normalized_fields, summary_md)
 
+        debug_path = self.session_dir / "debug_extraction.txt"
+        try:
+            debug_path.write_text("\n".join(debug_lines), encoding="utf-8")
+        except Exception:
+            pass
+
         payload = {
             "fields": normalized_fields,
             "summary_markdown": summary_md,
@@ -674,6 +1060,7 @@ Documents:
             "sources": sources,
             "prefill": prefill,
             "created_at": datetime.now().isoformat(timespec="seconds"),
+            "debug_url": f"/_uploads/{self.session_id}/debug_extraction.txt",
         }
 
         app.storage.user[ASSISTANT_EXTRACTION_KEY] = payload
@@ -756,6 +1143,17 @@ Documents:
                     """,
                     sanitize=False,
                 )
+                if isinstance(data, dict) and data.get("debug_url"):
+                    ui.html(
+                        f"""
+                        <a href="{data['debug_url']}"
+                           target="_blank"
+                           class="text-gray-700 underline text-sm">
+                           Ouvrir debug extraction
+                        </a>
+                        """,
+                        sanitize=False,
+                    )
 
             if self.last_extract_label and isinstance(data, dict):
                 created_at = data.get("created_at", "")
@@ -765,12 +1163,8 @@ Documents:
             if isinstance(data, dict):
                 self._render_extracted_fields(data)
 
-            if self.summary_md and isinstance(data, dict):
-                summary_md = str(data.get("summary_markdown") or "")
-                if summary_md.strip():
-                    self.summary_md.set_content(summary_md)
-                else:
-                    self.summary_md.set_content("_Aucun resume disponible._")
+            if self.summary_md:
+                self.summary_md.set_content("")
 
             ui.notify("Analyse terminee. PDF genere.", type="positive")
 
@@ -820,8 +1214,7 @@ Documents:
             self.last_extract_label = ui.label("Derniere analyse : -").classes("text-xs text-gray-500")
             self.fields_container = ui.column().classes("w-full")
             ui.separator().classes("my-3")
-            ui.label("Resume (markdown)").classes("text-sm text-gray-600")
-            self.summary_md = ui.markdown("").classes("mt-2 w-full")
+            self.summary_md = ui.markdown("").classes("mt-2 w-full hidden")
 
         existing = app.storage.user.get(ASSISTANT_EXTRACTION_KEY)
         if isinstance(existing, dict):
@@ -830,9 +1223,7 @@ Documents:
                 self.last_extract_label.text = f"Derniere analyse : {created_at}"
             self._render_extracted_fields(existing)
             if self.summary_md:
-                summary_md = str(existing.get("summary_markdown") or "")
-                if summary_md.strip():
-                    self.summary_md.set_content(summary_md)
+                self.summary_md.set_content("")
 
 
 def render():
