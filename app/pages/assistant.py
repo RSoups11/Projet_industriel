@@ -425,58 +425,95 @@ class AssistantPage:
         return False
 
     def _detect_doc_type(self, filename: str, first_page_text: str) -> str:
-        name = self._strip_accents(filename).lower()
-        text = self._strip_accents(first_page_text).lower()
-        if 'reglement' in name or 'rc' in name or 'reglement de consultation' in text:
-            return 'RC'
-        if 'ccap' in name or 'c.c.a.p' in text:
-            return 'CCAP'
-        if 'cctp' in name or 'cctc' in name or 'c.c.t.p' in text or 'c.c.t.c' in text:
-            return 'CCTP'
-        if 'dpgf' in name:
-            return 'DPGF'
-        return 'AUTRE'
+        name = self._norm_for_match(filename)
+        text = self._norm_for_match(first_page_text)
+        if "reglementdeconsultation" in name or "reglementdeconsultation" in text:
+            return "RC"
+        if "ccap" in name or "ccap" in text:
+            return "CCAP"
+        if "cctc" in name or "cctc" in text:
+            return "CCTC"
+        if "cctp" in name or "cctp" in text:
+            return "CCTP"
+        if "dpgf" in name or "decompositionduprixglobal" in text:
+            return "DPGF"
+        return "AUTRE"
 
-    def _retrieve_candidate_pages(self, pages: List[Dict[str, Any]], field: str, priorities: List[str], keywords: List[str]) -> List[Dict[str, Any]]:
-        # filter by doc type priority
-        filtered = [p for p in pages if p.get('doc_type') in priorities] or pages
-        # score by keywords
-        scored = []
+    def _snippets_around_keywords(self, text: str, keywords: List[str], window: int = 4, max_chars: int = 3500) -> str:
+        lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+        if not lines:
+            return ""
+        nlines = [self._norm_for_match(ln) for ln in lines]
+        nkeys = [self._norm_for_match(k) for k in keywords]
+        keep = set()
+        for i, nln in enumerate(nlines):
+            if any(k in nln for k in nkeys):
+                for j in range(max(0, i - window), min(len(lines), i + window + 1)):
+                    keep.add(j)
+        if not keep:
+            out = "\n".join(lines[:60])
+        else:
+            out = "\n".join(lines[i] for i in sorted(keep))
+        return out[:max_chars]
+
+    def _retrieve_candidate_pages(self, pages: List[Dict[str, Any]], field: str, priorities: List[str], keywords: List[str], strict: bool = False) -> List[Dict[str, Any]]:
+        filtered = [p for p in pages if p.get("doc_type") in priorities]
+        if strict and not filtered:
+            return []
+        if not filtered:
+            filtered = pages
+
+        scored: List[Dict[str, Any]] = []
         for p in filtered:
-            txt = p.get('text', '')
+            txt = p.get("text", "") or ""
             if not txt:
                 continue
             if self._is_toc_page(txt):
                 continue
-            score = 0
-            low = self._strip_accents(txt).lower()
-            for kw in keywords:
-                if kw in low:
-                    score += 1
-            if score > 0:
-                scored.append((score, p))
-        scored.sort(key=lambda x: x[0], reverse=True)
-        pages_out = [p for _, p in scored[:6]]
-        return pages_out
 
-    def _llm_extract_field(self, field: str, pages: List[Dict[str, Any]]) -> Dict[str, Any]:
+            low = self._strip_accents(txt).lower()
+            low = " ".join(low.split())
+            score = 0
+            for kw in keywords:
+                kw2 = self._strip_accents(kw).lower()
+                kw2 = " ".join(kw2.split())
+                if kw2 in low:
+                    score += 1
+            if field == "contact_referent" and "@" in txt:
+                score += 2
+            if field == "date_limite_remise_offres" and re.search(r"\d{1,2}\s*[./-]\s*\d{1,2}\s*[./-]\s*\d{2,4}", txt):
+                score += 2
+            if field == "criteres_attribution" and "%" in txt:
+                score += 2
+            scored.append({"_score": score, "_len": len(txt), **p})
+
+        scored.sort(key=lambda x: (x.get("_score", 0), x.get("_len", 0)), reverse=True)
+        top = [p for p in scored if p.get("_score", 0) > 0][:12]
+        if not top:
+            top = scored[:12]
+        if not top and filtered:
+            top = filtered[:12]
+        return top
+
+    def _llm_extract_field(self, field: str, pages: List[Dict[str, Any]], keywords: List[str]) -> Dict[str, Any]:
         if not pages:
             return {"value": "NR", "confidence": 0.1}
         blocks = []
         for p in pages:
-            blocks.append("[DOC={}|TYPE={}|PAGE={}]\n{}".format(p["filename"], p["doc_type"], p["page"] + 1, p["text"]))
+            snippet = self._snippets_around_keywords(p["text"], keywords)
+            blocks.append("[DOC={}|TYPE={}|PAGE={}]\n{}".format(p["filename"], p["doc_type"], p["page"] + 1, snippet))
         context = "\n\n".join(blocks)
         prompt = f"""
 Tu dois extraire uniquement le champ suivant: {field}.
 Retourne STRICTEMENT un JSON valide, sans texte autour, avec ce schema:
 {{
-  "champ": "{field}",
-  "value": "...",
-  "source": {{"document": "...", "page": 1}},
-  "evidence": "...",
-  "confidence": 0.0
+  \"champ\": \"{field}\",
+  \"value\": \"...\",
+  \"source\": {{\"document\": \"...\", \"page\": 1}},
+  \"evidence\": \"...\",
+  \"confidence\": 0.0
 }}
-Regles: si non trouve, value="NR" et confidence<=0.2. Ne pas inventer.
+Regles: si non trouve, value=\"NR\" et confidence<=0.2. Ne pas inventer.
 
 CONTEXT:
 {context}
@@ -552,8 +589,19 @@ CONTEXT:
         return "".join(
             ch for ch in unicodedata.normalize("NFD", text) if unicodedata.category(ch) != "Mn"
         )
+
+    def _norm_for_match(self, s: str) -> str:
+        s = self._strip_accents(s).lower()
+        s = s.replace("’", "'").replace("œ", "oe")
+        s = re.sub(r"[^a-z0-9]+", "", s)
+        return s
+
     def _normalize_lines(self, text: str) -> List[str]:
         return [ln.strip() for ln in text.splitlines() if ln.strip()]
+
+    # Backward-compat alias for any older calls
+    def _normalize_line(self, text: str) -> List[str]:
+        return self._normalize_lines(text)
 
     def _find_lines_with(self, lines: List[str], patterns: List[str]) -> List[str]:
         out = []
@@ -591,14 +639,14 @@ CONTEXT:
         nlines = [self._strip_accents(ln).lower() for ln in lines]
         for i, nln in enumerate(nlines):
             if any(re.search(pat, nln) for pat in patterns):
-                m = re.search(r"(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})", lines[i])
+                m = re.search(r"(\d{1,2}\s*[./-]\s*\d{1,2}\s*[./-]\s*\d{2,4})", lines[i])
                 if m:
-                    return m.group(1)
+                    return re.sub(r"\s+", "", m.group(1))
                 for j in range(1, 4):
                     if i + j < len(lines):
-                        m2 = re.search(r"(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})", lines[i + j])
+                        m2 = re.search(r"(\d{1,2}\s*[./-]\s*\d{1,2}\s*[./-]\s*\d{2,4})", lines[i + j])
                         if m2:
-                            return m2.group(1)
+                            return re.sub(r"\s+", "", m2.group(1))
         return ""
 
     def _parse_lot_from_filename(self, filename: str) -> str:
@@ -1104,136 +1152,296 @@ Documents:
 
         doc.build(flowables)
 
+    def _validate_field_value(self, field: str, value: str) -> str:
+        if not value:
+            return ""
+        v = value.strip()
+        if field == "date_limite_remise_offres":
+            if not re.search(r"\b\d{1,2}[./-]\d{1,2}[./-]\d{2,4}\b", v):
+                return ""
+        if field == "criteres_attribution":
+            if "%" not in v and not re.search(r"\b\d{1,2}\s*[:/-]\s*\d{1,2}\b", v):
+                return ""
+        if field == "intitule_lot":
+            if len(v) > 80:
+                return ""
+            if not re.search(r"[A-Za-z]", v):
+                return ""
+        return v
+
+    def _is_missing_value(self, v: Any) -> bool:
+        if v is None:
+            return True
+        s = str(v).strip().lower()
+        return s == "" or s in {"nr", "non mentionne", "non mentionnee", "n/a", "na"}
+
+    def _extract_dates_importantes(self, pages: List[Dict[str, Any]]) -> List[str]:
+        keywords = ["remise", "offres", "visite", "questions", "delai", "notification", "debut", "fin", "validite"]
+        found: List[str] = []
+        for p in pages:
+            lines = [ln.strip() for ln in p.get("text", "").splitlines() if ln.strip()]
+            if not lines:
+                continue
+            nlines = [self._norm_for_match(ln) for ln in lines]
+            for i, ln in enumerate(lines):
+                raw = re.findall(r"\b(\d{1,2}\s*[./-]\s*\d{1,2}\s*[./-]\s*\d{4})\b", ln)
+                for m in raw:
+                    d2 = re.sub(r"\s+", "", m)
+                    try:
+                        dd, mm, yyyy = re.split(r"[./-]", d2)
+                        dd_i, mm_i, yy_i = int(dd), int(mm), int(yyyy)
+                        if not (1 <= dd_i <= 31 and 1 <= mm_i <= 12 and 1900 <= yy_i <= 2100):
+                            continue
+                    except Exception:
+                        continue
+                    ctx = " ".join(nlines[max(0, i-1):min(len(nlines), i+2)])
+                    if any(k in ctx for k in keywords):
+                        found.append(d2)
+        # unique, keep order
+        out: List[str] = []
+        seen = set()
+        for d in found:
+            if d in seen:
+                continue
+            seen.add(d)
+            out.append(d)
+        return out
+
     def _generate_summary_blocking(self) -> Dict[str, Any]:
         uploaded = self._get_uploaded()
         pages: List[Dict[str, Any]] = []
         debug_lines: List[str] = []
 
+        debug_lines.append("== FICHIERS UPLOADES ==")
+        for f in uploaded:
+            try:
+                size = Path(f["abs_path"]).stat().st_size
+            except Exception:
+                size = 0
+            debug_lines.append(f"- {f.get('filename')} | path={f.get('abs_path')} | size={size} bytes")
+
         for f in uploaded:
             path = Path(f["abs_path"])
             filename = f["filename"]
-            # Per-page extraction
+            doc_pages: List[Dict[str, Any]] = []
+            total_pages = 0
+            pypdf_pages = 0
+            ocr_pages = 0
+            pypdf_chars = 0
+            ocr_chars = 0
+
+            first_pages_text = ""
+            base_type = "AUTRE"
             if PdfReader is not None:
                 try:
                     reader = PdfReader(str(path))
+                    total_pages = len(reader.pages)
                     for i, page in enumerate(reader.pages):
                         txt = (page.extract_text() or "").strip()
-                        pages.append({
+                        if txt:
+                            pypdf_pages += 1
+                            pypdf_chars += len(txt)
+                        # OCR if empty or too short
+                        ocr_txt = ""
+                        ocr_used = False
+                        if len(txt) < MIN_TEXT_CHARS_BEFORE_OCR:
+                            try:
+                                ocr_txt = self._extract_text_ocr_page(path, i)
+                            except Exception as ex:
+                                debug_lines.append(f"  OCR error {filename} p{i+1}: {ex}")
+                            if len(ocr_txt) > len(txt):
+                                txt = ocr_txt
+                                ocr_used = True
+                        if ocr_used:
+                            ocr_pages += 1
+                            ocr_chars += len(ocr_txt)
+                        if i < 2:
+                            first_pages_text += " " + txt
+                        page_norm = self._norm_for_match(txt)
+                        if "dpgf" in page_norm or "decompositionduprixglobal" in page_norm:
+                            doc_type_page = "DPGF"
+                        elif "cctp" in page_norm:
+                            doc_type_page = "CCTP"
+                        elif "cctc" in page_norm:
+                            doc_type_page = "CCTC"
+                        else:
+                            doc_type_page = "__BASE__"
+                        doc_pages.append({
                             "filename": filename,
-                            "doc_type": self._detect_doc_type(filename, txt),
                             "page": i,
                             "text": txt,
-                            "ocr": False,
+                            "ocr": ocr_used,
+                            "doc_type": doc_type_page,
                         })
-                except Exception:
-                    pass
+                except Exception as ex:
+                    debug_lines.append(f"  Error reading {filename}: {ex}")
 
-            # If no pages or RC OCR needed, add OCR pages
-            if not pages or any(self._detect_doc_type(filename, "") == "RC" for _ in [0]):
-                try:
-                    if PdfReader is None:
-                        num_pages = 0
-                    else:
-                        num_pages = len(PdfReader(str(path)).pages)
-                except Exception:
-                    num_pages = 0
-                for i in range(num_pages):
-                    # Only OCR RC or empty text pages
-                    doc_type = self._detect_doc_type(filename, "")
-                    if doc_type != "RC":
-                        continue
-                    try:
-                        ocr_txt = self._extract_text_ocr_page(path, i)
-                    except Exception:
-                        ocr_txt = ""
-                    if ocr_txt:
-                        pages.append({
-                            "filename": filename,
-                            "doc_type": doc_type,
-                            "page": i,
-                            "text": ocr_txt,
-                            "ocr": True,
-                        })
+            base_type = self._detect_doc_type(filename, first_pages_text)
+            for p in doc_pages:
+                if p.get("doc_type") == "__BASE__":
+                    p["doc_type"] = base_type
 
-        # Debug page counts
-        for p in pages[:10]:
-            debug_lines.append(f"{p['filename']} p{p['page']+1} {p['doc_type']} ocr={p['ocr']} chars={len(p['text'])}")
+            for p in doc_pages:
+                pages.append(p)
+
+            # Debug per-file summary
+            debug_lines.append("")
+            debug_lines.append(f"== {filename} ==")
+            debug_lines.append(f"doc_type={base_type} total_pages={total_pages} pypdf_pages={pypdf_pages} ocr_pages={ocr_pages}")
+            debug_lines.append(f"pypdf_chars={pypdf_chars} ocr_chars={ocr_chars}")
+            # sample snippets
+            if doc_pages:
+                sample_pages = []
+                if len(doc_pages) >= 1:
+                    sample_pages.append(doc_pages[0])
+                if len(doc_pages) >= 2:
+                    sample_pages.append(doc_pages[1])
+                longest = max(doc_pages, key=lambda x: len(x.get("text", "")))
+                if longest not in sample_pages:
+                    sample_pages.append(longest)
+                for sp in sample_pages:
+                    lines = [ln for ln in sp.get("text", "").splitlines() if ln.strip()]
+                    preview = " | ".join(lines[:2]) if lines else ""
+                    debug_lines.append(f"p{sp['page']+1} ocr={sp['ocr']} chars={len(sp.get('text',''))} :: {preview}")
+
+        # Global stats by file
+        debug_lines.append("")
+        debug_lines.append("=== PAGE STATS ===")
+        stats: Dict[str, Dict[str, int]] = {}
+        for p in pages:
+            fn = p.get("filename", "unknown")
+            stats.setdefault(fn, {})
+            stats[fn]["pages"] = stats[fn].get("pages", 0) + 1
+            stats[fn]["non_empty"] = stats[fn].get("non_empty", 0) + (1 if p.get("text") else 0)
+            stats[fn]["ocr_pages"] = stats[fn].get("ocr_pages", 0) + (1 if p.get("ocr") else 0)
+            dtype = p.get("doc_type", "AUTRE")
+            stats[fn][f"type_{dtype}"] = stats[fn].get(f"type_{dtype}", 0) + 1
+        for fn, c in stats.items():
+            types = " ".join([f"{k.replace('type_','')}={v}" for k, v in c.items() if k.startswith("type_")])
+            debug_lines.append(f"{fn} | pages={c.get('pages',0)} non_empty={c.get('non_empty',0)} ocr_pages={c.get('ocr_pages',0)} | {types}")
 
         # Field config: priorities + keywords
         field_cfg = {
             "intitule_operation": {
-                "priorities": ["CCTP", "DPGF", "CCAP", "RC"],
+                "priorities": ["CCTP", "CCTC", "DPGF", "CCAP", "RC"],
                 "keywords": ["renovation", "rehabilitation", "travaux", "operation"],
+                "strict": False,
             },
             "intitule_lot": {
                 "priorities": ["CCTP", "DPGF"],
                 "keywords": ["lot", "charpente", "bois"],
+                "strict": True,
             },
             "maitre_ouvrage": {
-                "priorities": ["RC", "CCAP", "CCTP"],
+                "priorities": ["RC", "CCAP", "CCTP", "CCTC"],
                 "keywords": ["maitre d'ouvrage", "maitre d ouvrage", "pouvoir adjudicateur"],
+                "strict": False,
             },
             "adresse_chantier": {
-                "priorities": ["CCTP", "DPGF", "RC"],
-                "keywords": ["adresse", "chantier", "lieu", "site"],
+                "priorities": ["CCTP", "CCTC", "DPGF", "RC"],
+                "keywords": ["adresse", "chantier", "lieu", "site", "liberation"],
+                "strict": False,
             },
             "maitre_oeuvre": {
-                "priorities": ["CCTP", "DPGF"],
+                "priorities": ["CCTP", "CCTC", "DPGF", "CCAP"],
                 "keywords": ["architecte", "maitre d'oeuvre", "maitre d oeuvre", "economiste"],
+                "strict": False,
             },
             "type_marche_procedure": {
                 "priorities": ["RC"],
                 "keywords": ["procedure", "marche public", "procedure adaptee"],
+                "strict": True,
             },
             "date_limite_remise_offres": {
                 "priorities": ["RC"],
                 "keywords": ["date limite", "remise des offres", "limite de remise"],
+                "strict": True,
             },
             "duree_delai_execution": {
                 "priorities": ["RC", "CCAP"],
                 "keywords": ["delai", "duree", "execution"],
+                "strict": False,
             },
             "visite_obligatoire": {
                 "priorities": ["RC"],
                 "keywords": ["visite"],
+                "strict": True,
             },
             "contact_referent": {
                 "priorities": ["RC", "CCAP"],
                 "keywords": ["courriel", "email", "contact", "telephone", "tel"],
+                "strict": False,
             },
             "montant_estime_budget": {
                 "priorities": ["DPGF"],
-                "keywords": ["total", "montant", "ht", "ttc", "tva"],
+                "keywords": ["total", "total ht", "total ttc", "tva", "montant", "euros"],
+                "strict": True,
             },
             "variantes_pse": {
                 "priorities": ["RC"],
                 "keywords": ["variante", "pse", "option"],
+                "strict": True,
             },
             "criteres_attribution": {
                 "priorities": ["RC"],
                 "keywords": ["critere", "ponderation", "%"],
+                "strict": True,
             },
         }
 
         fields: Dict[str, Any] = {}
         sources: List[str] = []
+        debug_lines.append("")
+        debug_lines.append("== SELECTION PAGES PAR CHAMP ==")
+
+        # Deterministic extraction for specific fields (RC OCR)
+        rc_pages = [p for p in pages if p.get("doc_type") == "RC" and p.get("text")]
+        rc_text = "\n".join(p.get("text", "") for p in rc_pages)
+        det_fields: Dict[str, str] = {}
+        if rc_text:
+            det_date = self._find_date_near(rc_text.splitlines(), ["date limite", "remise des offres", "heure limite"])
+            if det_date:
+                det_fields["date_limite_remise_offres"] = det_date
+            low = self._strip_accents(rc_text).lower()
+            if "visite" in low and ("non obligatoire" in low or "facultative" in low):
+                det_fields["visite_obligatoire"] = "Non"
+            elif "visite" in low and "obligatoire" in low:
+                det_fields["visite_obligatoire"] = "Oui"
+            emails = re.findall(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", rc_text)
+            tels = re.findall(r"(?:\+33|0)\s*[1-9](?:[\s\.-]?\d{2}){4}", rc_text)
+            contact_parts = []
+            if emails:
+                contact_parts.append(emails[0])
+            if tels:
+                contact_parts.append(tels[0])
+            if contact_parts:
+                det_fields["contact_referent"] = " - ".join(contact_parts)
         for field, cfg in field_cfg.items():
-            candidate_pages = self._retrieve_candidate_pages(pages, field, cfg["priorities"], cfg["keywords"])
-            llm_data = self._llm_extract_field(field, candidate_pages)
-            value = llm_data.get("value", "NR")
-            fields[field] = self._normalize_value(value)
+            candidate_pages = self._retrieve_candidate_pages(pages, field, cfg["priorities"], cfg["keywords"], strict=cfg.get("strict", False))
+            if field in det_fields:
+                value = det_fields[field]
+                llm_data = {}
+            else:
+                llm_data = self._llm_extract_field(field, candidate_pages, cfg["keywords"])
+                value = llm_data.get("value", "NR")
+            fields[field] = self._validate_field_value(field, self._normalize_value(value))
             src = llm_data.get("source", {}) if isinstance(llm_data, dict) else {}
             if isinstance(src, dict) and src.get("document"):
                 sources.append(str(src.get("document")))
+            if candidate_pages:
+                for p in candidate_pages:
+                    debug_lines.append(f"{field}: {p.get('filename')} p{p.get('page',0)+1} type={p.get('doc_type')} score={p.get('_score','-')}")
+            else:
+                debug_lines.append(f"{field}: <no candidates>")
 
         # Regex merge as safety
         regex_data = self._regex_extract(pages)
         if isinstance(regex_data.get("fields"), dict):
             for k, v in regex_data["fields"].items():
-                if not fields.get(k):
+                if self._is_missing_value(fields.get(k)) and not self._is_missing_value(v):
                     fields[k] = v
 
-        dates_importantes = regex_data.get("dates_importantes", []) if isinstance(regex_data.get("dates_importantes"), list) else []
+        dates_importantes = self._extract_dates_importantes(pages)
 
         prefill = {
             "intitule": fields.get("intitule_operation", ""),
@@ -1325,54 +1533,80 @@ Documents:
         if self.analyze_spinner:
             self.analyze_spinner.set_visibility(True)
 
-        ui.notify("Analyse en cours (OCR + IA)...", type="info")
+        try:
+            ui.notify("Analyse en cours (OCR + IA)...", type="info")
+        except Exception:
+            pass
         if self.summary_md:
-            self.summary_md.set_content("Analyse en cours...")
+            try:
+                self.summary_md.set_content("Analyse en cours...")
+            except Exception:
+                pass
 
         try:
             result = await asyncio.to_thread(self._generate_summary_blocking)
             data = result.get("data", {}) if isinstance(result, dict) else {}
 
-            self.summary_link_row.clear()
-            with self.summary_link_row:
-                ui.html(
-                    f"""
-                    <a href="{result['url']}"
-                       target="_blank"
-                       download
-                       class="text-blue-700 underline font-medium">
-                       Telecharger le PDF resume
-                    </a>
-                    """,
-                    sanitize=False,
-                )
-                if isinstance(data, dict) and data.get("debug_url"):
-                    ui.html(
-                        f"""
-                        <a href="{data['debug_url']}"
-                           target="_blank"
-                           class="text-gray-700 underline text-sm">
-                           Ouvrir debug extraction
-                        </a>
-                        """,
-                        sanitize=False,
-                    )
+            if self.summary_link_row:
+                try:
+                    self.summary_link_row.clear()
+                    with self.summary_link_row:
+                        ui.html(
+                            f"""
+                            <a href="{result['url']}"
+                               target="_blank"
+                               download
+                               class="text-blue-700 underline font-medium">
+                               Telecharger le PDF resume
+                            </a>
+                            """,
+                            sanitize=False,
+                        )
+                        if isinstance(data, dict) and data.get("debug_url"):
+                            ui.html(
+                                f"""
+                                <a href="{data['debug_url']}"
+                                   target="_blank"
+                                   class="text-gray-700 underline text-sm">
+                                   Ouvrir debug extraction
+                                </a>
+                                """,
+                                sanitize=False,
+                            )
+                except Exception:
+                    # Client was closed or element removed
+                    return
 
             if self.last_extract_label and isinstance(data, dict):
-                created_at = data.get("created_at", "")
-                if created_at:
-                    self.last_extract_label.text = f"Derniere analyse : {created_at}"
+                try:
+                    created_at = data.get("created_at", "")
+                    if created_at:
+                        self.last_extract_label.text = f"Derniere analyse : {created_at}"
+                except Exception:
+                    return
 
             if isinstance(data, dict):
-                self._render_extracted_fields(data)
+                try:
+                    self._render_extracted_fields(data)
+                except Exception:
+                    return
 
             if self.summary_md:
-                self.summary_md.set_content("")
+                try:
+                    self.summary_md.set_content("")
+                except Exception:
+                    pass
 
-            ui.notify("Analyse terminee. PDF genere.", type="positive")
+            try:
+                ui.notify("Analyse terminee. PDF genere.", type="positive")
+            except Exception:
+                pass
 
         except Exception as e:
-            ui.notify(f"Erreur analyse: {e}", type="negative")
+            try:
+                ui.notify(f"Erreur analyse: {e}", type="negative")
+            except Exception:
+                pass
         finally:
             if self.analyze_spinner:
                 self.analyze_spinner.set_visibility(False)
@@ -1412,9 +1646,9 @@ Documents:
 
         ui.separator().classes("my-4")
         with ui.card().classes("p-4"):
-            ui.label("3) Analyse + generation PDF").classes("text-lg font-semibold")
+            ui.label("3) Analyse").classes("text-lg font-semibold")
             with ui.row().classes("items-center gap-2"):
-                self.analyze_btn = ui.button("Analyser + Generer PDF", on_click=self._on_click_analyze).props("color=primary").classes("w-full")
+                self.analyze_btn = ui.button("Analyser", on_click=self._on_click_analyze).props("color=primary").classes("w-full")
                 self.analyze_spinner = ui.spinner(size="md").classes("text-blue-600").set_visibility(False)
             self.summary_link_row = ui.row().classes("items-center mt-2").style("gap: 12px;")
 

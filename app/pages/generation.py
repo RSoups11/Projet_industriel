@@ -112,6 +112,8 @@ class GenerationPage:
         # Widgets pour mise a jour du state
         self.input_widgets = {}
         self.section_checkboxes = {}
+        self._last_assistant_update = ""
+        self._assistant_timer = None
         
         # Sections autorisees depuis config
         self.sections_autorisees = self.config.user_config.get("sections_autorisees", [])
@@ -119,9 +121,9 @@ class GenerationPage:
             # Toutes les sections cochées par défaut
             self.project_state["sections_enabled"][section] = True
 
-        self._apply_assistant_prefill()
+        self._apply_assistant_prefill(only_empty=True)
     
-    def _apply_assistant_prefill(self) -> None:
+    def _apply_assistant_prefill(self, only_empty: bool = True) -> None:
         """Applique les valeurs extraites par l'assistant IA si disponibles."""
         try:
             extraction = app.storage.user.get("assistant_extraction_v1", {})
@@ -130,6 +132,7 @@ class GenerationPage:
 
         if not isinstance(extraction, dict):
             return
+        created_at = str(extraction.get("created_at") or "")
         prefill = extraction.get("prefill", {})
         if not isinstance(prefill, dict):
             return
@@ -140,8 +143,30 @@ class GenerationPage:
 
         for key in ("intitule", "lot", "moa", "adresse"):
             value = str(prefill.get(key) or "").strip()
-            if value:
+            if value and (not only_empty or not str(infos.get(key) or "").strip()):
                 infos[key] = value
+
+        if created_at:
+            self._last_assistant_update = created_at
+
+    def _poll_assistant_updates(self) -> None:
+        """Met a jour les champs si une analyse se termine pendant que l'utilisateur edite."""
+        try:
+            extraction = app.storage.user.get("assistant_extraction_v1", {})
+        except Exception:
+            return
+        if not isinstance(extraction, dict):
+            return
+        created_at = str(extraction.get("created_at") or "")
+        if not created_at or created_at == self._last_assistant_update:
+            return
+        self._apply_assistant_prefill(only_empty=True)
+        for key, widget in self.input_widgets.items():
+            if key in self.project_state.get("infos_projet", {}):
+                try:
+                    widget.set_value(self.project_state["infos_projet"].get(key, ""))
+                except Exception:
+                    pass
 
     def _load_template_data(self) -> Dict[str, Any]:
         """Charge les données de templates depuis template_data.json."""
