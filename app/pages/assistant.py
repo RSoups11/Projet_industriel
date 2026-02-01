@@ -68,16 +68,33 @@ from reportlab.platypus import (
 )
 
 OLLAMA_URL = "http://localhost:11434"
-MODEL_NAME = "llama3.1:8b"
+MODEL_NAME = "qwen2.5:14b-instruct"
 MIN_TEXT_CHARS_BEFORE_OCR = 800
 
 ASSISTANT_STATE_KEY = "assistant_state_v1"
 ASSISTANT_EXTRACTION_KEY = "assistant_extraction_v1"
 
+_FALLBACK_STATE: Dict[str, Any] = {}
+
+
+def _safe_user_get(key: str, default: Any = None) -> Any:
+    try:
+        return app.storage.user.get(key, default)
+    except AssertionError:
+        return _FALLBACK_STATE.get(key, default)
+
+
+def _safe_user_set(key: str, value: Any) -> None:
+    try:
+        app.storage.user[key] = value
+    except AssertionError:
+        _FALLBACK_STATE[key] = value
+
 MAX_CHARS_PER_DOC = 6000
 MAX_TOTAL_CHARS = 12000
 
 NUM_CTX = 16384
+OCR_DPI = int(os.getenv("OCR_DPI", "350"))
 
 
 def _safe_filename(name: str) -> str:
@@ -110,13 +127,13 @@ if not hasattr(app, "_uploads_cleanup_registered"):
 
 
 def _get_or_init_state() -> Dict[str, Any]:
-    state = app.storage.user.get(ASSISTANT_STATE_KEY)
+    state = _safe_user_get(ASSISTANT_STATE_KEY)
     if not isinstance(state, dict):
         session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
         session_dir = UPLOADS_ROOT / session_id
         session_dir.mkdir(parents=True, exist_ok=True)
         state = {"session_id": session_id, "session_dir": str(session_dir), "uploaded": []}
-        app.storage.user[ASSISTANT_STATE_KEY] = state
+        _safe_user_set(ASSISTANT_STATE_KEY, state)
         return state
 
     session_dir = Path(state.get("session_dir", "") or "")
@@ -126,12 +143,12 @@ def _get_or_init_state() -> Dict[str, Any]:
         state["session_id"] = session_id
         state["session_dir"] = str(session_dir)
         state["uploaded"] = []
-        app.storage.user[ASSISTANT_STATE_KEY] = state
+        _safe_user_set(ASSISTANT_STATE_KEY, state)
 
     session_dir.mkdir(parents=True, exist_ok=True)
     if "uploaded" not in state or not isinstance(state["uploaded"], list):
         state["uploaded"] = []
-        app.storage.user[ASSISTANT_STATE_KEY] = state
+        _safe_user_set(ASSISTANT_STATE_KEY, state)
 
     return state
 
@@ -149,6 +166,8 @@ class AssistantPage:
         self.summary_link_row = None
         self.fields_container = None
         self.last_extract_label = None
+        self.analyze_btn = None
+        self.analyze_spinner = None
 
         self.upload_row = None
         self.upload_widget = None
@@ -166,12 +185,12 @@ class AssistantPage:
         if not isinstance(upl, list):
             upl = []
             self.state["uploaded"] = upl
-            app.storage.user[ASSISTANT_STATE_KEY] = self.state
+            _safe_user_set(ASSISTANT_STATE_KEY, self.state)
         return upl  # type: ignore[return-value]
 
     def _set_uploaded(self, uploaded: List[Dict[str, Any]]) -> None:
         self.state["uploaded"] = uploaded
-        app.storage.user[ASSISTANT_STATE_KEY] = self.state
+        _safe_user_set(ASSISTANT_STATE_KEY, self.state)
 
     def _refresh_list(self) -> None:
         if not self.files_container:
@@ -365,13 +384,114 @@ class AssistantPage:
         except Exception:
             return ""
 
+    def _extract_text_ocr_page(self, path: Path, page_index: int) -> str:
+        if convert_from_path is None or pytesseract is None:
+            raise RuntimeError("OCR non disponible (pdf2image/pytesseract/tesseract/poppler manquants)")
+        if POPPLER_PATH:
+            images = convert_from_path(
+                str(path),
+                dpi=OCR_DPI,
+                first_page=page_index + 1,
+                last_page=page_index + 1,
+                poppler_path=POPPLER_PATH,
+                grayscale=True,
+            )
+        else:
+            images = convert_from_path(
+                str(path),
+                dpi=OCR_DPI,
+                first_page=page_index + 1,
+                last_page=page_index + 1,
+                grayscale=True,
+            )
+        if not images:
+            return ""
+        return pytesseract.image_to_string(images[0], lang="fra").strip()
+
+    def _is_toc_page(self, text: str) -> bool:
+        if not text:
+            return False
+        lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+        if not lines:
+            return False
+        dot_lines = sum(1 for ln in lines if ln.count('.') >= 6)
+        many_dots_ratio = dot_lines / max(1, len(lines))
+        if many_dots_ratio > 0.25:
+            return True
+        # Many page numbers / leader dots
+        leaders = sum(1 for ln in lines if re.search(r"\.{3,}\s*\d+", ln))
+        if leaders >= 3:
+            return True
+        return False
+
+    def _detect_doc_type(self, filename: str, first_page_text: str) -> str:
+        name = self._strip_accents(filename).lower()
+        text = self._strip_accents(first_page_text).lower()
+        if 'reglement' in name or 'rc' in name or 'reglement de consultation' in text:
+            return 'RC'
+        if 'ccap' in name or 'c.c.a.p' in text:
+            return 'CCAP'
+        if 'cctp' in name or 'cctc' in name or 'c.c.t.p' in text or 'c.c.t.c' in text:
+            return 'CCTP'
+        if 'dpgf' in name:
+            return 'DPGF'
+        return 'AUTRE'
+
+    def _retrieve_candidate_pages(self, pages: List[Dict[str, Any]], field: str, priorities: List[str], keywords: List[str]) -> List[Dict[str, Any]]:
+        # filter by doc type priority
+        filtered = [p for p in pages if p.get('doc_type') in priorities] or pages
+        # score by keywords
+        scored = []
+        for p in filtered:
+            txt = p.get('text', '')
+            if not txt:
+                continue
+            if self._is_toc_page(txt):
+                continue
+            score = 0
+            low = self._strip_accents(txt).lower()
+            for kw in keywords:
+                if kw in low:
+                    score += 1
+            if score > 0:
+                scored.append((score, p))
+        scored.sort(key=lambda x: x[0], reverse=True)
+        pages_out = [p for _, p in scored[:6]]
+        return pages_out
+
+    def _llm_extract_field(self, field: str, pages: List[Dict[str, Any]]) -> Dict[str, Any]:
+        if not pages:
+            return {"value": "NR", "confidence": 0.1}
+        blocks = []
+        for p in pages:
+            blocks.append("[DOC={}|TYPE={}|PAGE={}]\n{}".format(p["filename"], p["doc_type"], p["page"] + 1, p["text"]))
+        context = "\n\n".join(blocks)
+        prompt = f"""
+Tu dois extraire uniquement le champ suivant: {field}.
+Retourne STRICTEMENT un JSON valide, sans texte autour, avec ce schema:
+{{
+  "champ": "{field}",
+  "value": "...",
+  "source": {{"document": "...", "page": 1}},
+  "evidence": "...",
+  "confidence": 0.0
+}}
+Regles: si non trouve, value="NR" et confidence<=0.2. Ne pas inventer.
+
+CONTEXT:
+{context}
+""".strip()
+        data = self._ollama_chat_json(prompt)
+        if not isinstance(data, dict) or 'value' not in data:
+            return {"value": "NR", "confidence": 0.1}
+        return data
     def _extract_text_ocr(self, path: Path) -> str:
         if convert_from_path is None or pytesseract is None:
             raise RuntimeError("OCR non disponible (pdf2image/pytesseract/tesseract/poppler manquants)")
         if POPPLER_PATH:
-            images = convert_from_path(str(path), dpi=350, poppler_path=POPPLER_PATH)
+            images = convert_from_path(str(path), dpi=OCR_DPI, poppler_path=POPPLER_PATH, grayscale=True)
         else:
-            images = convert_from_path(str(path), dpi=350)
+            images = convert_from_path(str(path), dpi=OCR_DPI, grayscale=True)
         return "\n".join(pytesseract.image_to_string(img, lang="fra") for img in images).strip()
 
     def _extract_text(self, path: Path) -> str:
@@ -986,66 +1106,144 @@ Documents:
 
     def _generate_summary_blocking(self) -> Dict[str, Any]:
         uploaded = self._get_uploaded()
-        docs: List[Dict[str, Any]] = []
+        pages: List[Dict[str, Any]] = []
         debug_lines: List[str] = []
+
         for f in uploaded:
-            meta = self._extract_text_with_meta(Path(f["abs_path"]))
-            text = meta.get("text", "")
-            docs.append({"filename": f["filename"], "text": text})
-            debug_lines.append(
-                f"{f['filename']} | pypdf={meta.get('pypdf_chars')} ocr={meta.get('ocr_chars')} "
-                f"ocr_used={meta.get('ocr_used')} ocr_error={meta.get('ocr_error')}"
-            )
-            snippet = (text[:500] + "...") if len(text) > 500 else text
-            if snippet:
-                debug_lines.append("---- snippet ----")
-                debug_lines.append(snippet)
-                debug_lines.append("---- end ----")
+            path = Path(f["abs_path"])
+            filename = f["filename"]
+            # Per-page extraction
+            if PdfReader is not None:
+                try:
+                    reader = PdfReader(str(path))
+                    for i, page in enumerate(reader.pages):
+                        txt = (page.extract_text() or "").strip()
+                        pages.append({
+                            "filename": filename,
+                            "doc_type": self._detect_doc_type(filename, txt),
+                            "page": i,
+                            "text": txt,
+                            "ocr": False,
+                        })
+                except Exception:
+                    pass
 
-        prepared_docs = self._prepare_docs_for_llm(docs)
-        analysis_prompt = self._build_analysis_prompt(prepared_docs)
-        analysis = self._ollama_generate_json(analysis_prompt)
-        if not analysis:
-            analysis = self._ollama_chat_json(analysis_prompt)
-        if not analysis:
-            raw_fallback = self._ollama_generate(
-                analysis_prompt + "\n\nIMPORTANT: Retourne uniquement un JSON valide, sans texte autour."
-            )
-            analysis = self._try_parse_json(raw_fallback)
-            if raw_fallback:
-                debug_lines.append("---- ollama_raw_fallback ----")
-                debug_lines.append(raw_fallback[:2000])
-                debug_lines.append("---- end ----")
-        regex_data = self._regex_extract(docs)
-        if not analysis:
-            analysis = regex_data
-            debug_lines.append("---- regex_fallback_used ----")
-            debug_lines.append("true")
-            debug_lines.append("---- end ----")
+            # If no pages or RC OCR needed, add OCR pages
+            if not pages or any(self._detect_doc_type(filename, "") == "RC" for _ in [0]):
+                try:
+                    if PdfReader is None:
+                        num_pages = 0
+                    else:
+                        num_pages = len(PdfReader(str(path)).pages)
+                except Exception:
+                    num_pages = 0
+                for i in range(num_pages):
+                    # Only OCR RC or empty text pages
+                    doc_type = self._detect_doc_type(filename, "")
+                    if doc_type != "RC":
+                        continue
+                    try:
+                        ocr_txt = self._extract_text_ocr_page(path, i)
+                    except Exception:
+                        ocr_txt = ""
+                    if ocr_txt:
+                        pages.append({
+                            "filename": filename,
+                            "doc_type": doc_type,
+                            "page": i,
+                            "text": ocr_txt,
+                            "ocr": True,
+                        })
 
-        fields = analysis.get("fields") if isinstance(analysis.get("fields"), dict) else {}
+        # Debug page counts
+        for p in pages[:10]:
+            debug_lines.append(f"{p['filename']} p{p['page']+1} {p['doc_type']} ocr={p['ocr']} chars={len(p['text'])}")
+
+        # Field config: priorities + keywords
+        field_cfg = {
+            "intitule_operation": {
+                "priorities": ["CCTP", "DPGF", "CCAP", "RC"],
+                "keywords": ["renovation", "rehabilitation", "travaux", "operation"],
+            },
+            "intitule_lot": {
+                "priorities": ["CCTP", "DPGF"],
+                "keywords": ["lot", "charpente", "bois"],
+            },
+            "maitre_ouvrage": {
+                "priorities": ["RC", "CCAP", "CCTP"],
+                "keywords": ["maitre d'ouvrage", "maitre d ouvrage", "pouvoir adjudicateur"],
+            },
+            "adresse_chantier": {
+                "priorities": ["CCTP", "DPGF", "RC"],
+                "keywords": ["adresse", "chantier", "lieu", "site"],
+            },
+            "maitre_oeuvre": {
+                "priorities": ["CCTP", "DPGF"],
+                "keywords": ["architecte", "maitre d'oeuvre", "maitre d oeuvre", "economiste"],
+            },
+            "type_marche_procedure": {
+                "priorities": ["RC"],
+                "keywords": ["procedure", "marche public", "procedure adaptee"],
+            },
+            "date_limite_remise_offres": {
+                "priorities": ["RC"],
+                "keywords": ["date limite", "remise des offres", "limite de remise"],
+            },
+            "duree_delai_execution": {
+                "priorities": ["RC", "CCAP"],
+                "keywords": ["delai", "duree", "execution"],
+            },
+            "visite_obligatoire": {
+                "priorities": ["RC"],
+                "keywords": ["visite"],
+            },
+            "contact_referent": {
+                "priorities": ["RC", "CCAP"],
+                "keywords": ["courriel", "email", "contact", "telephone", "tel"],
+            },
+            "montant_estime_budget": {
+                "priorities": ["DPGF"],
+                "keywords": ["total", "montant", "ht", "ttc", "tva"],
+            },
+            "variantes_pse": {
+                "priorities": ["RC"],
+                "keywords": ["variante", "pse", "option"],
+            },
+            "criteres_attribution": {
+                "priorities": ["RC"],
+                "keywords": ["critere", "ponderation", "%"],
+            },
+        }
+
+        fields: Dict[str, Any] = {}
+        sources: List[str] = []
+        for field, cfg in field_cfg.items():
+            candidate_pages = self._retrieve_candidate_pages(pages, field, cfg["priorities"], cfg["keywords"])
+            llm_data = self._llm_extract_field(field, candidate_pages)
+            value = llm_data.get("value", "NR")
+            fields[field] = self._normalize_value(value)
+            src = llm_data.get("source", {}) if isinstance(llm_data, dict) else {}
+            if isinstance(src, dict) and src.get("document"):
+                sources.append(str(src.get("document")))
+
+        # Regex merge as safety
+        regex_data = self._regex_extract(pages)
         if isinstance(regex_data.get("fields"), dict):
             for k, v in regex_data["fields"].items():
                 if not fields.get(k):
                     fields[k] = v
-        summary_md = ""
-        dates_importantes = analysis.get("dates_importantes") if isinstance(analysis.get("dates_importantes"), list) else []
-        if isinstance(regex_data.get("dates_importantes"), list) and not dates_importantes:
-            dates_importantes = regex_data.get("dates_importantes", [])
-        sources = analysis.get("sources") if isinstance(analysis.get("sources"), list) else []
-        # Resume ignore: user asked to focus on table only.
 
-        normalized_fields = {k: self._normalize_value(v) for k, v in fields.items()}
+        dates_importantes = regex_data.get("dates_importantes", []) if isinstance(regex_data.get("dates_importantes"), list) else []
 
         prefill = {
-            "intitule": normalized_fields.get("intitule_operation", ""),
-            "lot": normalized_fields.get("intitule_lot", ""),
-            "moa": normalized_fields.get("maitre_ouvrage", ""),
-            "adresse": normalized_fields.get("adresse_chantier", ""),
+            "intitule": fields.get("intitule_operation", ""),
+            "lot": fields.get("intitule_lot", ""),
+            "moa": fields.get("maitre_ouvrage", ""),
+            "adresse": fields.get("adresse_chantier", ""),
         }
 
         out_pdf = self.session_dir / "resume_ia.pdf"
-        self._write_markdown_pdf(out_pdf, "Resume IA - Memoire technique", normalized_fields, summary_md)
+        self._write_markdown_pdf(out_pdf, "Resume IA - Memoire technique", fields, "")
 
         debug_path = self.session_dir / "debug_extraction.txt"
         try:
@@ -1054,16 +1252,16 @@ Documents:
             pass
 
         payload = {
-            "fields": normalized_fields,
-            "summary_markdown": summary_md,
+            "fields": fields,
+            "summary_markdown": "",
             "dates_importantes": dates_importantes,
-            "sources": sources,
+            "sources": list(dict.fromkeys(sources))[:8],
             "prefill": prefill,
             "created_at": datetime.now().isoformat(timespec="seconds"),
             "debug_url": f"/_uploads/{self.session_id}/debug_extraction.txt",
         }
 
-        app.storage.user[ASSISTANT_EXTRACTION_KEY] = payload
+        _safe_user_set(ASSISTANT_EXTRACTION_KEY, payload)
 
         return {
             "url": f"/_uploads/{self.session_id}/resume_ia.pdf",
@@ -1122,6 +1320,11 @@ Documents:
             ui.notify("Aucun PDF uploadé", type="warning")
             return
 
+        if self.analyze_btn:
+            self.analyze_btn.disable()
+        if self.analyze_spinner:
+            self.analyze_spinner.set_visibility(True)
+
         ui.notify("Analyse en cours (OCR + IA)...", type="info")
         if self.summary_md:
             self.summary_md.set_content("Analyse en cours...")
@@ -1170,6 +1373,11 @@ Documents:
 
         except Exception as e:
             ui.notify(f"Erreur analyse: {e}", type="negative")
+        finally:
+            if self.analyze_spinner:
+                self.analyze_spinner.set_visibility(False)
+            if self.analyze_btn:
+                self.analyze_btn.enable()
 
     def render(self) -> None:
         ui.label("Assistant – OCR → Résumé IA → PDF").classes("text-2xl font-bold text-blue-900")
@@ -1205,7 +1413,9 @@ Documents:
         ui.separator().classes("my-4")
         with ui.card().classes("p-4"):
             ui.label("3) Analyse + generation PDF").classes("text-lg font-semibold")
-            ui.button("Analyser + Generer PDF", on_click=self._on_click_analyze).props("color=primary").classes("w-full")
+            with ui.row().classes("items-center gap-2"):
+                self.analyze_btn = ui.button("Analyser + Generer PDF", on_click=self._on_click_analyze).props("color=primary").classes("w-full")
+                self.analyze_spinner = ui.spinner(size="md").classes("text-blue-600").set_visibility(False)
             self.summary_link_row = ui.row().classes("items-center mt-2").style("gap: 12px;")
 
         ui.separator().classes("my-4")
@@ -1216,7 +1426,7 @@ Documents:
             ui.separator().classes("my-3")
             self.summary_md = ui.markdown("").classes("mt-2 w-full hidden")
 
-        existing = app.storage.user.get(ASSISTANT_EXTRACTION_KEY)
+        existing = _safe_user_get(ASSISTANT_EXTRACTION_KEY)
         if isinstance(existing, dict):
             created_at = existing.get("created_at", "")
             if created_at and self.last_extract_label:
